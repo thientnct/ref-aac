@@ -1,0 +1,28 @@
+#!/bin/sh 
+#
+# make-all
+#
+# compile & link all MPEG-4 natural audio software
+#
+# Heiko Purnhagen, University of Hannover <purnhage@tnt.uni-hannover.de>
+# HP 20010815 20020911 20040130
+
+# please check that the following variables are set correctly, e.g.:
+#   ISOMP4_PATH=/home/mpeg/software/mp4lib
+#   ISOMP4_NAME=isomediafile   (for older versions of mp4lib, use: isomp4)
+#   AFSP_INCLUDE_PATH=/usr/local/include
+#   AFSP_LIBRARY_PATH=/usr/local/lib
+
+MAKE=gmake
+KITS='aacDec aacEnc aacErrRobTrans conf_hiln conf_hvxc conf_pns conf_ssnrcd conf_sbr epTool errGen mp4AudVm mp4AudVm_Rewrite mp4mcDec mp4mcEnc mpeg12dec mpeg12to4'
+LPSBRKITS='conf_sbr mp4mcDec mp4AudVm_Rewrite'
+
+for KIT in $KITS; do
+    if [ -r ${KIT} ]; then echo ">>>>>>>> building ${KIT}                    ...";$MAKE -C $KIT $*; fi
+done
+
+for KIT in $LPSBRKITS; do
+    if [ -r ${KIT} ]; then echo ">>>>>>>> building ${KIT} with low power SBR ...";$MAKE -C $KIT LOW_POWER_SBR=1 $*; fi
+done
+
+# end

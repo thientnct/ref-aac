@@ -1,0 +1,24 @@
+1                 /* number of predefined sets */
+2                 /* interleaving type */
+1                 /* bit stuffing */
+1                 /* number of concatenated frames */
+4                 /* number of classes */
+1 0 0 2 2         /* length_esc, rate_esc, crclen_esc, (concatenate_flag), fec_type, (termination), (interleave switch), class_optional */
+10                /* bits used for class length (0 = until the end) */
+16                /* SRCPC: puncture rate 0 = 8/8 ... 24 = 32/8 / SRS: erroneous bytes that can be corrected */
+6                 /* crc length */
+1 0 0 1 2         /* length_esc, rate_esc, crclen_esc, (concatenate_flag), fec_type, (termination),(interleave switch), class_optional */
+10                /* bits used for class length (0 = until the end) */
+16                /* SRCPC: puncture rate 0 = 8/8 ... 24 = 32/8 / SRS: erroneous bytes that can be corrected */
+6                 /* crc length */
+1 0 0 0 1 1       /* length_esc, rate_esc, crclen_esc, (concatenate_flag), fec_type, (termination), (interleave switch), class_optional */
+10                /* bits used for class length (0 = until the end) */
+0                 /* SRCPC: puncture rate 0 = 8/8 ... 24 = 32/8 / SRS: erroneous bytes that can be corrected */
+0                 /* crc length */
+1 0 0 0 0 0       /* length_esc, rate_esc, crclen_esc, (concatenate_flag), fec_type, (termination), (interleave switch), class_optional */
+0                 /* bits used for class length (0 = until the end) */
+0                 /* SRCPC: puncture rate 0 = 8/8 ... 24 = 32/8 / SRS: erroneous bytes that can be corrected */
+0                 /* crc length */
+0                 /* class reordered output */
+0                 /* header protection */ 
+0                 /* RS FEC capability (in bytes)*/ 

@@ -1,0 +1,60 @@
+#-*-makefile-*- MPEG-4 Audio VM 
+# makefile.cfg
+#
+#  
+#
+# HP   <purnhage@tnt.uni-hannover.de>
+#
+# 11-jun-96   HP    born
+# 02-jun-97   HP    updated
+# 02-dec-98   HP    updated with FhG Version 2 stuff
+# 26-jul-99   HP    USE_AFSP = 1
+# 12-Jan-2000   HP/BT   defaults set to: Version 2, MP4 file format, AFsp
+#
+# COMPILE TIME OPTIONS
+# 
+# This make configuration file can be used to enable/disable modules
+# of the VM code during compilation. Disabled modules are substituted by
+# dummy code. The make configuration options can also be given on the
+# command line, e.g.:
+#
+#   make PAR=0 LPC=0 VERSION=2
+#
+# options:
+# PAR=1		parametric core enabled
+#    =0		parametric core disabled
+# LPC=1		LPC-based core enabled
+#    =0		LPC-based core disabled
+# TF=1		t/f-based core enabled
+#   =0		t/f-based core disabled
+# PICOLA=1	PICOLA speed control enabled
+#       =0	PICOLA speed control disabled
+# DEBUGPLOT=1	DEBUGPLOT enabled (only used for debugging)
+#          =0	DEBUGPLOT disabled
+# USE_AFSP=1    enable AFsp
+#         =0    disable AFsp (only 16 bit .au files supported)
+
+ISOMP4      = 1
+USE_AFSP    = 1
+VERSION     = 2
+CORRIGENDUM = 1
+
+PAR         = 1
+LPC         = 1
+TF          = 1
+PICOLA      = 1
+
+CELP_EC     = 0
+ESC_SUPPORT = 1
+MOUSECHANGE = 0
+
+DEBUGPLOT   = 0
+
+# the following switches take effect only for version 2 
+# (this is FhG proprietary and will take no effect in the official version)
+
+FHG_MAKEDUMMYFILE = 0
+STATISTICS        = 0
+ERRORCONCEALMENT  = 0
+RVLC_SCF_CONCEAL  = 0
+

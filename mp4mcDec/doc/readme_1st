@@ -1,0 +1,52 @@
+AAC multi-channel decoder software
+
+Please see
+  codec/README_usage_aac
+for a complete compile/encode/decode example!
+
+
+to get up and running:
+
+run "make", you may optionally use parameters like "DEBUG=1",
+"OPTIM_LEV=3" or "USE_AFSP=0", see makefile for details. You may as well
+set these options in makefile.cfg
+
+The AFsp library is used by default if available, but can be
+disabled by "USE_AFSP=0".
+
+#ifdef MPEG4V1 
+
+The ISOMP4 library is used by default, but can be disabled by
+"ISOMP4=0".
+
+#endif
+
+#ifdef CT_SBR
+
+SBR may be enabled by adding "SBR=1".
+
+#endif
+
+More 'readme's:
+
+readme_targets	: overview of the programs provided within this package
+readme_dec	: more detailed description of the decoder
+readme_adif2mp4	: details on the adif2mp4 transcoding-tool
+
+HP Heiko Purnhagen, University of Hannover <purnhage@tnt.uni-hannover.de>
+OK Olaf Kaehler, Fraunhofer IIS
+RS Ralph Sperschneider, Fraunhofer IIS
+
+History:
+RS 2000-10-16
+HP 2000-10-17
+RS 2000-11-08
+RS 2000-11-17
+OK 2000-12-06
+OK 2001-06-01
+OK 2001-07-24
+AE 2002-01-31
+OK 2002-04-19
+HP 2002-04-19
+RS 2002-10-08
+RS 2005-01-28

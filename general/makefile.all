@@ -1,0 +1,71 @@
+# The default of configuration parameters is 0 (zero)
+# which equivalent to no explicit setting.
+# There exist some exceptions in the modules.
+# For determination, review the according makefiles.
+
+# The global configuration file
+include ../general/makefile.cfg
+
+# The global configuration file for local changes (not in CVS)
+-include ../general/makefile.cfg-local
+
+# The local configuration file should supersede the global settings
+# The existence of the file is optional.
+-include makefile.cfg
+
+#  The local configuration file for personal changes (not in CVS)
+-include makefile.cfg-local
+
+# Recognized by makefile.platform
+# Variable definitions
+# ADDONOBJDIR    part to add into the object directory path
+# ADDONBINDIR    part to add into the binary directory path
+# ADDONLIBDIR    part to add into the library directory path
+# ADDONDIR       part to add into the software kit directory path
+# DEBUGPLOT      enables plotoutput with plotmtv
+
+include ../general/makefile.platform
+
+# Recognized by makefile.rules
+# The following input variables are recognized
+# Directries
+# TARGETTMPDIR the temporary root directory for all making of the target
+# PLTDIRTAG  the file tag for signaling directory mades
+# SRCDIRS    for the source codes
+# OBJDIR     for objects and dependencies
+# BINDIR     for maked binaries
+# LIBDIR     for maked libraries 
+# LIBDIRENC  for maked libraries of the encoder
+
+# General
+# TARGET     the target to be made
+# VERBOSE    the flag whether the making should be more verbose
+# ENCODE     the flag whether an audio encoder or decoder is made
+# BINARY     the flag whether a binary or a link to a binary is made
+# FHG_MAKEDUMMYFILE the flag whether dummy files should be generated automatically
+# DUMMY_SOURCES the dummy file names
+
+# Linking
+# LINK       the linker
+# LDFLAGS    the (dynamic) linker command line flags (exclusiv -L -l flags)
+# LIBPATH    the -L... path to libraries (inclusiv -L)
+# SYSLIBS    the -l... operating system libraries (inclusiv -l)
+# LIBS       the -l... library options (inclusiv -l) exclusive operating system libaries
+# COMLIBS    the -l... common libraries exclusive operating system libaries
+# COMLIBS_libname_OPTIONS additional make options for building a special library
+# LIB_SUFFIX the library file suffix
+# LNK_SUFFIX the linker dependency file suffix
+# EXE_SUFFIX the executable file suffix
+
+# Compiling
+# CC         the compiler
+# DEFFLAGS   the -D... defines
+# CFLAGS     the compiler flags
+# INCL       the -I... includes
+# OBJS       the objects to be used for linking
+# DCC        the dependency compiler
+# DEPFLAGS   the dependency compiler flags
+# SED        the sed command for wrapping the dependency compiler output
+# INCLDEP    the flag whether the automatic generated dependency have to be included
+
+include ../general/makefile.rules

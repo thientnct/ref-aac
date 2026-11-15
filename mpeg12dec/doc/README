@@ -1,0 +1,42 @@
+
+How to generate docs
+====================
+
+To generate HTML documentation you need doxygen. Documentation will be createt automatically by
+running following command:
+
+  make docs
+  
+How to compile MPEG2 RefSoft
+============================
+
+The makefile provides two targets. One for the decoder core library (libmpeg12dec.a) and another for
+front end program "mpeg12dec". To build complete program, simply use "make" or "make mpeg12dec".
+To build the library only, you must use "make libmpeg12dec.a".
+
+There are also following make switches:
+ USE_AFSP=1  use the afsp lib for creating WAVE files
+ MPEG_2_5=1  switch on the MPEG 2.5 extension
+
+
+Library usage
+=============
+
+To use the MPEG1/2 Layer123 decoder core, you need to include all files from /include directory:
+/include/decLayer123.h
+         bitBuffer.h
+         pcmBuffer.h
+         
+These files also contain the documentation of all functions. 
+Second step is to link the library to the application.
+
+Before decoding the decoder core, a bitBuffer and a pcmBuffer need to be initialized by using 
+following functions (the functions return a handler):
+decLayer123Init();
+bitBufferInit();
+pcmBufferInit();
+
+Data is delivered to decoder core via a bit buffer, only one demuxed bitstream frame per call.
+The core uses the provided pcmBuffer to output the decoded samples.
+
+

@@ -1,0 +1,103 @@
+ $Id: README,v 1.2 2000/01/28 10:48:22 akira Exp $
+			README
+      Readme file for the MPEG-4 Audio/HVXC Conformance Tools
+
+    Author: Yuuji Maeda, Sony HNC <ymaeda@av.crl.sony.co.jp>
+            Akira Inoue, Sony HNC <akira@av.crl.sony.co.jp>
+
+    Copyright(C) 1999 Sony Corporation 
+    All Rights Reserved.
+
+-------------------------------------------------------------
+This release has HVXC conformance tools which include encoded
+bit streams and reference test signals. 
+
+These tools are build according to the following section of
+ISO/IEC14496-4.
+
+5.5.13.6	Procedure to Test Decoder Conformance
+
+Using these tools, you can build all verification program
+and verify whether the conformance condition is satisfied
+or not.
+
+Moreover, if you build test decoded signals using VM-software
+and verify test decoder conformance, file "scrp_conformace"
+can be used by adjusting your machine environment(for detail, 
+see "scrp_conformance").
+
+-------------------------------------------------------------
+		    List of Files
+
+NOTE:	Inside (), the contents of file or directory are
+shown.
+
+README  
+(this file)
+
+Makefile
+(Makefile to build all verification program using general Makefile)
+
+dec_seq
+(script to make reference decoded signals)
+
+scrp_conformance
+(example of script to decode bitstream and test decoder
+conformance)
+
+scrp_conformance_mp4
+(example of script to decode "MP4" bitstream and test decoder
+conformance)
+
+scrp_conformance_mp4_v2
+(example of script to decode V2 "MP4" bitstream(epConfig=0) and test decoder
+conformance)
+
+scrp_conformance_mp4_v2_ep1
+(example of script to decode V2 "MP4" bitstream(epConfig=1) and test decoder
+conformance)
+
+bin:
+(executable verification program, place "hvxc_fcomp", "hvxc_ini_phase" 
+and "segsnr" built in your environment)
+<empty>
+
+mp4_bitstreams: 
+(conformance bitstream : MP4 file format)
+<empty>
+put necessary conformance bitstreams(see mp4_bitstreams/README)
+
+src: 
+source codes to buid all of the following HVXC conformance tools
+
+  (for hvxc_fcomp: verification program for all voiced bitstream[hv01,hv02])
+  hvxcCommon.c
+  hvxcCommon.h
+  hvxc_fcomp.c
+
+  (for hvxc_ini_phase: verification program for harmonic phase initialization[hv08])
+  hvxc_ini_phase.c
+
+  (for segsnr: verification program for segmental SNR measurement[hv03,hv04,hv05,hv06,hv07])
+  segsnr.c
+
+ref-signal:
+(reference decoded signals)
+<empty>
+put necessary reference signals(see ref-signal/README)
+
+doc: 
+(usage of all HVXC conformance tools)
+  README.hvxc_fcomp
+  README.hvxc_ini_phase
+  README.segsnr
+
+--------
+HISTORY
+
+    - 1999/06/09: initial version(preliminary, version 0.1)
+    - 2000/01/28: add "segsnr" tool(to measure segmental SNR)
+    - 2000/01/28: add "segsnr" tool(to measure segmental SNR)
+    - 2000/10/20: remove bitstreams/reference signals in archive
+		  update script example for V2 conformance testing
+    - 2001/11/06: re-organize directory structure of source codes to use "general" makefile

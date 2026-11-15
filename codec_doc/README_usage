@@ -1,0 +1,874 @@
+**********************************************************************
+***                                                                ***
+***              MPEG-4 Natural Audio Reference Software           ***
+***                                                                ***
+**********************************************************************
+
+Content of README_usage
+=======================
+
+1   Overview and MPEG-4 Audio Object Types
+2   AAC Examples
+2.1 AAC_MAIN, AAC_LC and AAC_LTP Examples
+2.2 AAC_Scalable Examples
+2.3 ER-AAC Examples
+3   TWIN_VQ Examples
+4   HVXC and ER_HVXC Examples
+5   CELP and ER_CELP Examples
+6   ER_HILN and ER_PARA Examples
+7   ER_BSAC Examples
+8   SBR Examples
+9   SBR+PS Examples
+
+
+
+1   Overview and MPEG-4 Audio Object Types
+==========================================
+
+This file gives some examples that demonstrate encoding and decoding of
+audio signals using the MPEG-4 Natural Audio Reference Software. It
+makes use of different parts of this software, namely
+   audio/natural/refSoft/mp4AudVm         MPEG-4 audio encoder (main branch)
+   audio/natural/refSoft/mp4AudVm_Rewrite MPEG-4 audio encoder (re-write branch)
+   audio/natural/refSoft/mp4AudVm_Rewrite MPEG-4 audio decoder (re-write branch)
+   audio/natural/refSoft/mp4mcEnc         MPEG-2/4 AAC multi-channel encoder
+   audio/natural/refSoft/mp4mcDec         MPEG-2/4 AAC multi-channel decoder
+   audio/natural/refSoft/conf_*           conformance test tools
+
+Note that some of the examples below still use the old main branch
+MPEG-4 Audio decoder. However, the main branch decoder was replaced by
+the re-write branch decoder and is hence obsolete now. The examples
+using the main branch decoder will therefore be removed in future
+versions of this file.
+
+Input audio files are named according to the following scheme:
+   m08.au    8 kHz mono   (1 ch)
+   m16.au   16 kHz mono   (1 ch)
+   m48.au   48 kHz mono   (1 ch)
+   s16.au   16 kHz stereo (2 ch)
+   s48.au   48 kHz stereo (2 ch)
+   mc44.au  44.1 kHz 5.1  (6 ch)
+For the examples given here, these files should be provided in directory
+TESTDIR, as explained below.
+
+Compressed data file extension:
+   xxx.mp4   MPEG-4 file format (mp4)    (see 14496-1:2001)
+   xxx.fl4   MPEG-4 Audio FlexMux format (internal, non-standard)
+   xxx.raw   AAC raw bitstream format    (see 13818-7:1997)
+
+Note that most examples use the .au audio file format. If the software
+is compiled with AFsp support, also .wav and .aiff can be used. The AFsp 
+library can be obtained from ftp://ftp.tsp.ece.mcgill.ca/pub/AFsp.
+
+Note that
+   gawk '/^  \$[[:graph:]]+/ {print "echo " substr($0,3)} /^  [[:graph:]]+/ {print substr($0,3)}' README_usage > usage.sh
+prints a shell script containing all the commands of the examples
+given here. Make this script executable by
+   chmod +x usage.sh
+and then start it as
+   ./usage.sh
+to make binaries, view documentation and run all examples or, e.g., as
+   ./usage.sh make sbr
+to make binaries and run only the SBR-related examples. Type
+   ./usage.sh -h
+for futher information.
+
+Please note also the following excerpt from the MPEG Audio FAQ:
+
+   For the encoder, the purpose of this software is purely
+   informative. It describes one example of possible encoding software
+   producing bitstreams which comply to the MPEG-4 standard. This
+   software is not optimized, neither in the speed of execution nor in
+   the quality of the output signal. For some of the algorithms the
+   picture or sound quality is similar to what is possible according to
+   state-of-the-art encoding. For other algorithms, (like the AAC
+   t/f-encoding of audio signals) the encoder is just an illustration of
+   techniques to be used and delivers an output quality far below the one
+   which has been demonstrated in verification tests of MPEG-4.
+
+
+Building binaries
+-----------------
+
+Unless noted otherwise, all examples here assume the directory where
+this README_usage is stored as current directory.
+
+  #!/bin/sh
+  cd ..
+  ##As default, run all parts of this script:
+  allparts="make doc aac scal er_aac tvq hvxc celp hiln bsac sbr sbr-ps mp3on4"
+  if [ -z $1 ]; then
+  actparts=$allparts
+  else
+  actparts=$*
+  fi
+  ##The following variables should be set according to the individual 
+  ##situation in order to use this shell script (either as environment 
+  ##variables before running this script or below in the header of this 
+  ##script):
+  #
+  ##The variable PLATFORM needs to be set according to the
+  ##following rules (for detailed information, please review 
+  ##general/makefile.platform): 
+  ## Solaris: Solaris
+  ## Linux  : Linux
+  ## Cygwin : cdk
+  #
+  # PLATFORM=
+  #
+  if [ -z "${PLATFORM}" ]; then PLATFORM=Linux; fi
+  #
+  ##The variable TESTDIR needs to be set according to the local configuration.
+  ##It should contain the input audio files, and will afterwards contain
+  ##the output files (compressed and uncompressed).
+  #
+  #TESTDIR=
+  #
+  if [ -z "${TESTDIR}" ]; then TESTDIR=test-dir;fi
+  if [ ! -d ${TESTDIR} ]; then echo "test directory invalid"; exit;fi
+  #
+  ##The variables OPTIM_LEV and DEBUG might be set according to the desired
+  ##compiler settings regarding optimization and debugging
+  #
+  #OPTIM_LEV=
+  #DEBUG=
+  #
+  if [ -z "${OPTIM_LEV}" ]; then OPTIM_LEV=0; fi
+  if [ -z "${DEBUG}" ]; then DEBUG=0; fi
+  CONFIG_ID=O${OPTIM_LEV}
+  if [ ${DEBUG} = 1 ]; then CONFIG_ID=${CONFIG_ID}d; fi
+
+
+  MP4AUDVM=bin/mp4AudVm/${PLATFORM}_v2_c1_gcc_${CONFIG_ID}
+  MP4AUDVM_REWRITE=bin/mp4AudVm_Tbt_VmMp4AuDecRewrite/${PLATFORM}_v2_c1_eptool_sbr_mpeg12_gcc_${CONFIG_ID}
+  MP4MCENC=bin/mp4mcEnc/${PLATFORM}_sbr_ps_gcc_${CONFIG_ID}
+  MP4MCDEC=bin/mp4mcDec/${PLATFORM}_isomp4_sbr_ps_AFsp_gcc_${CONFIG_ID}
+  CONFSSNRCD=bin/conf_ssnrcd/${PLATFORM}_gcc_${CONFIG_ID}
+  MPEG12TO4=bin/mpeg12to4/${PLATFORM}_gcc_${CONFIG_ID}
+
+
+  ##Run selected parts:
+  for a in $actparts
+  do
+  case $a in
+
+  make)
+
+Building the binaries
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mp4AudVm all mp4audec
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mp4mcEnc all
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mp4mcDec all
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mp4AudVm_Rewrite ISOMP4_NAME=isomediafile all
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mp4AudVm_Rewrite ISOMP4_NAME=isomediafile mp4auenc LPC=0 PAR=0
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C conf_ssnrcd all
+  make OPTIM_LEV=${OPTIM_LEV} DEBUG=${DEBUG} -C mpeg12to4 all
+
+The utility CompAudio from the AFsp package is only used here to
+indicate that two audio files contain the same waveform. Alternatively,
+the conformance tool ssnrcd is used.
+
+  ;;
+
+
+Viewing documentation
+---------------------
+
+  doc)
+
+MPEG-4 audio encoder (main branch)
+  cat mp4AudVm/README_refsoft
+  $MP4AUDVM/mp4auenc -h
+
+MPEG-4 audio en-/decoder (re-write branch)
+  $MP4AUDVM_REWRITE/mp4auenc -h
+  $MP4AUDVM_REWRITE/mp4audec -h
+  $MP4AUDVM_REWRITE/convert -h
+
+AAC multi-channel encoder
+  cat mp4mcEnc/readme/readme_1st
+  cat mp4mcEnc/readme/README 
+  $MP4MCENC/enc -h
+
+AAC multi-channel decoder
+  cat mp4mcDec/doc/readme_1st
+  cat mp4mcDec/doc/readme_targets
+  cat mp4mcDec/doc/readme_dec
+  cat mp4mcDec/doc/readme_adif2mp4 
+  $MP4MCDEC/aacdec_mc -h
+  $MP4MCDEC/adif2mp4 -h
+  $MP4MCDEC/mp4audec_mc -h
+
+  ;;
+
+
+Audio Object Type  ID   Information                          Examples
+-----------------  --   ----------------------------------   --------
+NULL_OBJECT         0   NULL
+AAC_MAIN            1   AAC Main                             see 2
+AAC_LC              2   AAC Low Complexity(LC)               see 2
+AAC_SSR             3   AAC Scalable Sampling Rate(SSR)
+AAC_LTP             4   AAC Long Term Predictor(LTP)         see 2
+SBR                 5   SBR bandwidth extension for AAC      see 8 & 9
+AAC_SCAL            6   AAC Scalable
+TWIN_VQ             7   TwinVQ                               see 3
+CELP                8   CELP                                 see 4
+HVXC                9   HVXC                                 see 5
+                   10   (reserved)                           ./.
+                   11   (reserved)                           ./.
+TTSI               12   TTSI                                 see TTSI
+MAIN_SYNTH         13   Main Synthetic                       see SA
+WAV_TAB_SYNTH      14   Wavetable Synthesis                  see SA
+GEN_MIDI           15   General MIDI                         see SA
+ALG_SYNTH_AUD_FX   16   Algorithmic Synthesis and Audio FX   see SA
+ER_AAC_LC          17   ER AAC Low Complexity(LC)
+                   18   (reserved)                           ./.
+ER_AAC_LTP         19   ER AAC Long Term Predictor(LTP)
+ER_AAC_SCAL        20   ER AAC Scalable
+ER_TWIN_VQ         21   ER TwinVQ
+ER_BSAC            22   ER BSAC
+ER_AAC_LD          23   ER AAC LD
+ER_CELP            24   ER CELP                              see 4
+ER_HVXC            25   ER HVXC                              see 5
+ER_HILN            26   ER HILN                              see 6
+ER_PARA            27   ER Parametric                        see 6
+                   28   (reserved)                           ./.
+                   29   (reserved)                           ./.
+                   30   (reserved)                           ./.
+                   31   (reserved)                           ./.
+
+Notes:
+   ER         "Error Resilient" bitstream syntax (version 2 objects)
+   see TTSI   see separate TTSI software for examples
+   see SA     see separate SA software for examples
+
+
+
+2   AAC Examples
+================
+
+2.1 AAC_MAIN, AAC_LC and AAC_LTP Examples
+-----------------------------------------
+
+  aac)
+
+For the following examples, three configurations are examined:
+ - AAC LC:   16 kHz mono   @ 16 kbit/s
+ - AAC Main: 48 kHz stereo @ 64 kbit/s
+ - AAC LTP:  48 kHz stereo @ 64 kbit/s
+ - AAC LC:   44.1 kHz 5.1  @ 320 kbit/s
+
+  echo "--------------------------------------------------------------------"
+  echo "---- Encoding wave (au) to aac (raw) using multichannel encoder ----"
+  echo "--------------------------------------------------------------------"
+  $MP4MCENC/enc ${TESTDIR}/m16.au  -r  16000 -c "-lc"     -o ${TESTDIR}/m16_lc16-mc.raw    -d 1
+  $MP4MCENC/enc ${TESTDIR}/s48.au  -r  64000 -c "-main"   -o ${TESTDIR}/s48_main64-mc.raw  -d 1
+  $MP4MCENC/enc ${TESTDIR}/s48.au  -r  64000 -c "-ltp"    -o ${TESTDIR}/s48_ltp64-mc.raw   -d 1
+  $MP4MCENC/enc ${TESTDIR}/mc44.au -r 320000 -c "-lc" -lf -o ${TESTDIR}/mc44_lc320-mc.raw  -d 1
+  echo "-----------------------------------------------------------------"
+  echo "---- Encoding wave (au) to aac (mp4ff) using rewrite encoder ----"
+  echo "-----------------------------------------------------------------"
+  $MP4AUDVM_REWRITE/mp4auenc ${TESTDIR}/m16.au -m tf -c "-aac -br 16000" -o ${TESTDIR}/m16_lc16-rw.mp4   -d 1
+  $MP4AUDVM_REWRITE/mp4auenc ${TESTDIR}/s48.au -m tf -c "-aac -br 64000" -o ${TESTDIR}/s48_main64-rw.mp4 -d 1
+  $MP4AUDVM_REWRITE/mp4auenc ${TESTDIR}/s48.au -m tf -c "-aac -br 64000 -ltp" -o ${TESTDIR}/s48_ltp64-rw.mp4 -d 1
+  for encoder in mc rw
+  do 
+  echo "+++++++++++++++++++++++++++"
+  echo "++++ Decoding ${encoder} files ++++"
+  echo "+++++++++++++++++++++++++++"
+  if [ "${encoder}" != "rw" ];then
+  echo "---------------------------------------------------------------------"
+  echo "---- Decoding aac (raw) to wave (wav) using multichannel decoder ----"
+  echo "---------------------------------------------------------------------"
+  $MP4MCDEC/aacdec_mc   -s 16000 -Dn -p LC   ${TESTDIR}/m16_lc16-${encoder}.raw   ${TESTDIR}/m16_lc16-${encoder}_raw.wav
+  $MP4MCDEC/aacdec_mc   -s 48000 -Dn -p Main ${TESTDIR}/s48_main64-${encoder}.raw ${TESTDIR}/s48_main64-${encoder}_raw.wav
+  $MP4MCDEC/mp4audec_mc -s 48000 -Dn -p LTP  ${TESTDIR}/s48_ltp64-${encoder}.raw  ${TESTDIR}/s48_ltp64-${encoder}_raw.wav
+  $MP4MCDEC/aacdec_mc   -s 44100 -Dn -p LC   ${TESTDIR}/mc44_lc320-mc.raw         ${TESTDIR}/mc44_lc320-mc_raw.wav
+  echo "--------------------------------------------------------------------------"
+  echo "---- Transcoding aac (raw) to aac (mp4) using multichannel transcoder ----"
+  echo "--------------------------------------------------------------------------"
+  $MP4MCDEC/adif2mp4 -bi  16000 -Dn -s 16000 -p LC   ${TESTDIR}/m16_lc16-${encoder}.raw   ${TESTDIR}/m16_lc16-${encoder}.mp4
+  $MP4MCDEC/adif2mp4 -bi  64000 -Dn -s 48000 -p Main ${TESTDIR}/s48_main64-${encoder}.raw ${TESTDIR}/s48_main64-${encoder}.mp4
+  $MP4MCDEC/adif2mp4 -bi  64000 -Dn -s 48000 -p LTP  ${TESTDIR}/s48_ltp64-${encoder}.raw  ${TESTDIR}/s48_ltp64-${encoder}.mp4
+  $MP4MCDEC/adif2mp4 -bi 320000 -Dn -s 44100 -p LC   ${TESTDIR}/mc44_lc320-mc.raw         ${TESTDIR}/mc44_lc320-mc.mp4
+  fi
+  echo "---------------------------------------------------------------------"
+  echo "---- Decoding aac (mp4) to wave (wav) using multichannel decoder ----"
+  echo "---------------------------------------------------------------------"
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/m16_lc16-${encoder}.mp4   ${TESTDIR}/m16_lc16-${encoder}_mp4.wav
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/s48_main64-${encoder}.mp4 ${TESTDIR}/s48_main64-${encoder}_mp4.wav
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/s48_ltp64-${encoder}.mp4  ${TESTDIR}/s48_ltp64-${encoder}_mp4.wav
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/mc44_lc320-mc.mp4         ${TESTDIR}/mc44_lc320-mc_mp4.wav
+  if [ "${encoder}" != "rw" ];then
+  echo "-----------------------------------------------------------------------"
+  echo "---- Comparing wave (wav) decoded from raw by multichannel decoder ----"
+  echo "----      with wave (wav) decoded from mp4 by multichannel decoder ----"
+  echo "-----------------------------------------------------------------------"
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_lc16-${encoder}_raw.wav   ${TESTDIR}/m16_lc16-${encoder}_mp4.wav   
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/s48_main64-${encoder}_raw.wav ${TESTDIR}/s48_main64-${encoder}_mp4.wav 
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/s48_ltp64-${encoder}_raw.wav  ${TESTDIR}/s48_ltp64-${encoder}_mp4.wav 
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_f00.wav     ${TESTDIR}/mc44_lc320-mc_mp4_f00.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_f01.wav     ${TESTDIR}/mc44_lc320-mc_mp4_f01.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_f02.wav     ${TESTDIR}/mc44_lc320-mc_mp4_f02.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_f03.wav     ${TESTDIR}/mc44_lc320-mc_mp4_f03.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_f04.wav     ${TESTDIR}/mc44_lc320-mc_mp4_f04.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/mc44_lc320-mc_raw_l00.wav     ${TESTDIR}/mc44_lc320-mc_mp4_l00.wav
+  fi
+  echo "--------------------------------------------------------------------------"
+  echo "---- Decoding aac (mp4) to wave (au) using scalable decoder (rewrite) ----"
+  echo "--------------------------------------------------------------------------"
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_lc16-${encoder}.mp4   -pd ${TESTDIR} -ed _rewrite.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_main64-${encoder}.mp4 -pd ${TESTDIR} -ed _rewrite.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_ltp64-${encoder}.mp4  -pd ${TESTDIR} -ed _rewrite.au
+  echo "---------------------------------------------------------------"
+  echo "---- Comparing wave (wav) decoded by multichannel decoder  ----"
+  echo "---- with wave (wav) decoded by scalable decoder (rewrite) ----"
+  echo "---------------------------------------------------------------"
+  $CONFSSNRCD/ssnrcd -t 1 -k 15  ${TESTDIR}/m16_lc16-${encoder}_mp4.wav   ${TESTDIR}/m16_lc16-${encoder}_rewrite.au  
+  $CONFSSNRCD/ssnrcd -t 1 -k 15  ${TESTDIR}/s48_main64-${encoder}_mp4.wav ${TESTDIR}/s48_main64-${encoder}_rewrite.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15  ${TESTDIR}/s48_ltp64-${encoder}_mp4.wav  ${TESTDIR}/s48_ltp64-${encoder}_rewrite.au
+  done
+
+  ;;
+
+
+2.2 AAC_Scalable Examples
+-------------------------
+
+  scal)
+  echo "-------------------------------------------------------------------"
+  echo "---- Encoding wav to aac-scal using scalable encoder (rewrite) ----"
+  echo "-------------------------------------------------------------------"
+
+Encoding 48kHz stereo @ 32+32+32+32 kbit/s
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-scal -br 32000 32000 32000 32000" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_scal128.mp4 -d 1
+
+Encoding 48kHz stereo @ 32+32+32+32 kbit/s using tns and ltp
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-scal -br 32000 32000 32000 32000 -tns -ltp" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_scal128_tns_ltp.mp4 -d 1
+
+Encoding 48kHz stereo @ 64kbit/s mono + 32kbit/s stereo + 32kbit/s stereo
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-scal -br 64000 32000 32000 -monolay 1" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_scal128_monostereo.mp4 -d 1
+
+Encoding 44kHz mono @ 16kbit/s TwinVQ + 24kbit/s AAC + 24kbit/s AAC
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-tvq -br 16000" -m2 tf -c2 "-scal -br 24000 24000" ${TESTDIR}/m44.au -o ${TESTDIR}/m44_scal64_tvqcore.mp4 -d 1
+
+  echo "-------------------------------------------------------------------"
+  echo "---- Decoding aac-scal to wav using scalable decoder (rewrite) ----"
+  echo "-------------------------------------------------------------------"
+
+Decoding 2 files using all scalability layers
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128.mp4 -o ${TESTDIR}/s48_scal128_mp4.wav
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m44_scal64_tvqcore.mp4 -o ${TESTDIR}/m44_scal64_tvqcore_mp4.wav
+
+Decoding 2 files using separate file each layer
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_tns_ltp.mp4 -o ${TESTDIR}/s48_scal128_tns_ltp_lay0.wav -maxl 0
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_tns_ltp.mp4 -o ${TESTDIR}/s48_scal128_tns_ltp_lay1.wav -maxl 1
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_tns_ltp.mp4 -o ${TESTDIR}/s48_scal128_tns_ltp_lay2.wav -maxl 2
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_tns_ltp.mp4 -o ${TESTDIR}/s48_scal128_tns_ltp_lay3.wav -maxl 3
+
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_monostereo.mp4 -o ${TESTDIR}/s48_scal128_monostereo_lay0.wav -maxl 0
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_monostereo.mp4 -o ${TESTDIR}/s48_scal128_monostereo_lay1.wav -maxl 1
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_scal128_monostereo.mp4 -o ${TESTDIR}/s48_scal128_monostereo_lay2.wav -maxl 2
+
+  ;;
+
+
+2.3 ER-AAC Examples
+-------------------
+
+  er_aac)
+
+The examples following are using the configurations
+ - ER AAC LD:  48 kHz stereo @ 128 kbit/s (TNS, PNS, LTP)
+ - ER AAC LC:  44 kHz mono   @ 64 kbit/s  (TNS)
+ - ER AAC LTP: 44 kHz mono   @ 64 kbit/s  (TNS, LTP)
+ - ER AAC SCAL:48 kHz stereo @ 64+32+32 kbit/s  (TNS, LTP, PNS)
+
+  echo "-----------------------------------------------------------------"
+  echo "---- Encoding wav to er-aac using scalable encoder (rewrite) ----"
+  echo "-----------------------------------------------------------------"
+
+Encoding 48kHz stereo @ 128 kbit/s using tns, pns, ltp and ER-AAC-LD codec
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-aac_ld -br 128000 -ep -ltp -tns -pns 25" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_erld128_tns_ltp_pns.mp4 -d 1
+
+Encoding 44kHz mono @ 64 kbit/s using tns and ER-AAC-LC codec
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-aac -br 64000 -ep -tns" ${TESTDIR}/m44.au -o ${TESTDIR}/m44_erlc64_tns.mp4 -d 1
+
+Encoding 44kHz mono @ 64 kbit/s using tns, ltp and ER-AAC-LTP codec
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-aac -br 64000 -ep -ltp -tns" ${TESTDIR}/m44.au -o ${TESTDIR}/m44_erltp64_tns_ltp.mp4 -d 1
+
+Encoding 48kHz stereo @ 64+32+32 kbit/s using tns, ltp, pns and
+ER-AAC-Scalable and preset bandwidth limitations
+  $MP4AUDVM_REWRITE/mp4auenc -m tf -c "-scal -ep -br 64000 32000 32000 -bw 8000 12000 20000 -ltp -tns -pns 42" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_erscal128_tns_ltp_pns.mp4 -d 1
+
+  echo "-----------------------------------------------------------------"
+  echo "---- Decoding er-aac to wav using scalable decoder (rewrite) ----"
+  echo "-----------------------------------------------------------------"
+
+Decoding the above files (using all scalability layers)
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_erld128_tns_ltp_pns.mp4 -o ${TESTDIR}/s48_erld128_tns_ltp_pns.wav
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m44_erlc64_tns.mp4 -o ${TESTDIR}/m44_erlc64_tns.wav
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m44_erltp64_tns_ltp.mp4 -o ${TESTDIR}/m44_erltp64_tns_ltp.wav
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_erscal128_tns_ltp_pns.mp4 -o ${TESTDIR}/s48_erscal128_tns_ltp_pns.wav
+
+  ;;
+
+
+
+3   TWIN_VQ Examples
+====================
+
+  tvq)
+
+Encoding to mp4 (16 kHz mono @ 16+16+16 kbit/s scalable)
+  $MP4AUDVM_REWRITE/mp4auenc ${TESTDIR}/m16.au -m tf -c "-tvq -br 16000 16000 16000" -o ${TESTDIR}/m16_tvq48.mp4 -d 1
+
+Encoding to mp4 (16 kHz stereo @ 16+16+16 kbit/s scalable)
+  $MP4AUDVM_REWRITE/mp4auenc ${TESTDIR}/s16.au -m tf -c "-tvq -br 16000 16000 16000" -o ${TESTDIR}/s16_tvq48.mp4 -d 1
+
+Decoding of mp4 (using all scalability layers)
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_tvq48.mp4 -o ${TESTDIR}/m16_tvq48r.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s16_tvq48.mp4 -o ${TESTDIR}/s16_tvq48r.au
+
+Decoding of fl4 and mp4 (using only base layer)
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_tvq48.mp4 -o ${TESTDIR}/m16_tvq48l0r.au -maxl 0
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s16_tvq48.mp4 -o ${TESTDIR}/s16_tvq48l0r.au -maxl 0
+
+  ;;
+
+
+
+4   HVXC and ER_HVXC Examples
+=============================
+
+  hvxc)
+
+Encoding to fl4 (8 kHz mono @ 2 kbit/s HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 2000 -c -mp4ff ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc2.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 4000 -c -mp4ff ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc4.fl4
+
+Encoding to fl4 (8 kHz mono @ 2 kbit/s ER_HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 2000 -c -mp4ff,ef=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc2er.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s ER_HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 4000 -c -mp4ff,ef=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc4er.fl4
+
+Encoding to fl4 (8 kHz mono @ 2 kbit/s variable rate HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 2000 -c -mp4ff,vr=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc2vr.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s variable rate HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 4000 -c -mp4ff,vr=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc4vr.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s scalable mode ER_HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 4000 -c -mp4ff,ef=1,sc=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc4er_sc.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s variable rate & scalable mode ER_HVXC)
+  $MP4AUDVM/mp4auenc -d 1 -m hvxc -r 4000 -c -mp4ff,ef=1,sc=1,vr=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_hvxc4er_sc_vr.fl4
+
+Conversion to mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc2.fl4   -o ${TESTDIR}/m08_hvxc2.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc4.fl4   -o ${TESTDIR}/m08_hvxc4.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc2er.fl4 -o ${TESTDIR}/m08_hvxc2er.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc4er.fl4 -o ${TESTDIR}/m08_hvxc4er.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc2vr.fl4 -o ${TESTDIR}/m08_hvxc2vr.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc4vr.fl4 -o ${TESTDIR}/m08_hvxc4vr.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc4er_sc.fl4 -o ${TESTDIR}/m08_hvxc4er_sc.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_hvxc4er_sc_vr.fl4 -o ${TESTDIR}/m08_hvxc4er_sc_vr.mp4
+
+Decoding with main branch
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2.mp4   -o ${TESTDIR}/m08_hvxc2.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4.mp4   -o ${TESTDIR}/m08_hvxc4.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2er.mp4 -o ${TESTDIR}/m08_hvxc2er.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er.mp4 -o ${TESTDIR}/m08_hvxc4er.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2vr.mp4 -o ${TESTDIR}/m08_hvxc2vr.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4vr.mp4 -o ${TESTDIR}/m08_hvxc4vr.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er_sc.mp4 -o ${TESTDIR}/m08_hvxc4er_sc.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er_sc_vr.mp4 -o ${TESTDIR}/m08_hvxc4er_sc_vr.au
+
+Decoding with rewrite branch
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2.mp4   -o ${TESTDIR}/m08_hvxc2_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4.mp4   -o ${TESTDIR}/m08_hvxc4_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2er.mp4 -o ${TESTDIR}/m08_hvxc2er_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er.mp4 -o ${TESTDIR}/m08_hvxc4er_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc2vr.mp4 -o ${TESTDIR}/m08_hvxc2vr_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4vr.mp4 -o ${TESTDIR}/m08_hvxc4vr_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er_sc.mp4 -o ${TESTDIR}/m08_hvxc4er_sc_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_hvxc4er_sc_vr.mp4 -o ${TESTDIR}/m08_hvxc4er_sc_vr_r.au
+
+Compare the results
+
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc2.au    ${TESTDIR}/m08_hvxc2_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc4.au    ${TESTDIR}/m08_hvxc4_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc2er.au  ${TESTDIR}/m08_hvxc2er_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc4er.au  ${TESTDIR}/m08_hvxc4er_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc2vr.au  ${TESTDIR}/m08_hvxc2vr_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc4vr.au  ${TESTDIR}/m08_hvxc4vr_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc4er_sc.au    ${TESTDIR}/m08_hvxc4er_sc_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_hvxc4er_sc_vr.au ${TESTDIR}/m08_hvxc4er_sc_vr_r.au
+
+  ;;
+
+
+
+5   CELP and ER_CELP Examples
+=============================
+
+  celp)
+
+Encoding to fl4 (8 kHz mono @ 6 kbit/s CELP)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 6000 -c -mp4ff ${TESTDIR}/m08.au -o ${TESTDIR}/m08_celp6.fl4
+
+Encoding to fl4 (8 kHz mono @ 8 kbit/s CELP BRS)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 8000 -c -mp4ff,n=1 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_celp_brs8.fl4
+
+Encoding to fl4 (16 kHz mono @ 16 kbit/s CELP RPE)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 16000 -c -mp4ff ${TESTDIR}/m16.au -o ${TESTDIR}/m16_celp16.fl4
+
+Encoding to fl4 (16 kHz mono @ 16 kbit/s CELP RPE FRC)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 16100 -vr -b 10000 -c -mp4ff,f=1,cf=1 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_celp_frc16.fl4
+
+Encoding to fl4 (16 kHz mono @ 12.1 kbit/s CELP MPE)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 12100 -c -mp4ff,e=0 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_celp12.fl4
+
+Encoding to fl4 (16 kHz mono @ 16.1 kbit/s CELP MPE BRS)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 16100 -c -mp4ff,e=0,n=1 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_celp_brs16.fl4
+
+Encoding to fl4 (16 kHz mono @ 16 kbit/s CELP BWS)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 16000 -c -mp4ff,b=6000 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_celp_bws16.fl4
+
+Encoding to fl4 (8 kHz mono @ 6.1 kbit/s ER_CELP SC)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 6100 -vr -c -mp4ff,s=1,cf=7 ${TESTDIR}/m08.au -o ${TESTDIR}/m08_ercelp6.fl4
+
+Encoding to fl4 (16 kHz mono @ 16.1 kbit/s ER_CELP SC RPE)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 16200 -vr -c -mp4ff,s=1,cf=1 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_ercelp16.fl4
+
+Encoding to fl4 (16 kHz mono @ 12.1 kbit/s ER_CELP SC MPE)
+  $MP4AUDVM/mp4auenc -d 1 -m lpc -r 12100 -vr -c -mp4ff,s=1,e=0,cf=2,f=1 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_ercelp12.fl4
+
+Conversion to mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_celp6.fl4      -o ${TESTDIR}/m08_celp6.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_celp_brs8.fl4  -o ${TESTDIR}/m08_celp_brs8.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_celp16.fl4     -o ${TESTDIR}/m16_celp16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_celp_frc16.fl4 -o ${TESTDIR}/m16_celp_frc16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_celp12.fl4     -o ${TESTDIR}/m16_celp12.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_celp_brs16.fl4 -o ${TESTDIR}/m16_celp_brs16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_celp_bws16.fl4 -o ${TESTDIR}/m16_celp_bws16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_ercelp6.fl4    -o ${TESTDIR}/m08_ercelp6.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_ercelp16.fl4   -o ${TESTDIR}/m16_ercelp16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_ercelp12.fl4   -o ${TESTDIR}/m16_ercelp12.mp4
+
+Decoding with main branch
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_celp6.mp4                       -o ${TESTDIR}/m08_celp6.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_celp_brs8.mp4 -c -mp4ff,-out=0  -o ${TESTDIR}/m08_celp_brs8_l0.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_celp_brs8.mp4 -c -mp4ff,-out=1  -o ${TESTDIR}/m08_celp_brs8_l1.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp16.mp4                      -o ${TESTDIR}/m16_celp16.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp_frc16.mp4                  -o ${TESTDIR}/m16_celp_frc16.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp12.mp4                      -o ${TESTDIR}/m16_celp12.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp_brs16.mp4 -c -mp4ff,-out=0 -o ${TESTDIR}/m16_celp_brs16_l0.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp_brs16.mp4 -c -mp4ff,-out=1 -o ${TESTDIR}/m16_celp_brs16_l1.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp_bws16.mp4 -c -mp4ff,-out=0 -o ${TESTDIR}/m16_celp_bws16_l0.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_celp_bws16.mp4 -c -mp4ff,-out=1 -o ${TESTDIR}/m16_celp_bws16_l1.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m08_ercelp6.mp4                     -o ${TESTDIR}/m08_ercelp6.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_ercelp16.mp4                    -o ${TESTDIR}/m16_ercelp16.au
+  $MP4AUDVM/mp4audec   -d 1 ${TESTDIR}/m16_ercelp12.mp4                    -o ${TESTDIR}/m16_ercelp12.au
+
+Decoding with rewrite branch
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_celp6.mp4              -o ${TESTDIR}/m08_celp6_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_celp_brs8.mp4 -maxl 0  -o ${TESTDIR}/m08_celp_brs8_l0_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_celp_brs8.mp4 -maxl 1  -o ${TESTDIR}/m08_celp_brs8_l1_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp16.mp4             -o ${TESTDIR}/m16_celp16_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp_frc16.mp4         -o ${TESTDIR}/m16_celp_frc16_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp12.mp4             -o ${TESTDIR}/m16_celp12_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp_brs16.mp4 -maxl 0 -o ${TESTDIR}/m16_celp_brs16_l0_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp_brs16.mp4 -maxl 1 -o ${TESTDIR}/m16_celp_brs16_l1_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp_bws16.mp4 -maxl 0 -o ${TESTDIR}/m16_celp_bws16_l0_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_celp_bws16.mp4 -maxl 1 -o ${TESTDIR}/m16_celp_bws16_l1_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m08_ercelp6.mp4            -o ${TESTDIR}/m08_ercelp6_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_ercelp16.mp4           -o ${TESTDIR}/m16_ercelp16_r.au
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/m16_ercelp12.mp4           -o ${TESTDIR}/m16_ercelp12_r.au
+
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_celp6.au         ${TESTDIR}/m08_celp6_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_celp_brs8_l0.au  ${TESTDIR}/m08_celp_brs8_l0_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_celp_brs8_l1.au  ${TESTDIR}/m08_celp_brs8_l1_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp16.au        ${TESTDIR}/m16_celp16_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp_frc16.au    ${TESTDIR}/m16_celp_frc16_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp12.au        ${TESTDIR}/m16_celp12_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp_brs16_l0.au ${TESTDIR}/m16_celp_brs16_l0_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp_brs16_l1.au ${TESTDIR}/m16_celp_brs16_l1_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp_bws16_l0.au ${TESTDIR}/m16_celp_bws16_l0_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_celp_bws16_l1.au ${TESTDIR}/m16_celp_bws16_l1_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_ercelp6.au       ${TESTDIR}/m08_ercelp6_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_ercelp16.au      ${TESTDIR}/m16_ercelp16_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_ercelp12.au      ${TESTDIR}/m16_ercelp12_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m08_ercelp6.au       ${TESTDIR}/m08_celp6_r.au
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m16_ercelp16.au      ${TESTDIR}/m16_celp16_r.au
+
+  ;;
+
+
+
+6   ER_HILN and ER_PARA Examples
+================================
+
+  hiln)
+
+Encoding to fl4 (16 kHz mono @ 6 kbit/s ER_HILN)
+  $MP4AUDVM/mp4auenc -d 1 -m par -r 6000 -c -mp4ff ${TESTDIR}/m16.au -o ${TESTDIR}/m16_hiln6.fl4
+
+Encoding to fl4 (16 kHz mono @ 6+10 kbit/s ER_HILN scalable)
+  $MP4AUDVM/mp4auenc -d 1 -m par -r 16000 -c -mp4ff,hixl=1,hix1=10000 ${TESTDIR}/m16.au -o ${TESTDIR}/m16_hiln16.fl4
+
+Encoding to fl4 (8 kHz mono @ 4 kbit/s ER_PARA with HVXC/HILN switching)
+  $MP4AUDVM/mp4auenc -d 1 -m par -r 4000 -c erpara,-mp4ff,m=swit ${TESTDIR}/m08.au -o ${TESTDIR}/m08_para4.fl4
+
+Conversion to mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_hiln6.fl4  -o ${TESTDIR}/m16_hiln6.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m16_hiln16.fl4 -o ${TESTDIR}/m16_hiln16.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m08_para4.fl4  -o ${TESTDIR}/m08_para4.mp4
+
+Decoding of mp4
+  $MP4AUDVM/mp4audec -d 1 ${TESTDIR}/m16_hiln6.mp4 -o ${TESTDIR}/m16_hiln6.au
+  $MP4AUDVM/mp4audec -d 1 ${TESTDIR}/m08_para4.mp4 -o ${TESTDIR}/m08_para4.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_hiln6.mp4 -o ${TESTDIR}/m16_hiln6r.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m08_para4.mp4 -o ${TESTDIR}/m08_para4r.au
+
+Decoding of mp4 (using base and extension layer)
+  $MP4AUDVM/mp4audec         -d 1 ${TESTDIR}/m16_hiln16.mp4 -o ${TESTDIR}/m16_hiln16.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_hiln16.mp4 -o ${TESTDIR}/m16_hiln16r.au
+
+Decoding of mp4 (using only base layer)
+  $MP4AUDVM/mp4audec         -d 1 ${TESTDIR}/m16_hiln16.mp4 -o ${TESTDIR}/m16_hiln16l0.au  -c "-out 0"
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m16_hiln16.mp4 -o ${TESTDIR}/m16_hiln16l0r.au -maxl 0
+
+XXXXXXXXXX HP20020225 note that ER_HVXC 3.7k is not yet fixed in re-write
+
+  ;;
+
+
+
+7   ER_BSAC Examples
+====================
+
+  bsac)
+
+Encoding to fl4 (48 kHz mono @ 64 kbits/s)
+  $MP4AUDVM/mp4auenc -d 1 -m tf -r 64000 -c "-mp4ff -aac_sys_bsac" ${TESTDIR}/m48.au -o ${TESTDIR}/m48_bsac64.fl4
+
+Encoding to fl4 (48 kHz stereo @ 128 kbits/s)
+  $MP4AUDVM/mp4auenc -d 1 -m tf -r 128000 -c "-mp4ff -aac_sys_bsac" ${TESTDIR}/s48.au -o ${TESTDIR}/s48_bsac128.fl4
+  
+Decoding of fl4 (using all layers)
+  $MP4AUDVM/mp4audec   -d 1 -aaceof -c "-mp4ff" ${TESTDIR}/m48_bsac64.fl4   -o ${TESTDIR}/m48_bsac64fl4.au
+  $MP4AUDVM/mp4audec   -d 1 -aaceof -c "-mp4ff" ${TESTDIR}/s48_bsac128.fl4   -o ${TESTDIR}/s48_bsac128fl4.au
+
+Decoding of fl4 (using only base layer)
+  $MP4AUDVM/mp4audec   -d 1 -aaceof -c "-mp4ff -bsacDecLyr 0" ${TESTDIR}/m48_bsac64.fl4   -o ${TESTDIR}/m48_bsac64fl4l0.au
+  $MP4AUDVM/mp4audec   -d 1 -aaceof -c "-mp4ff -bsacDecLyr 0" ${TESTDIR}/s48_bsac128.fl4   -o ${TESTDIR}/s48_bsac128fl4l0.au
+
+Conversion to mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/m48_bsac64.fl4   -o ${TESTDIR}/m48_bsac64.mp4
+  $MP4AUDVM_REWRITE/convert -d 1 ${TESTDIR}/s48_bsac128.fl4   -o ${TESTDIR}/s48_bsac128.mp4
+  
+Decoding of mp4 (using all layers)
+  $MP4AUDVM/mp4audec   -d 1 -c "-mp4ff" ${TESTDIR}/m48_bsac64.mp4   -o ${TESTDIR}/m48_bsac64.au
+  $MP4AUDVM/mp4audec   -d 1 -c "-mp4ff" ${TESTDIR}/s48_bsac128.mp4   -o ${TESTDIR}/s48_bsac128.au
+
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m48_bsac64.mp4 -o ${TESTDIR}/m48_bsac64r.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_bsac128.mp4 -o ${TESTDIR}/s48_bsac128r.au
+
+Decoding of mp4 (using only base layer)
+  $MP4AUDVM/mp4audec   -d 1 -c "-mp4ff -bsacDecLyr 0" ${TESTDIR}/m48_bsac64.mp4 -o ${TESTDIR}/m48_bsac64l0.au
+  $MP4AUDVM/mp4audec   -d 1 -c "-mp4ff -bsacDecLyr 0" ${TESTDIR}/s48_bsac128.mp4 -o ${TESTDIR}/s48_bsac128l0.au
+
+  $MP4AUDVM_REWRITE/mp4audec -d 1 -maxl 0 ${TESTDIR}/m48_bsac64.mp4 -o ${TESTDIR}/m48_bsac64l0r.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 -maxl 0 ${TESTDIR}/s48_bsac128.mp4 -o ${TESTDIR}/s48_bsac128l0r.au
+
+Encoding BSAC Multichannel Seqs to mp4 (44.1 kHz 6channel @ 256 kbits/s)
+  $MP4AUDVM_REWRITE/mp4auenc -d 1 -c "-bsac -br 256000" ${TESTDIR}/mc44.au -o ${TESTDIR}/mc44_bsac256.mp4
+  
+Decoding of BSAC Multichannel mp4 file (44.1 kHz 6channel @ 256 kbits/s)
+  $MP4AUDVM_REWRITE/mp4audec   -d 1 ${TESTDIR}/mc44_bsac256.mp4 -o ${TESTDIR}/mc44_bsac256.au
+  
+  ;;
+
+
+
+8   SBR Examples
+================
+
+  sbr)
+
+For the following examples, three configurations are examined:
+ - AAC LC SBR: 48 kHz mono @ 24 kbit/s
+ - AAC LC SBR: 48 kHz stereo @ 48 kbit/s
+
+General
+-------
+Assuming an input file with sampling rate of 48kHz
+Coding at 24kbps
+
+The compiler define CT_SBR shall be set.
+
+Encode
+------
+enc.exe -sbr -d 3 -r 24000    test_file.wav
+
+adif2mp4
+--------
+Converts implicitly signalled SBR adts/adif to arbitrary signalled SBR *.mp4
+Three switches are available
+-k SBR: signalling, 0 implicit, 1 hierarcical explicit, 2 backwards compatibe explicit (default: 2)
+-l SBR: sbrPresent flag (only transmitted for the backwards compatible signalling, 0 SBR not present, 1 SBR present (default: 1)
+-q SBR: downSampledSBR, 0 off 1 on (default: 0)
+
+adif2mp4.exe -Dn -s 24000 -k2 -l1 -q0 -pLC test_file.aac test_file.mp4
+
+The tool also supports multi-channel.
+
+Decode
+------
+
+The multi-channel software:
+mp4Dec.exe -Dn  -w test_file.mp4 test_file_out.wav
+
+The re-write software:
+mp4audec.exe  -maxl -1 -d 3  -o  test_file_out test_file.mp4
+
+
+  echo "--------------------------------------------------------------------"
+  echo "---- Encoding wave (au) to aac (raw) using multichannel encoder ----"
+  echo "--------------------------------------------------------------------"
+  $MP4MCENC/enc ${TESTDIR}/m48.au  -r  24000 -sbr -c "-lc"     -o ${TESTDIR}/m48_sbr24-mc.raw    -d 1
+  $MP4MCENC/enc ${TESTDIR}/s48.au  -r  48000 -sbr -c "-lc"     -o ${TESTDIR}/s48_sbr48-mc.raw  -d 1
+  for encoder in mc
+  do 
+  echo "+++++++++++++++++++++++++++"
+  echo "++++ Decoding ${encoder} files ++++"
+  echo "+++++++++++++++++++++++++++"
+  echo "---------------------------------------------------------------------"
+  echo "---- Decoding aac (raw) to wave (wav) using multichannel decoder ----"
+  echo "---------------------------------------------------------------------"
+  $MP4MCDEC/aacdec_mc   -s 24000 -Dn -p LC   ${TESTDIR}/m48_sbr24-${encoder}.raw ${TESTDIR}/m48_sbr24-${encoder}_raw.wav
+  $MP4MCDEC/aacdec_mc   -s 24000 -Dn -p LC   ${TESTDIR}/s48_sbr48-${encoder}.raw ${TESTDIR}/s48_sbr48-${encoder}_raw.wav
+  echo "--------------------------------------------------------------------------"
+  echo "---- Transcoding aac (raw) to aac (mp4) using multichannel transcoder ----"
+  echo "--------------------------------------------------------------------------"
+  $MP4MCDEC/adif2mp4 -bi  24000 -Dn -s 24000 -k2 -l1 -q0 -p LC ${TESTDIR}/m48_sbr24-${encoder}.raw ${TESTDIR}/m48_sbr24-${encoder}.mp4
+  $MP4MCDEC/adif2mp4 -bi  48000 -Dn -s 24000 -k2 -l1 -q0 -p LC ${TESTDIR}/s48_sbr48-${encoder}.raw ${TESTDIR}/s48_sbr48-${encoder}.mp4
+  echo "---------------------------------------------------------------------"
+  echo "---- Decoding aac (mp4) to wave (wav) using multichannel decoder ----"
+  echo "---------------------------------------------------------------------"
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/m48_sbr24-${encoder}.mp4 ${TESTDIR}/m48_sbr24-${encoder}_mp4.wav
+  $MP4MCDEC/mp4audec_mc -Dn ${TESTDIR}/s48_sbr48-${encoder}.mp4 ${TESTDIR}/s48_sbr48-${encoder}_mp4.wav
+  echo "-----------------------------------------------------------------------"
+  echo "---- Comparing wave (wav) decoded from raw by multichannel decoder ----"
+  echo "----      with wave (wav) decoded from mp4 by multichannel decoder ----"
+  echo "-----------------------------------------------------------------------"
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/m48_sbr24-${encoder}_raw.wav ${TESTDIR}/m48_sbr24-${encoder}_mp4.wav   
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/s48_sbr48-${encoder}_raw.wav ${TESTDIR}/s48_sbr48-${encoder}_mp4.wav 
+  echo "--------------------------------------------------------------------------"
+  echo "---- Decoding aac (mp4) to wave (au) using scalable decoder (rewrite) ----"
+  echo "--------------------------------------------------------------------------"
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/m48_sbr24-${encoder}.mp4 -pd ${TESTDIR} -ed _rewrite.au
+  $MP4AUDVM_REWRITE/mp4audec -d 1 ${TESTDIR}/s48_sbr48-${encoder}.mp4 -pd ${TESTDIR} -ed _rewrite.au
+  echo "---------------------------------------------------------------"
+  echo "---- Comparing wave (wav) decoded by multichannel decoder  ----"
+  echo "---- with wave (wav) decoded by scalable decoder (rewrite) ----"
+  echo "---------------------------------------------------------------"
+  $CONFSSNRCD/ssnrcd -t 1 -k 15  ${TESTDIR}/m48_sbr24-${encoder}_raw.wav ${TESTDIR}/m48_sbr24-${encoder}_rewrite.au  
+  $CONFSSNRCD/ssnrcd -t 1 -k 15  ${TESTDIR}/s48_sbr48-${encoder}_raw.wav ${TESTDIR}/s48_sbr48-${encoder}_rewrite.au
+  done
+
+  ;;
+
+
+9   SBR+PS Examples
+===================
+
+  sbr-ps)
+
+Examples for SBR with Parametric Stereo
+
+  echo "examples for SBR with PS"
+
+  echo "encode, decode raw"
+  $MP4MCENC/enc ${TESTDIR}/s48.au  -r  24000 -sbr -c "-lc" -ps -o ${TESTDIR}/s48_sbr24ps-mc.raw -d 1
+  $MP4MCDEC/aacdec_mc -s 24000 -Dn -p LC -c ${TESTDIR}/s48_sbr24ps-mc.raw ${TESTDIR}/s48_sbr24ps-mc_raw.wav
+  echo "transcode to mp4, decode mp4, test"
+  $MP4MCDEC/adif2mp4 -bi  24000 -Dn -s 24000 -k2 -l1 -q0 -p LC ${TESTDIR}/s48_sbr24ps-mc.raw ${TESTDIR}/s48_sbr24ps-mc.mp4
+  $MP4MCDEC/mp4audec_mc -Dn -c ${TESTDIR}/s48_sbr24ps-mc.mp4 ${TESTDIR}/s48_sbr24ps-mc_mp4.wav
+  $CONFSSNRCD/ssnrcd -t 1 -k 15 ${TESTDIR}/s48_sbr24ps-mc_raw.wav ${TESTDIR}/s48_sbr24ps-mc_mp4.wav   
+
+  ;;
+
+
+
+10   Mp3on4 Examples
+====================
+
+  mp3on4)
+  
+Examples for generating and decoding mp3on4 files
+
+  echo "examples for Mp3on4"
+  
+  echo "convert"
+  $MPEG12TO4/mpeg12to4 ${TESTDIR}/l3-10101.mpg ${TESTDIR}/l3-10101.mp4
+
+  echo "decode"
+  $MP4AUDVM_REWRITE/mp4audec ${TESTDIR}/l3-10101.mp4 -o ${TESTDIR}/l3-10101.wav
+  
+  ;;
+
+
+
+END
+===
+  ##Handle remaining cases:
+  -h)
+  echo "usage: $0"
+  echo "or     $0 [$allparts]"
+  ;;
+  *)
+  echo "ERROR: $0: unkown option '$a', type '$0 -h' for help"
+  exit
+  ;;
+  esac
+  done
+
+
+
+
+
+
+
+**********************************************************************
+Heiko Purnhagen, Coding Technologies
+Ralph Sperschneider, Fraunhofer IIS-A
+Olaf Kaehler, Fraunhofer IIS-A
+Michael Matejko, Fraunhofer IIS-A
+
+History
+2002-02-20 HP initial version
+2002-xx-xx RS numerous improvements
+2002-11-24 HP cosmetic changes
+2003-01-10 OK added 5.1 multichannel example
+2003-01-16 OK improved mc example
+2003-07-16 HP included BSAC examples
+              TBD: disable main branch decoder, fl4_to_mp4 -> convert
+2003-07-24 OK fl4_to_mp4 -> convert
+              added various examples for rewrite decoder
+2003-08-29 HP integrated README_usage_sbr
+              added usage.sh command line options
+2003-11-30 HP using distinct AU file names for BSAC
+2004-02-02 HP added echoing of commands to AWK trick
+              added preliminary examples for SBR with PS as sbr-ps
+2004-07-20 OK added rewrite branch encoder (only AAC examples)
+2004-09-15 OK added rewrite branch examples for ER-AAC
+              fixed the aac examples a little
+2004-12-21 HP added sbr-ps to allparts
+2005-02-03 HP PS is now default in the makefiles
+2005-09-30 SAMSUNG added BSAC Multichanel examples (mykim2002@samsung.com)
+2007-11-08 MM added rewerite branch examples for Mp3on4
+--

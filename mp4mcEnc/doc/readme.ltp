@@ -1,0 +1,26 @@
+
+	Dear all,
+
+
+This package contains the following fixes/changes for the LTP part 
+(under compile switch MPEG4V1) :
+
+- reduced the LTP buffer size so that it contains only 3 past frames instead
+  of 4. The maximum lag is still the same but the place of zero lag has been
+  changed. Also the buffer update procedure has been corrected/clarified.
+
+- syntax update (should be in line with the FDIS textual description).
+
+- clean-up in file nok_pitch.c resulting in faster execution of LTP.
+
+
+	Best Regards
+		
+		Juha
+
+---
+---
+Juha Ojanpera             email: juha.ojanpera@research.nokia.com
+Nokia Research Center, Speech and Audio Systems Laboratory
+phone: +358 3 272 5325    fax: +358 3 272 5899
+P.O. Box 100 (Visiokatu 1), FIN-33721 Tampere, Finland;

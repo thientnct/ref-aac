@@ -1,0 +1,90 @@
+AAC Technical Report Encoder Notes
+Chuck Lueck, TI
+22-jan-98
+
+Additional notes by
+Ralf Geiger, FhG/IIS
+07-apr-98
+Heiko Purnhagen, University of Hannover
+28-mar-00
+===============================================
+
+The setup to compile and run is very much the same as it is for the
+MPEG-4 VM, since the encoder framework was based on the VM.  Most
+of the MPEG-4 VM documentation relating to AAC still applies.
+
+Support for platforms like Linux and Solaris is included. 
+Before compiling, you might needs to set the environment variable
+SYSTEM_NAME to e.g. Linux, such as:
+
+setenv SYSTEM_NAME Linux
+
+The encoder can then be compiled/linked using make.  The encoder 
+compiles and links using g++, and I have recently had success 
+compiling using gcc as well.
+
+By default, only the ".au" audio file format is supported.  To add support
+for all other audio file formats, you need to install the AFsp library
+libtsp.a (e.g. from AFsp-v4r3, see README_AFsp for further details), set the
+environment variables AFSP_INCLUDE_PATH and AFSP_LIBRARY_PATH to point to
+the proper directories and compile/link with
+
+make USE_AFSP=1
+
+In order to use raw data files as input the AFopenRead function 
+requires that the MP4_RAWAUDIOFILE environment variable be set 
+as follows:
+
+setenv MP4_RAWAUDIOFILE "integer16, 0, 48000.0, native, 1, 1.0"
+
+where the 48000.0 is the sampling rate, the 1 means one channel,
+and the 1.0 means a gain of 1.0.  Other sampling rates can be
+used, but I think that currently the psychoacoustic model only likes
+44100 and 48000.  For stereo operation, the MP4_RAWAUDIOFILE
+variable should be set as:
+
+setenv MP4_RAWAUDIOFILE "integer16, 0, 48000.0, native, 2, 1.0"
+
+For stereo operation, a channel_pair_element will be encoded in the
+bitstream.  For multichannel operation, single_channel_elements and
+channel_pair_elements are currently allocated automatically. 
+
+If -lf is switched, the encoder can also process lfe-channel-elements. 
+The last channel is then treated as lfe channel.
+
+Most of the general framework command line arguments from MPEG-4 still
+apply.  To get help, you can type:
+
+linux_g++/enc -h
+
+or to encode a raw audio file, audio.dat, at 64 kbps using the Main
+profile (by default) you can simply type:
+
+linux_g++/enc -r 64000 -eo .raw audio.dat
+
+where the -eo .raw specifies a raw data file as input. The executable 
+will be built into e.g. the linux_g++ directory, depending on your 
+platform.  The encoder will attach a .aac extension to the encoded
+file.
+
+The other two profiles, SSR and low-complexity, are also supported 
+and can be specified using the -c switch followed by the encoder 
+parameter string -lc or -ssr, such as:
+
+linux_g++/enc -c -ssr -r 64000 -eo .raw audio.dat
+linux_g++/enc -c -lc -r 64000 -eo .raw audio.dat
+
+Support for an independently-switched coupling channel is also 
+provided.  To specify a coupling channel, use the -cp switch 
+followed by the filename.  For example, to use the file voice.wav 
+as the input to the coupling channel, you could specify:
+
+linux_g++/enc -cp voice.wav -r 64000 -eo .raw audio.dat
+
+where voice.wav is required to be a monophonic input file with 
+the same sampling rate as audio.dat.  By default, the coupling 
+channel mixes into all encoded channels.  Other options are 
+possible, as indicated by using the -h switch for help.
+
+The encoder does not support any file or transport format, it just
+generates a raw_data_stream().

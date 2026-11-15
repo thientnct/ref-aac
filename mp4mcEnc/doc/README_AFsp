@@ -1,0 +1,129 @@
+MPEG-4 Audio VM
+
+Readme file: README_AFsp
+
+ 
+
+Authors:
+HP    Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
+
+Changes:
+14-feb-97   HP    born
+07-apr-97   HP    now using V3R2 (stdout-support)
+**********************************************************************
+
+
+The AFsp Audio File I/O Package
+-------------------------------
+
+To provide support for a variety of audio file formats, the VM
+software uses the AFsp package for all audio file i/o. The AFsp
+package is written by Peter Kabal <kabal@TSP.EE.McGill.CA> and is
+available via ftp:
+
+current version:	AFsp-V3R2.tar.Z
+original site:		ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:		ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+To make the libtsp library required by the VM software, unpack
+AFsp-V3R2.tar.Z, goto AFsp-V3R2/libtsp and start make. Finally the
+following three files have to be copied to the vm directory tree:
+
+vm/include/libtsp.h
+vm/include/libtsp/AFpar.h
+vm/<platform>/lib/libtsp.a
+
+
+Excerpt from the AFsp Copying file
+----------------------------------
+
+Copyright (C) 1997 Peter Kabal
+ 
+The AFsp audio file routines are provided free of charge without warranty of
+any kind.  All components are copyrighted.  They may be distributed free of
+charge provided that the recipients also acquire the right to distribute them.
+In no case can this software be incorporated into a work which is distributed
+for a fee.
+ 
+
+Excerpt from the AFsp README file (V3R2)
+---------------------------------------
+
+March 20, 1997
+
+Audio File Programs and Routines
+
+The AFsp package contains audio file utility programs and a library of
+routines for reading and writing audio files.
+
+Audio File Utility Programs:
+
+InfoAudio - display information about an audio file.
+CompAudio - compare audio files, producing statistics and signal-to-noise
+            ratio figures.
+CopyAudio - copy audio files.  This program combines samples from input audio
+            files (an arbitrary linear combination) and writes them to the
+            output file in a user selectable format.  One application is to
+            provide format conversion for an audio file; another is to combine
+            samples from multi-channel files.
+FiltAudio - filter audio files.  This program filters an audio file with an
+            FIR, IIR or all-pole filter.
+GenNoise  - generate noise.  This program generates an audio file containing
+            Gaussian white noise.
+LPanal    - demonstration program to do LPC analysis on a speech file.
+LPsyn     - demonstation program to do LPC synthesis from a residual file.
+ResampAudio - resample data from an audio file.  This process involves
+            interpolating between the samples in the original file to create a
+            new sequence of samples with a new spacing (sampling rate).
+SunAudioPort - control the settings of the audio port (Sun workstations)
+SunPlay   - play any of the file types supported by AFsp (Sun workstations)
+
+Audio File I/O Routines:
+
+The library supports reading and writing of audio files.  The routines have
+been designed to be easy to use, yet provide transparent support the reading
+of several audio file formats.  The audio file open routine automatically
+senses the input file type.  Based on the file format, the audio file reading
+routine does byte swapping and format conversion on the fly as the file is
+read.  The user sees float data without needing to worry about the underlying
+data format.
+
+Audio File Formats:
+
+The following file formats are supported for reading.
+- Headerless audio files
+- Sun audio files
+- RIFF WAVE files
+- AIFF/AIFF-C audio files
+- NIST SPHERE audio files
+- IRCAM soundfiles
+- INRS-Telecom audio files
+- ESPS sampled data feature files
+- Text audio files (NATO/ESPRIT CD-ROM format)
+
+The following file formats are supported for writing.
+- Headerless audio files
+- AFsp (Sun) audio files
+- RIFF WAVE files
+- AIFF-C audio files
+
+The AFsp routines are written in C and have been tested on DEC, HP, SGI, Sun,
+and PC-386 machines, using a number of different compilers (ANSI and non-ANSI).
+The AFsp routines form part of a signal processing library.  The full library
+is available for anonymous ftp as libtsp-VxRx.tar.Z.
+
+The AFsp routines are covered by copyright, see the file "Copying" for details
+of the distribution conditions.
+
+AFsp-V3R2.tar.Z
+http://www.TSP.EE.McGill.CA/software.html
+or ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+
+=============
+Peter Kabal
+Department of Electrical Engineering    McGill University
++1 514 398-7130   +1 514 398-4470 Fax
+kabal@EE.McGill.CA
+
+
+end of README_AFsp

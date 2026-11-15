@@ -1,0 +1,52 @@
+For general information see README
+
+The aacPubDec has been modified in a way that it can transcode 
+a Version 1 aac bitstream into an (version 2) error resilient bitstream. 
+Two functions can be distinguished:
+
+1. error resilience trancoding
+
+Parts of the bitstreams are transcoded in order to increase the error
+resilience of these parts. All tools are implemented:
+
+HCR   transcodes the spectral_data()    part.
+VCB11 transcodes the section_data()     part.
+RVLC  transcodes the scalefactor_data() part.
+
+2. interface to the error protection tool
+
+Data elements are collected within error sensitivity category (esc)
+instances, depending on its error sensitivity. This is done according to
+the description of the standard. Optional instances are only used uppon
+request, i. e. the number of instances differs depending on the setup.
+
+-------
+The command line looks like: 
+
+aactrans [options] <in_file> <out_file>
+options are:
+ -i <prog_tag> (ADIF header present)
+ -p <profile>  (Main or LC, Main is default)
+ -s <sampling_frequency>, Hz (48000 is default)
+ -C channel configuration
+ -t tns usage flag (0/1)
+ -L switch to Low Delay
+ -F frameLengthFlag: use frame length 960 (default: 1024)
+                     for Low Delay:   480 (default:  512)
+ -l length_of_longest_codeword within bitstream (not standard)
+ -r <mode> HCR within spectral data, length_of_longest_codeword and 
+                                     length_of_spectral_data within bitstream
+    modi: 0 - raw (not standard)
+          1 - codeword pre-sorting (not standard)
+          2 - consecutive HCR (not standard)
+          3 - codeword pre-sorting and consecutive HCR
+ -c virtual codebooks are used to encode codebook 11 within section data
+ -f <mode> error resilient coding of scalefactor data, modi:
+         0 - pure aac bitstream
+         1 - length of sf data in bitstream (not standard)
+         2 - 1 + rvlc coding of sf data (not standard)
+         3 - 2 + additional bit allowing enhanced concealment
+ -D[a-Z] (enable debugging printouts)
+
+(2000-05-16 RS)
+-------------------------------------------------------------------------------------------

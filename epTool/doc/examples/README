@@ -1,0 +1,71 @@
+This readme provides informations about the examples of predefined sets. These 
+informations were formerly a content of the standard text (appendix 1.B).
+
+* Example for Twin-VQ
+Here two encoding modes, PPC (Periodic Peak Component) - enable mode and 
+disable mode, are described. Normally, encoder can adaptively select the 
+PPC switch, but we force the switch always ON or always OFF in this experiment.  If PPC is ON, 43 bits are assigned to quantize periodic peak components and these bits should be protected as side information.
+For each mode we show bit assignment of four different bitrates, 16 kbit/s mono, 32 kbit/s stereo, 8 kbit/s + 8 kbit/s scalable mono and 16 kbit/s + 16 kbit/s stereo for each mode. 
+
+In all cases, error correction and detection tools are applied to only
+10 % of bits for the side information. Remaining bits for the index of
+MDCT coefficients have no protection at all. As a result of these bit
+allocations, increase of bitrate comparing with the original source rate
+is around 10 % in case of PPC switch is ON, and less than  10% in case of the switch is OFF.
+  (A) PPC(Periodic Peak Component) enable version
+    * tvq_example01.pred: 16 kbit/s mono
+      Class 1: 121 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 2: 839 bit(fixed),SRCPC code rate 8/8,no CRC
+    * tvq_example02.pred: 32 kbit/s stereo
+      Class 1: 238 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 2: 1682 bit(fixed),SRCPC code rate 8/8,no CRC
+
+    * tvq_example03.pred: 8 kbit/s + 8 kbit/s scalable mono
+      Class 1: 121 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 2: 359 bit(fixed),SRCPC code rate 8/8,no CRC
+      Class 3: 72 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 4: 408 bit(fixed),SRCPC code rate 8/8,no CRC
+
+    * tvq_example04.pred: 16 kbit/s + 16 kbit/s scalable stereo
+      Class 1: 238 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 2: 722 bit(fixed),SRCPC code rate 8/8,no CRC
+      Class 3: 146 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 4: 814 bit(fixed),SRCPC code rate 8/8,no CRC
+
+  (B)PPC disable version
+    * tvq_example05.pred: 16 kbit/s mono
+      Class 1: 78 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 2: 882 bit(fixed),SRCPC code rate 8/8,no CRC
+
+    * tvq_example06.pred: 32 kbit/s stereo
+      Class 1: 152 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 2: 1768 bit(fixed),SRCPC code rate 8/8,no CRC
+    * tvq_example07.pred: 8 kbit/s + 8 kbit/s scalable mono
+      Class 1: 78 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 2: 402 bit(fixed),SRCPC code rate 8/8,no CRC
+      Class 3: 72 bit(fixed),SRCPC code rate 8/12, 8 bit CRC
+      Class 4: 408 bit(fixed),SRCPC code rate 8/8,no CRC
+
+
+    * tvq_example08.pred: 16 kbit/s + 16 kbit/s scalable stereo
+      Class 1: 152 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 2: 808 bit(fixed),SRCPC code rate 8/8,no CRC
+      Class 3: 146 bit(fixed),SRCPC code rate 8/12, 10 bit CRC
+      Class 4: 814 bit(fixed),SRCPC code rate 8/8,no CRC
+
+
+* Example for HVXC
+    * hvxc_example01.pred: 2 kbit/s source coder  
+      Class 1: 22bit(fixed), SRCPC code rate 8/16, 6 bit CRC
+      Class 2: 4 bit(fixed), SRCPC code rate 8/8,1 bit CRC
+      Class 3: 4 bit(fixed), SRCPC code rate 8/8,1 bit CRC
+      Class4: 10bit(fixed), SRCPC code rate 8/8,no CRC
+
+    * hvxc_example02.pred: 4kbit/s source coder
+      Class 1: 33bit(fixed),SRCPC code rate 8/16, 6bit CRC
+      Class 2: 22bit(fixed),SRCPC code rate 8/8, 6bit CRC
+      Class 3: 4bit(fixed),SRCPC code rate 8/8, 1bit CRC
+      Class 4: 4bit(fixed),SRCPC code rate 8/8, 1bit CRC
+      Class 5: 17bit(fixed),SRCPC code rate 8/8, no CRC
+
+

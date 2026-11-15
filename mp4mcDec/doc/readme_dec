@@ -1,0 +1,99 @@
+Some features of the reference decoder are:
+ - TNS max_bands and max_order is checked for all sampling rates and
+   profiles
+ - modifications to data stream element
+ - all sampling rates supported
+ - pulse data limited to long blocks
+ - matrix mixdown fields in program config element
+ - prediction changed to low memory complexity algorithm
+ - ADIF headers supported and checked
+ - buffer fullness and CRC-tests for ADTS-headers
+ - diagnostic tools for buffer requirements
+ - handling of variable bitrate
+ 
+The output channel naming convention is as follows:
+
+	channel		name
+        ---------------------
+mono    center  	*_f00
+
+stereo	left		*_f01
+	right		*_f02
+
+5.1	center		*_f00
+	left		*_f01
+	right		*_f02
+	left surr.	*_b00
+	right surr.	*_b01
+	lfe		*_l00
+
+This labeling scheme supports the full-up 48.2 channel Main profile
+configuration. For front channels the "00" index is the center channel.
+For back channels the highest even index is the center channel (note
+that 5.1 does not have a center back channel).
+
+A "pcm" extension indicates that the file is big-endian mono 16-bit 2's
+complement with no header. Alternatively, the decoder can write AIFF or
+(if compiled with AFsp library) WAV files, in which case the file
+extension is "aiff" or "wav". If using the AFsp library it is the
+default to write all channels into one file, if possible. This can be
+overridden with '-m' on the command line.
+
+All command line arguments can be achived with "aacdec_mc -h".
+
+Below please find more detailed information regarding some command line
+switches:
+
+	-a/-w AIFF/WAVE output files, if possible put several channels
+	into one file (use -m to override this and create individual 
+        files for  each channel)
+
+	-3 create (big-endian) 24-bit output files.
+
+	-i indicates the presence of an ADIF header and associated
+	program_config_element's. The arg selects the program in the 
+	case of multiple program_config_element's in the header.
+
+	-t indicates the presence of an ADTS header but is not necessary
+	to recognize such files
+
+	-p is only useful if there is no profile specified in the
+	bitstream (i.e. raw bitstreams).
+
+	-s is required to decode bitstreams without (raw bitstreams)
+         or incorrect sampling rate information.
+
+	-D[a-Z] is for debugging/diagnostic. Grep the code to see what it
+	can do.
+        Short, incomplete list of most important letters:
+            'b' bitBuffer-simulation printouts
+            'B' extended bitBuffer-simulation printouts
+            'c' coupling channel debugging
+            'C' test CRC in ADTS-headers
+            'f' scalefactors
+            'h' show analyzed headers
+            'n' a few informative printouts
+            'N' print each frame number
+            'p' prediction debugging printouts
+            'P' PNS and/or Pulse Data diagnostic
+            'r' see prediction resets
+            'R' analyze avgFrameLength for ADTS-streams
+            's' SFB debugging
+            't' test for arithmetic torture
+            'T' TNS debugging
+            'v' verbose, show all stream elements
+            'V' verbose, show used specials (TNS, PulseData, ...)
+            'x' print data stream elements
+            'X' print data stream element contents
+
+SRQ     Schuyler Quackenbush, AT&T
+OK	Olaf Kaehler, Fraunhofer IIS
+RS      Ralph Sperschneider, Fraunhofer IIS
+
+History:
+ xxxx-xx-xx     SRQ
+ 2000-12-06	OK
+ 2001-04-09	OK
+ 2001-06-01	OK
+ 2002-04-19	OK
+ 2002-10-08     RS

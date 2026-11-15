@@ -1,0 +1,15 @@
+AAC multi-channel encoder software
+
+Please see
+  mp4mcDec/README_usage
+for a complete compile/encode/decode example!
+
+
+More 'readme's - some of them a bit older:
+
+README		: short descriptions of the programs in this package
+README_AFsp	: information on the external AFsp library (for WAV/AIFF)
+readme_vm	: general information on code used as base for mp4mcEnc
+
+
+HP 2002-04-19

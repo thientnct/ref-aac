@@ -1,0 +1,48 @@
+/.cvsignore/1.9/Fri Jan 25 17:19:44 2002//
+/README_AFsp/1.2/Fri Jan  7 01:22:49 2000//
+/README_decoder/1.2/Fri Jan  7 01:22:50 2000//
+/README_refsoft/1.6/Wed Feb 20 18:07:18 2002//
+/README_vm/1.2/Fri Jan  7 01:22:50 2000//
+/conformance_test/1.3/Wed Mar 15 09:57:59 2000//
+/gen_iso_list/1.1.1.1/Fri Nov 19 15:56:56 1999//
+/makefhgtest/1.2/Thu Jan 27 10:33:27 2000//
+/makefile/1.54/Thu Apr 14 10:07:49 2005//
+/makefile.cfg-example/1.3/Thu Jan 31 11:08:07 2002//
+/makefile.lpc/1.3/Fri Jul  7 10:00:07 2000//
+/makefile.par/1.4/Mon May 28 13:43:07 2001//
+/makefile.ssc/1.5/Fri Jan 30 09:57:04 2004//
+/makefile.tf/1.11/Thu May  2 09:05:44 2002//
+/maketags/1.1.1.1/Fri Nov 19 15:56:56 1999//
+/plotmtv.rc/1.2/Tue Jan 11 18:49:46 2000//
+/plotmtvdec.rc/1.4/Wed Mar  8 15:24:26 2000//
+/plotmtvenc.rc/1.2/Tue Jan 11 17:09:18 2000//
+/rencvs/1.2/Tue Jan 11 18:49:47 2000//
+/set_mp4env/1.3/Tue Jan 11 18:49:47 2000//
+/strip-to-v1/1.1.1.1/Fri Nov 19 15:56:56 1999//
+/strip-to-v1refsoft/1.4/Tue Jan 18 14:29:10 2000//
+/strip-to-v2refsoft/1.11/Thu Sep 11 14:30:24 2008//
+/strip_ifdef/1.1.1.1/Fri Nov 19 15:56:56 1999//
+/vmtest_dec/1.3/Wed Jan 19 14:50:08 2000//
+/vmtest_enc/1.2/Wed Jan 19 14:50:08 2000//
+D/CVS_han////
+D/include////
+D/include_enc////
+D/linux////
+D/readme////
+D/sgi////
+D/sol////
+D/src_frame////
+D/src_frame_enc////
+D/src_latm////
+D/src_lpc////
+D/src_lpc_enc////
+D/src_mp4////
+D/src_par////
+D/src_par_enc////
+D/src_ssc2mp4////
+D/src_ssc_enc////
+D/src_tf////
+D/src_tf_enc////
+D/tables////
+D/tables_enc////
+D/win32////

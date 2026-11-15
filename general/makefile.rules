@@ -1,0 +1,245 @@
+ifneq "$(MAKELEVEL)" "0"
+
+MAKEROOT=../
+maplibeptool$(LIB_SUFFIX)          =epTool
+inclibeptool$(LIB_SUFFIX)          =src
+maplibisoaac$(LIB_SUFFIX)          =$(shell if [ -d $(MAKEROOT)mp4mcDec ];then echo "mp4mcDec";else echo "aacDec";fi)
+inclibisoaac$(LIB_SUFFIX)          =src
+maplibisoaac_mp4$(LIB_SUFFIX)      =$(maplibisoaac$(LIB_SUFFIX))
+inclibisoaac_mp4$(LIB_SUFFIX)      =$(inclibisoaac$(LIB_SUFFIX))
+
+DIROBJS = $(OBJS:%=$(OBJDIR)/%)
+DIRDEPS = $(DIROBJS:%.o=%.d)
+
+vpath %.c $(SRCDIRS)
+
+
+# SYSLIBS
+#   precompiled system libraries like -lm or -lstdc++, typically set in makefile.platform
+#   example:
+#     SYSLIBS=-lm -lstdc++
+#     SYSLIBS_libpath=/usr/local/gcc-3.3/lib
+#
+# EXTERNLIBS
+#   external precompiled libraries like AFsp
+#   example:
+#     EXTERNLIBS=-ltsp
+#     EXTERNLIBS_libpath=$(REFSOFT_LIBRARY_PATH)
+#     EXTERNLIBS_incl=$(REFSOFT_INCLUDE_PATH)
+#
+# MODULELIBS
+#   module internal libraries e.g. compiled in a subdirectory of the current module
+#   example:
+#     MODULELIBS=-lisoaac
+#   automatically updates:
+#     MODULELIBS_file (full path to the compiled library, e.g. ../../isoaac.a)
+#
+# COMLIBS
+#   libraries to compile and then link (given as '-leptool ...')
+#   example:
+#     COMLIBS=-leptool
+#     special options for comlibs:
+#     COMLIBS_libeptool.a_OPTIONS="OPTIM=1"
+#   automatically updates:
+#     COMLIBS_make (path to makefile, can be affected by maplib<...>.a)
+#     COMLIBS_libpath (path to compiled library)
+#     COMLIBS_incl (path to includes, can be affected by inclib<...>.a)
+#
+# LOCALLIBS
+#   if set, compile only the given subset of COMLIBS, treat others as EXTERNLIBS
+#
+# INCL, LIBS, LIBPATH
+#   final parameters for -I, -l and -L
+#   should not be set manually as they will be built together a few lines further down
+
+
+SYSLIBS += -lm
+VERBOSECHAR=@
+ifeq "$(VERBOSE)" "1"
+VERBOSECHAR=
+endif
+
+MODULELIBS_file := $(patsubst %,$(LIBDIR)/lib%$(LIB_SUFFIX),$(subst -l,,$(MODULELIBS)))
+
+
+## add directory to targets
+DIRTARGET =  $(addprefix $(LIBDIR)/,   $(filter     %$(LIB_SUFFIX),$(TARGET)))
+DIRTARGET += $(addprefix $(BINDIR)/,   $(filter-out %$(LIB_SUFFIX),$(TARGET)))
+
+
+##force linking if linker command line has changed
+LNK := $(DIROBJS) $(LIBPATH) $(LIBS) $(COMLIBS) $(EXTERNLIBS)
+-include $(addsuffix $(LNK_SUFFIX),$(DIRTARGET)) $(LNK_SUFFIX)
+
+ifneq "$(strip $(OLDLNK))" "$(strip $(LNK))"
+FORCE_LINKING = force
+endif
+
+##treat the COMLIBS
+override COMLIBS:=$(COMLIBS:-l%=%)
+
+ifdef LOCALLIBRARIES
+LOCALLIBRARIES:=$(LOCALLIBRARIES:%lib=%)
+EXTERNLIBS+=$(filter-out $(LOCALLIBRARIES), $(COMLIBS))
+COMLIBS := $(filter $(LOCALLIBRARIES), $(COMLIBS))
+endif
+
+COMLIBS_getbasepath = $(MAKEROOT)/$(if $(maplib$(1)$(LIB_SUFFIX)),$(maplib$(1)$(LIB_SUFFIX)),$(1))
+COMLIBS_make := $(foreach lib,$(COMLIBS), $(call COMLIBS_getbasepath,$(lib)))
+COMLIBS_incl := $(foreach lib,$(COMLIBS), $(call COMLIBS_getbasepath,$(lib))/$(if $(inclib$(lib)$(LIB_SUFFIX)),$(inclib$(lib)$(LIB_SUFFIX)),include/))
+COMLIBS_file := $(foreach lib,$(COMLIBS), $(call COMLIBS_getbasepath,$(lib))/$(call GETLIBDIR,$(call COMLIBS_getbasepath,$(lib)))/lib$(lib)$(LIB_SUFFIX))
+COMLIBS_libpath := $(foreach lib,$(COMLIBS), -L`cat $(DIRTARGET).lib_lib$(lib)$(LIB_SUFFIX).log`)
+
+
+## add everything together
+override LIBS    := $(addprefix -l,$(patsubst -l%,%,$(SYSLIBS))) $(LIBS)
+override LIBPATH := $(addprefix -L,$(patsubst -L%,%,$(SYSLIBS_libpath))) $(LIBPATH)
+
+override LIBS    := $(addprefix -l,$(patsubst -l%,%,$(EXTERNLIBS))) $(LIBS)
+override LIBPATH := $(addprefix -L,$(patsubst -L%,%,$(EXTERNLIBS_libpath))) $(LIBPATH)
+override INCL    := $(addprefix -I,$(patsubst -I%,%,$(EXTERNLIBS_incl))) $(INCL)
+
+override LIBS    := $(addprefix -l,$(COMLIBS)) $(LIBS)
+override INCL    := $(addprefix -I,$(COMLIBS_incl)) $(INCL)
+override LIBPATH := $(COMLIBS_libpath) $(LIBPATH)
+
+override LIBS    := $(MODULELIBS_file) $(LIBS)
+override INCL    := $(INCL) $(addprefix -I,$(subst :, ,$(SRCDIRS))) # add local last
+
+CLEANLIBDEPS=$(patsubst %,clean/%,$(notdir $(COMLIBS_file)))
+CLOBBERLIBDEPS=$(patsubst %,clobber/%,$(notdir $(COMLIBS_file)))
+
+# we have removed the -*-command-variables-*- stuff. It is (probably) responsible for unsetting the variables
+# given to the first make on the commandline. No problems should arise from this issue however, as there
+# are not many commandline-variables to set, and none thereof really should be unset when compiling a library
+# used by the first program.
+UNSETENVVARS=MAKELEVEL MAKEOVERRIDES MFLAGS MAKEFLAGS COMLIBS LIBNAME #$(foreach equation,$(subst \ ,,${-*-command-variables-*-}),$(firstword $(subst =, ,$(strip $(equation)))))
+SETENVVARS=DIRSYNTAX=$(DIRSYNTAX) OBJROOTDIR=$(OBJROOTDIR) TARGETROOTDIR=$(TARGETROOTDIR) OBJROOTWITHOUTPWD=$(OBJROOTWITHOUTPWD) SHAREDLIB=$(SHAREDLIB) #LOCALLIBS=$(LOCALLIBS) OPTIM_LEV=$(OPTIM_LEV) DEBUG=$(DEBUG) PLOT=$(PLOT) GPROF=$(GPROF) VERBOSE=$(VERBOSE) MAKE_CC=$(MAKE_CC)
+EXTERNALLIBCMDLINE=unset $(UNSETENVVARS); cd $(call COMLIBS_getbasepath,$(patsubst lib%$(LIB_SUFFIX),%,$(@F))) && $(MAKE) $(SETENVVARS)
+
+##compile a COMLIBS library
+$(COMLIBS_file): .FORCE
+	@$(EXTERNALLIBCMDLINE) $(@F)  $(COMLIBS_$(@F)_OPTIONS) | tee $(DIRTARGET)_libcompile_$(@F).log; \
+	sed -e's@######## library okay: @@;ta;d;:a;s@/[^/]*$$@/@' $(DIRTARGET)_libcompile_$(@F).log > $(DIRTARGET).lib_$(@F).log; \
+	rm -f $(DIRTARGET)_libcompile_$(@F).log
+
+$(CLOBBERLIBDEPS) $(CLEANLIBDEPS): .FORCE
+	@($(EXTERNALLIBCMDLINE) $(@D)) 2> /dev/null; exit 0
+
+.PHONY: force makedirs binary library depend dummies clean clobber distclean
+
+.FORCE:
+
+force :
+	@echo "***** force linking"
+
+makedirs : $(PLTDIRTAG)
+
+binary : $(PLTDIRTAG)
+binary : $(DIRTARGET)$(EXE_SUFFIX)
+	@echo "######## binary okay: $<"
+	@echo " "
+
+library : $(PLTDIRTAG)
+library : $(DIRTARGET)
+	@echo "######## library okay: $<"
+	@echo " "
+
+depend : $(PLTDIRTAG)
+depend : $(DIRDEPS)
+	@echo "***** made dependencies for $(DIRTARGET)"
+
+dummies: $(DUMMY_SOURCES)
+
+makelink: $(PLTDIRTAG)
+makelink: $(DIRTARGET)
+	@echo "***** made symbolic link $<"
+
+ifeq "$(suffix $(TARGET))" "$(LIB_SUFFIX)"
+# compose library
+$(DIRTARGET) : $(PLTDIRTAG)
+$(DIRTARGET) : $(DIROBJS)
+	@echo "***** composing library $@ ..."
+	@-rm -f $(DIRTARGET)
+	$(VERBOSECHAR)ar r $(DIRTARGET) $^
+#	$(VERBOSECHAR)ar rv $(DIRTARGET) $(DIROBJS)
+	$(VERBOSECHAR)ranlib $(DIRTARGET)
+else
+ifndef BINARY
+# link
+$(DIRTARGET)$(EXE_SUFFIX) : $(PLTDIRTAG)
+$(DIRTARGET)$(EXE_SUFFIX) : $(DIROBJS) $(COMLIBS_file) $(MODULELIBS_file) $(FORCE_LINKING)
+	@echo "***** linking $@ ..."
+	$(VERBOSECHAR)$(LINK) $(LDFLAGS) $(DIROBJS) $(LIBPATH) $(LIBS) -o $@
+	@echo "OLDLNK = " $(LNK) > $(DIRTARGET)$(LNK_SUFFIX)
+
+else
+# symbolic link
+$(DIRTARGET)$(EXE_SUFFIX): $(BINDIR)/$(BINARY)
+	@rm -f $@
+	@echo "***** creating symbolic link $@ ..."
+	@ln -s $(notdir $^) $@
+#	@cp $^ $@ # might be usefull in Win32 environment
+endif
+endif
+
+ifndef FHG_MAKEDUMMYFILE
+FHG_MAKEDUMMYFILE = 0
+endif
+ifeq "$(FHG_MAKEDUMMYFILE)" "1"
+%_dummy.c : %.c
+	@echo "***** making dummy file for $< ..."
+	gawk -f src_tf_fhg/makedummyfile $< > $(subst src_tf_fhg,src_tf, $(subst .c,_dummy.c,$<))
+endif
+
+# compile
+$(DIROBJS) : $(PLTDIRTAG)
+$(DIROBJS) : $(OBJDIR)/%.o : %.c
+	@echo "***** compiling $< ..."
+	$(VERBOSECHAR)$(CC) -c $(DEFFLAGS) $(CFLAGS) $(INCL) $< -o $@
+
+# generate dependencies
+$(DIRDEPS) : $(PLTDIRTAG)
+$(DIRDEPS) : $(OBJDIR)/%.d : %.c
+	@echo "***** making dependencies for $< ..."
+#	lint -c $(DEFFLAGS) $(CFLAGS) $(INCL) $< 
+	$(VERBOSECHAR)$(DCC) $(DEFFLAGS) $(DEPFLAGS) $(INCL) $< | $(SED) > $@
+
+# include dependency files *.d
+# NOTE: If an included *.d file does not exist, this file becomes a target
+#       that is to be made if a corresponding rule exists!
+#       (here: "generate dependencies" rule)
+ifeq "$(INCLDEP)" "1"
+-include $(DIRDEPS)
+endif
+
+$(PLTDIRTAG) :
+	@echo "***** making directories"
+	$(VERBOSECHAR)-mkdir -p $(OBJDIR) $(BINDIR) $(LIBDIR)
+	$(VERBOSECHAR)touch $@
+
+clean: $(CLEANLIBDEPS)
+	@echo "+++ clean up "$(TARGET)" +++++++++"
+	@echo "***** cleaning ..."
+	$(VERBOSECHAR)-rm -f $(DIRDEPS) $(DIROBJS)
+	$(VERBOSECHAR)-rm -f                           $(filter     %$(LIB_SUFFIX),$(DIRTARGET))
+	$(VERBOSECHAR)-rm -f $(addsuffix $(EXE_SUFFIX),$(filter-out %$(LIB_SUFFIX),$(DIRTARGET)))
+	$(VERBOSECHAR)-rm -f $(addsuffix $(LNK_SUFFIX),$(filter-out %$(LIB_SUFFIX),$(DIRTARGET)))
+
+clobber: $(CLOBBERLIBDEPS)
+	rm -rf $(TARGETTMPDIR) $(BINDIR) $(LIBDIR)
+
+distclean:
+	rm -rf $(TMP)$(MODULEDIR) ../bin/$(MODULEDIR) ../lib/$(MODULEDIR)
+
+else # ifneq "$(MAKELEVEL)" "0"
+
+default: all
+
+clobber:
+	@$(MAKE) ADDONDIR="$(ADDONDIR)" $@
+
+distclean:
+	@$(MAKE) $@
+
+endif # ifneq "$(MAKELEVEL)" "0"

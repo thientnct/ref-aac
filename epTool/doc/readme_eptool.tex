@@ -1,0 +1,403 @@
+\documentclass[a4paper]{article} 
+
+% Check for the existence of the variable \pdfoutput: 
+\newif\ifpdf 
+\ifx\pdfoutput\undefined 
+\pdffalse % we are not running PDFLaTeX 
+\else 
+\pdfoutput=1 % we are running PDFLaTeX 
+\pdftrue 
+\fi 
+
+\usepackage{mya4} 
+\usepackage{verbatim} 
+
+\ifpdf 
+\usepackage[pdftex]{graphicx}  
+\pdfcompresslevel=9 
+\usepackage[bookmarksnumbered=true,pdfpagemode=UseOutlines,
+pdfstartview=,bookmarksopen=true]{hyperref} 
+\else 
+\usepackage{graphicx} 
+\usepackage[hypertex,colorlinks]{hyperref} 
+%\usepackage[dvips]{hyperref} 
+\fi 
+
+\parindent0cm 
+\parskip1.5ex plus0.5ex minus0.5ex 
+
+\begin{document} 
+\title{MPEG-4 Audio Common Error Protection Tool\\(Version 0.75++)}
+\author{Sanae Hotani, NTT DoCoMo\\Markus Multrus, Fraunhofer IIS-A} 
+\maketitle
+
+
+\section{Introduction}
+
+ This file describes how to use the common EP encoder/decoder.
+ There are two executable files, "epenc" and "epdec", which are the common EP encoder and decoder respectively. 
+
+\section{Usages}
+\subsection{epenc}
+  epenc requires 5 parameters as follows:\\
+
+  \% epenc pred.dat indata.dat ininf.dat encdata.dat encinf.dat
+\begin{quote}
+  pred.dat:     Pre-definition file to be read.\\
+  indata.dat:   input data stream file to be read.\\
+  ininf.dat:    input side information file to be read.\\
+  encdata.dat:  output ep-encoded stream file to be write.\\
+  encinf.dat:   output side information file to be write.
+\end{quote}
+
+  The file formats are described in \ref{fileformats}.
+
+\subsection{epdec}
+  epdec requires 5 parameters as follows:\\
+
+  \% epdec pred.dat encdata.dat encinf.dat decdata.dat decinf.dat
+\begin{quote}
+  pred.dat:     Pre-definition file to be read.\\
+  encdata.dat:  input ep-encoded stream file to be read.\\
+  encinf.dat:   input side information file to be read.\\
+  decdata.dat:  output decoded data stream file to be write.\\
+  decinf.dat:   output side information file to be read.
+\end{quote}
+
+  The file formats are described in \ref{fileformats}.
+
+\section{File Formats \label{fileformats}}
+\subsection{Pre-definition file ``pred.dat''}
+
+\subsubsection{Definition}
+This file describes the pre-defined configuration of the common EP encoder/decoder. In the real transmission environment, these parameters should be sent during the channel configuration, maybe by using such as ObjectDescriptor.
+  For the class length, now we have "until the end" class, which means this class is until the end of this frame. In the MPEG-4 systems, the audio frame boundary is guaranteed by the systems layer by mapping one audio frame to one AU. Therefore, the length of "until the end" class can be calculated from the lengh of other classes and the ep-encoded audio frame length. 
+  This implies following two points, which should be carefully considered while generating this pre-definition file.\\
+\begin{itemize}
+\item The "until the end" definition is only allowed for the last class of each pre-defined set.
+\item If the length of the last class is fixed, this value should be set
+  in the pre-definition file, and should not use the "until the end"
+  definition. If the fixed value is known to the decoder, the decoder
+  can find the violation of the frame length which may occur when the
+  ep-protected audio frame is partially dropped at the de-multiplexing
+  or when the choice of the pre-defined set in the ep-protected audio
+  frame is corrupted due to channel error, and finding these violations
+  will enhance the error resiliency.
+\end{itemize}
+
+The file format is as follows:
+
+\begin{verbatim}
+/* BEGIN */
+  printf("%d\n", number_of_predefined_set);
+  printf("%d\n", interleave_type);
+  printf("%d\n", bit_stuffing);
+  printf("%d\n", number_of_concatenated_frames);      
+  for(i=0; i<number_of_predefined_set; i++){
+    printf("%d\n", number_of_class[i]);
+    for(j=0; j<number_of_class[i]; j++){
+      printf("%d %d %d ", length_escape[i][j], 
+              rate_escape[i][j], crclen_escape[i][j]);
+      if(number_of_concatenated_frames != 1)
+        printf("%d ", concatenate_flag[i][j])
+      printf("%d ", fec_type[i][j]);
+      if (fec_type[i][j] == 0)
+        printf("%d ", termination_switch[i][j]);
+      if (interleave_type ==2)
+        printf("%d ", interleave_switch[i][j]);
+      printf("%d\n", class_optional[i][j]);            
+      if(length_escape[i][j] == 1)   /* ESC */
+        printf("%d\n", number_of_bits_for_lentgh[i][j]);
+      else                           /* not ESC */
+        printf("%d\n", class_length[i][j]);
+      if(rate_escape[i][j] != 1)     /* not ESC */
+        printf("%d\n", class_rate[i][j]);
+      if(crclen_escape[i][j] != 1)   /* not ESC */
+        printf("%d\n", class_crclen[i][j]);
+    }
+      printf("%d\n", class_reordered_output);
+      if (class_reordered_output ==1){
+        for (j=0; j<number_of_classes; j++)
+          printf("%d ", class_output_order[i][j]);
+        printf("\n");     
+      }      
+  }
+  printf("%d\n", header_protection);
+  if(header_protection == 1){
+    printf("%d\n", header_rate);
+    printf("%d\n", header_crc);
+  }
+  printf("%d\n", rs_fec_capability);
+/* END */
+\end{verbatim} 
+
+  Semantics of these parameters are as follows:\\
+  Please see therefore ISO/IEC 14496-3:1999/Amd.1.2000, 9.3.1
+    
+\subsubsection{Examples}
+  Example 1: for AAC 
+\begin{quote}
+  Class 1:  variable length (signal with 12-bit in-band field), SRCPC
+  Code rate 8/16, 12-bit CRC \\
+  Class 2:  Until the End, SRCPC Code rate 8/8, no CRC
+\end{quote}
+
+\begin{verbatim}
+----
+1               /* number of predined sets */
+1               /* interleaving type */
+1               /* bit stuffing */
+1               /* number of concatenated frames */               
+2               /* number of classes */
+1 0 0 0 0 0     /* length_esc, rate_esc, crc_len_esc, fec_type, 
+                   termination_switch, class_optional */
+12              /* number_of_bits_for_length */
+8               /* class rate */
+12              /* class crc_len */
+1 0 0 0 0 0     /* length_esc, rate_esc, crc_len_esc, fec_type, 
+                   termination_switch, class_optional */
+0               /* number_of_bits_for_length */
+0               /* class rate */
+0               /* class crc_len */
+0               /* class reordered output */
+0               /* header protection */
+0               /* RS fec capability */
+----
+
+\end{verbatim}
+  
+Example 2: for Twin-VQ 
+\begin{quote}
+  Pre-definition 1: \\
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC \\
+    Class 2: 200-bit (fixed), SRCPC code rate 8/12, 10-bit CRC \\
+    Class 3: 1503-bit (fixed), SRCPC code rate 8/8, no CRC \\
+  Pre-definition 2: \\
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC \\
+    Class 2: 451-bit (fixed), SRCPC code rate 8/13, 10-bit CRC \\
+    Class 3: 1252-bit (fixed), SRCPC code rate 8/8, no CRC \\
+  Pre-definition 3: \\
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC \\
+    Class 2: 341-bit (fixed), SRCPC code rate 8/12, 10-bit CRC \\
+    Class 3: 1362-bit (fixed), SRCPC code rate 8/8, no CRC
+\end{quote}
+
+\begin{verbatim}
+----
+3               /* number of predifined sets */
+1               /* interleaving type */
+1               /* bit stuffing */
+1               /* number of concatenated frames */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+200             /* class_length */
+4               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+1503            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+451             /* class_length */
+5               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+1252            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+341             /* class_length */
+4               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, 
+                   termination_switch, class_optional */
+1362            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+0               /* header_protection */
+0               /* RS fec capability */
+----
+\end{verbatim}
+
+Please use the program "cfgparse" to check this file.\\
+  \%cfgparse pred.dat
+
+\subsection{ininf.dat, outinf.dat (same format)}
+
+\subsubsection{Format}
+
+  The format of ininf.dat and outinf.dat is identical so that the user can check the audio encode/decoder to ep-tool encode/decoder interface easily.
+  For each audio frame, the following information is written.\\
+
+\begin{verbatim}
+/* BEGIN */
+  printf("%d\n", total_audio_frame_length);
+  if(number_of_predefined_set != 1)
+    printf("%d\n", pred_choice); /* first set is 0 */
+  for(i=0; i<number_of_class[pred_choice];i++)
+    printf("%d ", crc_check_result[i]); /* dummy for ininf.dat. 0:OK 1:ERR */
+  printf("\n");
+  for(i=0; i<number_of_class[pred_choice]; i++){
+    if(length_escape[pred_choice][i] == 1)
+      printf("%d\n", class_length_of_this_frame[i]);
+    if(rate_escape[pred_choice][i] == 1)
+      printf("%d\n", srcpc_rate_of_this_frame[i]);
+    if(crclen_escape[pred_choice][i] == 1)
+      printf("%d\n", crc_length_of_this_frame[i]);
+  }
+/* END*/
+
+\end{verbatim}
+
+\begin{itemize}
+\item total\_audio\_frame\_length:
+This value is the audio frame length, that is, the sum of the number of
+bits for all the class in the frame.
+
+\item pred\_choice:
+The value shows which pre-defined set is chosen for this frame. The
+first set is '0'. This field exists only when the number of
+pre-defined set is greater than 0. 
+
+
+\item class\_length\_of\_this\_frame[i]:
+  The number of bits in the i-th class of this frame. This field only exists when corresponding length\_escape in pre-definition file is 1. 
+  !!! Note that even in 'until the end' case, this field appears.
+
+\item srcpc\_rate\_of\_this\_frame[i]:
+  The SRCPC code rate for the i-th class of this frame. The possible
+  value is 0, 3, 4, 6, 8, 12, 16 and 24, which corresponds to rate
+  8/8, 8/11, 8/12, 8/14, 8/16, 8/24 and 8/32, respectively. This field
+  only exists when corresponding rate\_escape in the pre-definition
+  file is 1.
+
+\item crc\_length\_of\_this\_frame[i]:
+  The number of CRC bits for the i-th class of this frame. The
+  possible value is 0, 6, 8, 10, 12, 14 and 16. This field only exists
+  when corresponding crclen\_escape in the pre-definition file is
+  1. 
+
+\end{itemize}
+ 
+\section{Further programs included in this package}
+\subsection{cfgparse}
+  This programs shows the content of the Pre-definition file.\\
+  Usage: \\
+  \%cfgparse pred.dat
+
+
+\section{Development remains}
+There are at the moment a couple of files existing because of progessing development of the Error Protection Tool. These files are specified as follows:
+
+\subsection{Files ending with \_pur: \label{_pur}}
+These files represent the Error Protection Tool of a former status, that means *without* the class\_optional functionality. Therefore the flag does not exist in the predefinition file (Note: In all other respects these files are identical!). There is a way to represent pre-definition files with class\_optional flag in pre-definition files without class\_optional flag, see therefore 9.4.2 in ISO/IEC 14496-3:1999/Amd.1:2000(E). In general also the info-file has to be changed. These changes can be done with predconv, infoconv (description below).\\
+There is a way to use the full functionality (including class\_optional)
+with this former version:
+\begin{itemize}
+\item transform the pre-definition file: \\\%predconf pred.dat pred.trans.dat
+\item transform the side information file: \\\%infoconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+\item encoding: \\\%epenc\_pur pred.trans.dat indata.dat ininf.trans.dat encdata.dat encinf.dat
+\item decoding: \\\%epdec\_pur pred.trans.dat encdata.dat encinf.dat decdata.dat decinf.trans.dat
+\item re-transform the side information file: \\\%rinfoconv pred.dat
+  pred.trans.dat decinf.trans.dat decinf.dat
+\end{itemize}
+These files are probably not up-to-date and there will be also no more updates for these files. These files exist only for debugging.
+
+\subsection{Files ending with \_old:}
+The Error Protection Tool was completely re-written and put into the library libeptool.c(see also ./doc/lib\_epTool.tex). The files ending with \_old represent the status before this. These files are probably not up-to-date and there will be also no more updates for these files. These files exist only for debugging.
+  
+\subsection{Other files}
+
+\subsubsection{predconv}
+This file transforms pre-definition files with class\_optional functionality into files without class\_optional functionality. See also \ref{_pur}.\\
+usage: \\
+\%predconv pred.dat pred.trans.dat
+\begin{quote}
+  input: pred.dat\\
+  output: pred.trans.dat
+\end{quote}
+
+\subsubsection{infoconv}
+This file transforms side information files with class\_optional functionality into files without class\_optional functionality. See also \ref{_pur}.\\
+usage: \\
+\%infoconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+\begin{quote}
+  input: pred.dat, pred.trans.dat, ininf.dat\\
+  output: ininf.trans.dat
+\end{quote}
+
+\subsubsection{sideconv}
+This file transforms pre-definition/side information files with class\_optional functionality into files without class\_optional functionality. See also \ref{_pur}.\\
+usage: \\
+\%sideconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+\begin{quote}
+  input: pred.dat, ininf.dat\\
+  output: pred.trans.dat, ininf.trans.dat
+\end{quote}
+
+\subsubsection{rsideconv \label{rsideconv}}
+This file re-transforms side information files with class\_optional functionality into files without class\_optional functionality. See also \ref{_pur}.\\
+usage: \\
+\%rsideconv pred.dat pred.trans.dat decinf.trans.dat decinf.dat
+\begin{quote}
+  input: pred.dat, pred.trans.dat, decinf.trans.dat\\
+  output: decinf.dat
+\end{quote}
+   
+\subsubsection{rinfoconv}
+This file is identical to rsideconv. See also \ref{rsideconv}\\
+usage: \\
+\%rinfoconv pred.dat pred.trans.dat decinf.trans.dat decinf.dat
+\begin{quote}
+  input: pred.dat, pred.trans.dat, decinf.trans.dat\\
+  output: decinf.dat
+\end{quote}
+
+\subsubsection{concatenation}
+  This function is a pre-processing for the "epenc" and it is used only for the concatenation function. It operates on pred.dat indata.dat ininf.dat.\\
+  usage: \\
+  \%concatenation pred.dat ininf.dat indata.dat modpred.dat modininf.dat modindata.dat
+\begin{quote}
+  input: pred.dat, ininf.dat, indata.dat\\
+  output: modininf.dat, modindata.dat\\
+  The pred.dat, ininf.dat and indata.dat of epenc and epdec are replaced
+  by modpred.dat, modininf.dat and modindata.dat,respectively.
+\end{quote}
+
+\subsubsection{Rconcatenation}
+  This function is a post-processing for the "epdec" and it is used only for the concatenation function. It is operates on decdata.dat and decinf.dat.\\
+  usage: \%Rconcatenation pred.dat decinf.dat decdata.dat
+  resortdecinf.dat resortdecdata.dat
+\begin{quote}
+  input: pred.dat, decinf.dat, decdata.dat\\
+  output: resortdecinf.dat, resortdecdata.dat\\
+  resortdecinf.dat and resortdecdata.dat are used for input of audio
+  decoder.
+\end{quote}
+
+\end{document}

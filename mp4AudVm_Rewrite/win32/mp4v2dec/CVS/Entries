@@ -1,0 +1,26 @@
+/.cvsignore/1.2.4.3/Fri Oct 27 15:48:32 2006//Tbt_VmMp4AuDecRewrite
+/Convert.dsp/1.1.2.6/Wed Apr 23 10:36:43 2008//Tbt_VmMp4AuDecRewrite
+/mp4v2dec.dsp/1.4.4.18/Wed Apr 23 10:36:44 2008//Tbt_VmMp4AuDecRewrite
+/mp4v2dec.dsw/1.4.4.8/Fri Mar 16 08:03:34 2007//Tbt_VmMp4AuDecRewrite
+/objs_aac_dec.dsp/1.2.2.9/Wed Apr 23 10:36:44 2008//Tbt_VmMp4AuDecRewrite
+/objs_bsac_dec.dsp/1.2.2.10/Wed Apr 23 10:36:44 2008//Tbt_VmMp4AuDecRewrite
+/objs_com.dsp/1.2.2.9/Wed Apr 23 10:36:45 2008//Tbt_VmMp4AuDecRewrite
+/objs_dec_lpc.dsp/1.2.2.9/Wed Apr 23 10:36:45 2008//Tbt_VmMp4AuDecRewrite
+/objs_dec_par.dsp/1.2.2.9/Wed Apr 23 10:36:45 2008//Tbt_VmMp4AuDecRewrite
+/objs_dec_picola.dsp/1.2.2.2/Tue Jul 22 13:06:01 2003//Tbt_VmMp4AuDecRewrite
+/objs_dec_ssc.dsp/1.1.2.9/Wed Apr 23 10:36:45 2008//Tbt_VmMp4AuDecRewrite
+/objs_dec_tf.dsp/1.2.2.10/Wed Apr 23 10:36:45 2008//Tbt_VmMp4AuDecRewrite
+/objs_etc.dsp/1.2.2.9/Wed Apr 23 10:36:46 2008//Tbt_VmMp4AuDecRewrite
+/objs_sls.dsp/1.1.2.4/Wed Apr 23 10:36:46 2008//Tbt_VmMp4AuDecRewrite
+/objs_son_aacpp_dec.dsp/1.2.2.9/Wed Apr 23 10:36:46 2008//Tbt_VmMp4AuDecRewrite
+/objs_streamfile.dsp/1.1.2.7/Wed Apr 23 10:36:46 2008//Tbt_VmMp4AuDecRewrite
+/objs_vq_dec.dsp/1.2.2.9/Wed Apr 23 10:36:47 2008//Tbt_VmMp4AuDecRewrite
+D/objs_aac_dec////
+D/objs_bsac_dec////
+D/objs_com////
+D/objs_dec_lpc////
+D/objs_dec_par////
+D/objs_dec_tf////
+D/objs_etc////
+D/objs_son_aacpp_dec////
+D/objs_vq_dec////

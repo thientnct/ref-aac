@@ -1,0 +1,239 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Mp4v2enc"=.\Mp4v2enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name objs_enc_par
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_com
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_aac_enc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_aac_qc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_bsac_enc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_enc_lpc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_enc_tf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_psych
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_son_aacpp_enc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_vq_enc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_etc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_ssc_enc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_sls
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libisomedia
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libisomedia"=..\lib2001\libisomediafile\w32\libisomediafile\libisomedia.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_aac_enc"=.\objs_aac_enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_aac_qc"=.\objs_aac_qc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_bsac_enc"=.\objs_bsac_enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_com"=.\objs_com.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_enc_lpc"=.\objs_enc_lpc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_enc_par"=.\objs_enc_par.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_enc_tf"=.\objs_enc_tf.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_etc"=.\objs_etc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_psych"=.\objs_psych.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_sls"=.\objs_sls.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_son_aacpp_enc"=.\objs_son_aacpp_enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_ssc_enc"=.\objs_ssc_enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_vq_enc"=.\objs_vq_enc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

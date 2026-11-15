@@ -1,0 +1,56 @@
+The following targets can be compiled using this package:
+
+______
+aacdec_mc
+
+MPEG-2 AAC reference decoder. Input is raw, adif, or adts bitstream.
+Output is waveform in raw or aiff format (wav and 24 bit accuracy is
+also supported, if AFsp library is used). If no output is given this
+tool gives a short look into the inputfile's header. Only the MPEG-2
+functionality is provided in this target. Further information can be
+found in readme_dec.
+
+______
+adif2mp4
+
+This tool converts AAC compressed data between any of raw, adts, adif
+and also mp4 file formats. Additional information can be found in
+readme_adif2mp4. Note that the mp4ff capabilities depend on the
+isomp4-fileformat library. Without this library this tool does not
+support the mp4 file format.
+
+______
+libisoaac.a
+
+AAC decoder library used by the tools above. It supports the MPEG-2 AAC
+profiles AAC Main, AAC LC and AAC SSR.
+
+#ifdef MPEG4V1
+
+______
+mp4audec_mc
+
+MPEG-4 Version 1 AAC multichannel reference decoder. Input is raw, adif,
+adts or mp4ff bitstream. Output is waveform in raw or aiff format (wav
+and 24 bit accuracy is also supported, if the AFsp library is used). If
+no output is given this tool gives a short look into the inputfile's
+header. Note the mp4ff capabilities depend on the isomp4-fileformat
+library.  Without this library this tool does not support the mp4 file
+format. Additional information can be found in readme_dec and
+readme_ltp.
+
+______
+libisoaac_mp4.a
+
+AAC decoder library used by mp4audec_mc and adif2mp4 (for the latter,
+the usage of one or the other library depends on the compiler switch
+MPEG4V1). It supports the MPEG-2 AAC profiles AAC Main, AAC LC and AAC
+SSR, and it supports the MPEG-4 audio object types AAC Main, AAC LC, AAC
+SSR and AAC LTP.
+
+
+#endif
+
+Ralph Sperschneider, Fraunhofer IIS-A
+History:
+RS 2002-10-08 compiled from readme and readme_mp4

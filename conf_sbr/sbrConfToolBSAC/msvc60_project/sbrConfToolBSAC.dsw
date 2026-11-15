@@ -1,0 +1,104 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "libeptool"="..\..\..\epTool\libeptool.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libisoaac_mp4"="..\..\..\mp4mcDec\win32\libisoaac_mp4\libisoaac_mp4.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "msvc60_project"=".\msvc60_project.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libisoaac_mp4
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_com
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_streamfile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_etc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libeptool
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "objs_com"="..\..\..\mp4AudVm_Rewrite\win32\mp4v2dec\objs_com.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_etc"="..\..\..\mp4AudVm_Rewrite\win32\mp4v2dec\objs_etc.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_streamfile"="..\..\..\mp4AudVm_Rewrite\win32\mp4v2dec\objs_streamfile.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

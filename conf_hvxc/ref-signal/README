@@ -1,0 +1,45 @@
+********** ATTENTION **********
+
+Please put reference signals listed below that you can obtain
+from AT&T ftp site 
+(ftp@ftp.research.att.com/dist/mpegaudio/mpeg4/speech/hvxc/hvxc_conf*.*)
+in this directory.
+
+file name :
+hv01ref1.wav
+hv01ref2.wav
+hv01ref3.wav
+hv01ref4.wav
+hv01ref5.wav
+hv01ref6.wav
+hv01ref7.wav
+hv01ref8.wav
+hv01ref9.wav
+hv01ref10.wav
+hv02ref1.wav
+hv02ref2.wav
+hv03ref1.wav
+hv03ref2.wav
+hv04ref1.wav
+hv04ref2.wav
+hv05ref1.wav
+hv05ref2.wav
+hv05ref3.wav
+hv05ref4.wav
+hv05ref5.wav
+hv05ref6.wav
+hv05ref7.wav
+hv05ref8.wav
+hv05ref9.wav
+hv05ref10.wav
+hv06ref1.wav
+hv06ref2.wav
+hv07ref1.wav
+hv07ref2.wav
+
+er_hv09_nd.wav
+er_hv09_ld.wav
+er_hv10_lay0_nd.wav
+er_hv10_lay0_ld.wav
+er_hv10_lay1_nd.wav
+er_hv10_lay1_ld.wav

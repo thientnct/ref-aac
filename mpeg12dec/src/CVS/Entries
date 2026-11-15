@@ -1,0 +1,24 @@
+/bitBuffer.c/1.6/Wed Nov  7 12:43:38 2007//
+/common.c/1.25/Thu Sep 27 12:57:19 2007//
+/common.h/1.26/Tue Oct  2 08:42:20 2007//
+/create_tables.c/1.2/Thu Sep 27 13:02:15 2007//
+/debug.c/1.4/Tue Oct  9 14:38:52 2007//
+/decLayer123.c/1.11/Tue Jun  3 12:18:02 2008//
+/decode.c/1.33/Wed Nov  7 12:44:56 2007//
+/decoder.h/1.22/Wed Nov  7 12:45:14 2007//
+/fileWriter.c/1.5/Wed Nov  7 13:25:45 2007//
+/fileWriter.h/1.1/Thu Sep 27 12:49:59 2007//
+/frameData.c/1.2/Wed Nov  7 12:45:51 2007//
+/frameData.h/1.2/Wed Nov  7 12:46:17 2007//
+/frameDeMux.c/1.4/Thu Nov  8 12:08:24 2007//
+/huffman.c/1.15/Thu Sep 27 13:00:02 2007//
+/huffman.h/1.12/Thu Sep 27 13:00:20 2007//
+/ieeefloat.c/1.6/Tue Mar 11 10:07:20 2003//
+/ieeefloat.h/1.5/Thu Nov 14 13:04:08 2002//
+/mpeg12dec.c/1.12/Wed Nov  7 13:26:29 2007//
+/pcmBuffer.c/1.5/Thu Sep 27 13:01:28 2007//
+/portableio.c/1.6/Tue Mar 11 10:07:20 2003//
+/portableio.h/1.5/Thu Nov 14 13:04:09 2002//
+/tables.c/1.2/Thu Sep 27 13:03:00 2007//
+/tables.h/1.2/Tue Aug 21 16:37:32 2007//
+D/tables////

@@ -1,0 +1,31 @@
+/.cvsignore/1.1/Fri Mar 30 20:07:29 2001//
+/make-all/1.14/Thu Feb 28 16:46:25 2008//
+/strip-to-conf/1.6/Fri Jan 28 08:55:55 2005//
+/strip-to-mpeg2/1.20/Fri Sep 12 09:00:10 2008//
+/strip-to-refsoft/1.20/Fri Sep 12 09:00:10 2008//
+D/checkout////
+D/codec_doc////
+D/general////
+D/scripts////
+D/test-dir////
+D/aacErrRobTrans////
+D/epTool////
+D/mp4AudVm////
+D/mp4mcDec////
+D/mp4mcEnc////
+D/mpeg12dec////
+D/mpeg12to4////
+D/mpeg4ac////
+D/mpeg4dst////
+D/mpeg4sa////
+D/mpeg4smr////
+D/mpeg4ttsi////
+D/conf_doc////
+D/conf_hvxc////
+D/conf_hiln////
+D/conf_pns////
+D/conf_sa////
+D/conf_sbr////
+D/conf_ssnrcd////
+D/errGen////
+D/mp4AudVm_Rewrite////

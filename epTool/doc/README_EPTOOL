@@ -1,0 +1,287 @@
+
+              	MPEG-4 Audio Common Error Protection Tool
+			(Version 0.75++)
+                        dated 2001-05-29
+                        
+
+1. Introduction
+
+ This file describes how to use the common EP encoder/decoder.
+ There are two executable files, "epenc" and "epdec", which are the common EP encoder and decoder respectively. 
+
+2. Usages
+2.1 epenc
+  epenc requires 5 parameters as follows:
+
+  % epenc pred.dat indata.dat ininf.dat encdata.dat encinf.dat
+
+  pred.dat: 	Pre-definition file to be read.
+  indata.dat:	input data stream file to be read.
+  ininf.dat:	input side information file to be read.
+  encdata.dat:  output ep-encoded stream file to be write.
+  encinf.dat:   output side information file to be write.
+
+  The file formats are described in section 3.
+
+2.2 epdec
+  epdec requires 5 parameters as follows:
+
+  % epdec pred.dat encdata.dat encinf.dat decdata.dat decinf.dat
+
+  pred.dat: 	Pre-definition file to be read.
+  encdata.dat:  input ep-encoded stream file to be read.
+  encinf.dat:	input side information file to be read.
+  decdata.dat:	output decoded data stream file to be write.
+  decinf.dat:   output side information file to be read.
+
+  The file formats are described in section 3.
+
+3. File Formats
+3.1 Pre-definition file <pred.dat>
+3.1.1 Definition
+  This file describes the pre-defined configuration of the common EP encoder/decoder. In the real transmission environment, these parameters should be sent while the channel configuration, maybe by using such as ObjectDescriptor.
+  For the class length, now we have "until the end" class, which means this class is until the end of this frame. In the MPEG-4 systems, the audio frame boundary is guaranteed by the systems layer by mapping one audio frame to one AU. Therefore, the length of "until the end" class can be calculated from the lengh of other classes and the ep-encoded audio frame length. 
+  This implies following two points, which should be carefully considered while generating this pre-definition file.
+
+   1. The "until the end" definition is only allowed for the last class of each pre-defined set.
+   2. If the length of the last class is fixed, this value should be set in the pre-definition file, and should not use the "until the end" definition. If the fixed value is known to the decoder, the decoder can find the violation of the frame length which may occur when the ep-protected audio frame is partially dropped at the de-multiplexing or when the choice of the pre-defined set in the ep-protected audio frame is corrupted due to channel error, and finding these violations will enhance the error resiliency.
+
+  The file format is as follows.
+
+/* BEGIN */
+  printf("%d\n", number_of_predefined_set);
+  printf("%d\n", interleave_type);
+  printf("%d\n", bit_stuffing);
+  printf("%d\n", number_of_concatenated_frames);      
+  for(i=0; i<number_of_predefined_set; i++){
+    printf("%d\n", number_of_class[i]);
+    for(j=0; j<number_of_class[i]; j++){
+      printf("%d %d %d ", length_escape[i][j], rate_escape[i][j], crclen_escape[i][j]);
+      if(number_of_concatenated_frames != 1)
+        printf("%d ", concatenate_flag[i][j])
+      printf("%d ", fec_type[i][j]);
+      if (fec_type[i][j] == 0)
+        printf("%d ", termination_switch[i][j]);
+      if (interleave_type ==2)
+        printf("%d ", interleave_switch[i][j]);
+      printf("%d\n", class_optional[i][j]);            
+      if(length_escape[i][j] == 1)   /* ESC */
+        printf("%d\n", number_of_bits_for_lentgh[i][j]);
+      else                           /* not ESC */
+        printf("%d\n", class_length[i][j]);
+      if(rate_escape[i][j] != 1)     /* not ESC */
+        printf("%d\n", class_rate[i][j]);
+      if(crclen_escape[i][j] != 1)   /* not ESC */
+        printf("%d\n", class_crclen[i][j]);
+    }
+      printf("%d\n", class_reordered_output);
+      if (class_reordered_output ==1){
+        for (j=0; j<number_of_classes; j++)
+          printf("%d ", class_output_order[i][j]);
+        printf("\n");     
+      }      
+  }
+  printf("%d\n", header_protection);
+  if(header_protection == 1){
+    printf("%d\n", header_rate);
+    printf("%d\n", header_crc);
+  }
+  printf("%d\n", rs_fec_capability);
+/* END */
+
+  Semantics of these parameters are as follows:
+  Please see therefore ISO/IEC 14496-3:1999/Amd.1.2000(E), 9.3.1
+    
+3.1.2 Example
+
+  Example 1: for AAC
+  Class 1:  variable length (signal with 12-bit in-band field), SRCPC Code rate 8/16, 12-bit CRC
+  Class 2:  Until the End, SRCPC Code rate 8/8, no CRC
+
+----
+1               /* number of predined sets */
+1               /* interleaving type */
+1               /* bit stuffing */
+1               /* number of concatenated frames */               
+2               /* number of classes */
+1 0 0 0 0 0     /* length_esc, rate_esc, crc_len_esc, fec_type, term_switch, class_optional */
+12              /* number_of_bits_for_length */
+8               /* class rate */
+12              /* class crc_len */
+1 0 0 0 0 0     /* length_esc, rate_esc, crc_len_esc, fec_type, term_switch, class_optional */
+0               /* number_of_bits_for_length */
+0               /* class rate */
+0               /* class crc_len */
+0               /* class reordered output */
+0               /* header protection */
+0               /* RS fec capability */
+----
+  
+  Example 2: for Twin-VQ
+  Pre-definition 1:
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC
+    Class 2: 200-bit (fixed), SRCPC code rate 8/12, 10-bit CRC
+    Class 3: 1503-bit (fixed), SRCPC code rate 8/8, no CRC
+  Pre-definition 2:
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC
+    Class 2: 451-bit (fixed), SRCPC code rate 8/13, 10-bit CRC
+    Class 3: 1252-bit (fixed), SRCPC code rate 8/8, no CRC
+  Pre-definition 3:
+    Class 1: 4-bit (fixed), SRCPC code rate 8/24, no CRC
+    Class 2: 341-bit (fixed), SRCPC code rate 8/12, 10-bit CRC
+    Class 3: 1362-bit (fixed), SRCPC code rate 8/8, no CRC
+
+----
+3               /* number of predifined sets */
+1   	        /* interleaving type */
+1               /* bit stuffing */
+1               /* number of concatenated frames */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+200             /* class_length */
+4               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+1503            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+451             /* class_length */
+5               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+1252            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+3               /* number of classes */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+4               /* class_length */
+16              /* class_rate */
+16              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+341             /* class_length */
+4               /* class_rate */
+10              /* class_crclen */
+0 0 0 0 0 0     /* length_esc, rate_esc, crclen_esc, fec_type, termination_switch, class_optional */
+1362            /* class_length */
+0               /* class_rate */
+0               /* class_crclen */
+0               /* class_reordered_output */
+0               /* header_protection */
+0               /* RS fec capability */
+
+
+----
+
+Please use the program "cfgparse" to check this file.
+  % cfgparse pred.dat
+
+3.2 ininf.dat, outinf.dat (same format)
+3.2.1 Format
+
+  The format of ininf.dat and outinf.dat is identical so that the user can check the audio encode/decoder to ep-tool encode/decoder interface easily.
+  For each audio frame, the following information is written.
+
+/* BEGIN */
+  printf("%d\n", total_audio_frame_length);
+  if(number_of_predefined_set != 1)
+    printf("%d\n", pred_choice); /* first set is 0 */
+  for(i=0; i<number_of_class[pred_choice];i++)
+    printf("%d ", crc_check_result[i]); /* dummy for ininf.dat. 0:OK 1:ERR */
+  printf("\n");
+  for(i=0; i<number_of_class[pred_choice]; i++){
+    if(length_escape[pred_choice][i] == 1)
+      printf("%d\n", class_length_of_this_frame[i]);
+    if(rate_escape[pred_choice][i] == 1)
+      printf("%d\n", srcpc_rate_of_this_frame[i]);
+    if(crclen_escape[pred_choice][i] == 1)
+      printf("%d\n", crc_length_of_this_frame[i]);
+  }
+/* END*/
+
+  total_audio_frame_length:
+    This value is the audio frame length, that is, the sum of the number of bits for all the class in the frame.
+
+  pred_choice:
+    The value shows which pre-defined set is chosen for this frame. The first set is '0'. This field exists only when the number of pre-defined set is greater than 0.
+
+  class_length_of_this_frame[i]:
+    The number of bits in the i-th class of this frame. This field only exists when corresponding length_escape in pre-definition file is 1. 
+    !!! Note that even in 'until the end' case, this field appears.
+
+  srcpc_rate_of_this_frame[i]:
+    The SRCPC code rate for the i-th class of this frame. The possible value is 0, 3, 4, 6, 8, 12, 16 and 24, which corresponds to rate 8/8, 8/11, 8/12, 8/14, 8/16, 8/24 and 8/32, respectively. This field only exists when corresponding rate_escape in the pre-definition file is 1.
+
+  crc_length_of_this_frame[i]:
+    The number of CRC bits for the i-th class of this frame. The possible value is 0, 6, 8, 10, 12, 14 and 16. This field only exists when corresponding crclen_escape in the pre-definition file is 1.
+  
+4. Further programs included in this package
+4.1 cfgparse
+  Usage: cfgparse pred.dat
+  This programs shows the content of the Pre-definition file.
+
+5. Development remains
+There are at the moment a couple of files existing because of progessing development of the Error Protection Tool. These files are specified as follows:
+
+5.1 Files ending with _pur:
+These files represent the Error Protection Tool of a former status, that means *without* the class_optional functionality. Therefore the flag does not exist in the predefinition file (Note: In all other respects these files are identical!). There is a way to represent pre-definition files with class_optional flag in pre-definition files without class_optional flag, see therefore 9.4.2 in ISO/IEC 14496-3:1999/Amd.1:2000(E). In general also the info-file has to be changed. These changes can be done with predconv, infoconv (description below).
+There is a way to use the full functionality (including class_optional) with this former version:
+  transform the pre-definition file: predconf pred.dat pred.trans.dat
+  transform the side information file: infoconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+  encoding: epenc_pur pred.trans.dat indata.dat ininf.trans.dat encdata.dat encinf.dat
+  decoding: epdec_pur pred.trans.dat encdata.dat encinf.dat decdata.dat decinf.trans.dat
+  re-transform the side information file: rinfoconv pred.dat pred.trans.dat decinf.trans.dat decinf.dat
+These files are probably not up-to-date and there will be also no more updates for these files. These files exist only for debugging.
+
+5.2 Files ending with _old:
+The Error Protection Tool was completely re-written and put into the library libeptool.c(see also ./doc/lib_epTool.tex). The files ending with _old represent the status before this. These files are probably not up-to-date and there will be also no more updates for these files. These files exist only for debugging.
+
+5.3 Other files
+5.3.1 sideconv
+  usage: sideconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+  This file transforms pre-definition/side information files with class_optional functionality into files without class_optional functionality. See also 5.1.
+
+5.3.2 predconv
+  usage: predconv pred.dat pred.trans.dat
+  This file transforms pre-definition files with class_optional functionality into files without class_optional functionality. See also 5.1.
+
+5.3.3 infoconv
+  usage: infoconv pred.dat pred.trans.dat ininf.dat ininf.trans.dat
+  This file transforms side information files with class_optional functionality into files without class_optional functionality. See also 5.1.
+
+5.3.4 rsideconv
+  usage: rsideconv pred.dat pred.trans.dat decinf.trans.dat decinf.dat
+  This file re-transforms side information files with class_optional functionality into files without class_optional functionality. See also 5.1.
+   
+5.3.5 rinfoconv
+  usage: rinfoconv pred.dat pred.trans.dat decinf.trans.dat decinf.dat
+  This file is identical to rsideconv. See also 5.3.4.
+
+5.3.6 concatenation
+  This function is a pre-processing for the "epenc" and it is used only for the concatenation function. It operates on pred.dat indata.dat ininf.dat.
+  Usage:concatenation <pred.dat> <ininf.dat> <indata.dat> <modpred.dat> <modininf.dat> <modindata.dat>
+  input: <pred.dat>, <ininf.dat> <indata.dat>
+  output: <modininf.dat> <modindata.dat>
+  The pred.dat, ininf.dat and indata.dat of epenc and epdec are replaced by modpred.dat, modininf.dat and modindata.dat,respectively.
+
+5.3.7 Rconcatenation
+  This function is a post-processing for the "epdec" and it is used only for the concatenation function. It is operates on decdata.dat and decinf.dat.
+  Usage: Rconcatenation <pred.dat> <decinf.dat> <decdata.dat> <resortdecinf.dat> <resortdecdata.dat>
+  input:<pred.dat>, <decinf.dat>, <decdata.dat>
+  output: <resortdecinf.dat>, <resortdecdata.dat>
+  <resortdecinf.dat> and <resortdecdata.dat> are used for input of audio decoder.
+
+
+last updates by Markus Multrus, 
+Fraunhofer IIS-A (mailto: multrums@iis.fhg.de)

@@ -1,0 +1,337 @@
+#!/usr/local/bin/bash
+# decoding & conformance test for MPEG-4 HILN/Parametric
+# Heiko Purnhagen, University of Hannover <purnhage@tnt.uni-hannover.de>
+# HP20010103 HP20010110 HP20010125
+# HP20010215
+# HP20021124 HP20030303 adapted to new directory structure (main branch)
+
+DEC="../bin/mp4AudVm/Linux_v2_c1_gcc_O0d/mp4audec"
+#DECSOL="../sol_v2_c1_g++3/mp4audec"
+
+SSNRCD="../bin/conf_ssnrcd/Linux_gcc_O0d/ssnrcd"
+HILNCONF="../bin/conf_hiln/Linux_gcc_O0d/hilnconf"
+SUBTRACT="CopyAudio -cA A-B"
+
+BITPATH="../mp4"
+REFPATH="../references"
+DECPATH16="../decoded"
+DECPATH="../decoded24"
+
+DECPARA16="-d 1 -pb $BITPATH -pd $DECPATH16 -ed .wav -c lsm=2"
+DECPARA="-d 1 -pb $BITPATH -pd $DECPATH -ed .wav -int24 -c lsm=1"
+
+OPTS=""
+RNDS=",rnds=999"
+
+DETPARA="-k 16 -t 3"
+FULLPARA="-k 16 -t 1"
+FIXEDPARA="-t 2"
+TESTALL="testdet1 testdet2 testdet4 testdet5 testdet6 teststoch3 teststoch6 teststoch7 testsubj2367"
+
+for a in $*
+do
+
+case $a in
+
+decsol)
+OPTS="$OPTS $a"
+DEC=$DECSOL
+;;
+
+decfixed)
+OPTS="$OPTS $a"
+DECPARA=$DECPARA16
+DECPATH=$DECPATH16
+;;
+
+nornds)
+OPTS="$OPTS $a"
+RNDS=""
+;;
+
+rnds0)
+OPTS="$OPTS $a"
+RNDS=",rnds=999"
+;;
+
+rnds1)
+OPTS="$OPTS $a"
+RNDS=",rnds=100"
+;;
+
+rnds2)
+OPTS="$OPTS $a"
+RNDS=",rnds=200"
+;;
+
+rnds3)
+OPTS="$OPTS $a"
+RNDS=",rnds=300"
+;;
+
+rnds4)
+OPTS="$OPTS $a"
+RNDS=",rnds=400"
+;;
+
+rnds5)
+OPTS="$OPTS $a"
+RNDS=",rnds=500"
+;;
+
+rnds6)
+OPTS="$OPTS $a"
+RNDS=",rnds=600"
+;;
+
+rnds7)
+OPTS="$OPTS $a"
+RNDS=",rnds=700"
+;;
+
+rnds8)
+OPTS="$OPTS $a"
+RNDS=",rnds=800"
+;;
+
+rnds9)
+OPTS="$OPTS $a"
+RNDS=",rnds=900"
+;;
+
+dec)
+$0 $OPTS dec1 dec2 dec3 dec4 dec5 dec6 dec7
+;;
+
+dec1)
+# ER-HILN deterministic
+$DEC er_hi00_ep0.mp4 $DECPARA$RNDS -o er_hi00
+$DEC er_hi01_ep0.mp4 $DECPARA$RNDS -o er_hi01
+$DEC er_hi02_ep0.mp4 $DECPARA$RNDS -o er_hi02
+$DEC er_hi03_ep0.mp4 $DECPARA$RNDS -o er_hi03
+$DEC er_hi04_ep0.mp4 $DECPARA$RNDS -o er_hi04
+$DEC er_hi05_ep0.mp4 $DECPARA$RNDS -o er_hi05
+$DEC er_hi06_ep0.mp4 $DECPARA$RNDS -o er_hi06
+$DEC er_hi07_ep0.mp4 $DECPARA$RNDS -o er_hi07
+$DEC er_hi10_ep0.mp4 $DECPARA$RNDS -o er_hi10
+$DEC er_hi11_ep0.mp4 $DECPARA$RNDS -o er_hi11
+$DEC er_hi12_ep0.mp4 $DECPARA$RNDS -o er_hi12
+;;
+
+dec2)
+# ER-HILN scalable
+$DEC er_hi13_ep0.mp4 $DECPARA$RNDS,-out=0 -o er_hi13
+$DEC er_hi13_ep0.mp4 $DECPARA$RNDS,-out=1 -o er_hi13
+$DEC er_hi14_ep0.mp4 $DECPARA$RNDS,-out=0 -o er_hi14
+$DEC er_hi14_ep0.mp4 $DECPARA$RNDS,-out=1 -o er_hi14
+$DEC er_hi15_ep0.mp4 $DECPARA$RNDS,-out=0 -o er_hi15
+$DEC er_hi15_ep0.mp4 $DECPARA$RNDS,-out=1 -o er_hi15
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=0 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=1 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=2 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=3 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=4 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=5 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=6 -o er_hi16
+$DEC er_hi16_ep0.mp4 $DECPARA$RNDS,-out=7 -o er_hi16
+;;
+
+dec3)
+# ER-HILN non-deterministic
+$DEC er_hi20_ep0.mp4 $DECPARA$RNDS -o er_hi20
+$DEC er_hi21_ep0.mp4 $DECPARA$RNDS -o er_hi21
+$DEC er_hi22_ep0.mp4 $DECPARA$RNDS -o er_hi22
+$DEC er_hi23_ep0.mp4 $DECPARA$RNDS -o er_hi23
+$DEC er_hi24_ep0.mp4 $DECPARA$RNDS -o er_hi24
+$DEC er_hi25_ep0.mp4 $DECPARA$RNDS -o er_hi25
+$DEC er_hi26_ep0.mp4 $DECPARA$RNDS -o er_hi26
+$DEC er_hi27_ep0.mp4 $DECPARA$RNDS -o er_hi27
+$DEC er_hi28_ep0.mp4 $DECPARA$RNDS -o er_hi28
+$DEC er_hi29_ep0.mp4 $DECPARA$RNDS -o er_hi29
+;;
+
+dec4)
+# ER-HILN @ Natural Audio Profile Level 2
+$DEC er_hi30_ep0.mp4 $DECPARA$RNDS -o er_hi30
+$DEC er_hi31_ep0.mp4 $DECPARA$RNDS -o er_hi31
+;;
+
+dec5)
+# ER-Parametric
+$DEC er_pa00_ep0.mp4 $DECPARA$RNDS -o er_pa00
+$DEC er_pa01_ep0.mp4 $DECPARA$RNDS -o er_pa01
+$DEC er_pa02_ep0.mp4 $DECPARA$RNDS -o er_pa02
+$DEC er_pa03_ep0.mp4 $DECPARA$RNDS -o er_pa03
+;;
+
+dec5x)
+# ep=1 ER-Parametric HP20021124
+$DEC er_pa00_ep1.mp4 $DECPARA$RNDS -o er_pa00_ep1
+$DEC er_pa01_ep1.mp4 $DECPARA$RNDS -o er_pa01_ep1
+$DEC er_pa02_ep1.mp4 $DECPARA$RNDS -o er_pa02_ep1
+$DEC er_pa03_ep1.mp4 $DECPARA$RNDS -o er_pa03_ep1
+;;
+
+dec6)
+# speed/pitch change
+$DEC er_hi03_ep0.mp4 $DECPARA$RNDS -sf 0.8 -o er_hi03_s08
+$DEC er_hi03_ep0.mp4 $DECPARA$RNDS -sf 1.6 -o er_hi03_s16
+$DEC er_hi03_ep0.mp4 $DECPARA$RNDS -pf 0.7 -o er_hi03_p07
+$DEC er_hi03_ep0.mp4 $DECPARA$RNDS -pf 1.5 -o er_hi03_p15
+$DEC er_hi21_ep0.mp4 $DECPARA$RNDS -sf 0.8 -o er_hi21_s08
+$DEC er_hi21_ep0.mp4 $DECPARA$RNDS -sf 1.6 -o er_hi21_s16
+$DEC er_hi21_ep0.mp4 $DECPARA$RNDS -pf 0.7 -o er_hi21_p07
+$DEC er_hi21_ep0.mp4 $DECPARA$RNDS -pf 1.5 -o er_hi21_p15
+$DEC er_hi28_ep0.mp4 $DECPARA$RNDS -sf 0.8 -o er_hi28_s08
+$DEC er_hi28_ep0.mp4 $DECPARA$RNDS -sf 1.6 -o er_hi28_s16
+$DEC er_hi28_ep0.mp4 $DECPARA$RNDS -pf 0.7 -o er_hi28_p07
+$DEC er_hi28_ep0.mp4 $DECPARA$RNDS -pf 1.5 -o er_hi28_p15
+;;
+
+dec7)
+# ep=1 ER-HILN non-deterministic
+$DEC er_hi26_ep1.mp4 $DECPARA$RNDS -o er_hi26_ep1
+$DEC er_hi27_ep1.mp4 $DECPARA$RNDS -o er_hi27_ep1
+$DEC er_hi28_ep1.mp4 $DECPARA$RNDS -o er_hi28_ep1
+$DEC er_hi29_ep1.mp4 $DECPARA$RNDS -o er_hi29_ep1
+;;
+
+full)
+DETPARA=$FULLPARA
+;;
+
+fixed)
+DETPARA=$FIXEDPARA
+;;
+
+test)
+echo "testing for 'full accuracy' at K=16 bit and for 'fixed point accuracy'"
+$0 $OPTS $TESTALL
+;;
+
+testfull)
+echo "testing for 'full accuracy' at K=16 bit"
+$0 $OPTS full $TESTALL
+;;
+
+testfixed)
+echo "testing for 'fixed point accuracy'"
+$0 $OPTS fixed $TESTALL
+;;
+
+testdet1)
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi00.wav $DECPATH/er_hi00.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi01.wav $DECPATH/er_hi01.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi02.wav $DECPATH/er_hi02.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi03.wav $DECPATH/er_hi03.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_hi04.wav $DECPATH/er_hi04.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_hi05.wav $DECPATH/er_hi05.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_hi06.wav $DECPATH/er_hi06.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_hi07.wav $DECPATH/er_hi07.wav
+$SSNRCD $DETPARA -l 80   $REFPATH/er_hi10.wav $DECPATH/er_hi10.wav
+$SSNRCD $DETPARA -l 3072 $REFPATH/er_hi11.wav $DECPATH/er_hi11.wav
+$SSNRCD $DETPARA -l 1280 $REFPATH/er_hi12.wav $DECPATH/er_hi12.wav
+;;
+
+testdet2)
+$SSNRCD $DETPARA -l 256  $REFPATH/er_hi13_lay1.wav $DECPATH/er_hi13_lay1.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi14_lay1.wav $DECPATH/er_hi14_lay1.wav
+$SSNRCD $DETPARA -l 1024 $REFPATH/er_hi15_lay0.wav $DECPATH/er_hi15_lay0.wav
+$SSNRCD $DETPARA -l 1024 $REFPATH/er_hi15_lay1.wav $DECPATH/er_hi15_lay1.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay0.wav $DECPATH/er_hi16_lay0.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay1.wav $DECPATH/er_hi16_lay1.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay2.wav $DECPATH/er_hi16_lay2.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay3.wav $DECPATH/er_hi16_lay3.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay4.wav $DECPATH/er_hi16_lay4.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay5.wav $DECPATH/er_hi16_lay5.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay6.wav $DECPATH/er_hi16_lay6.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi16_lay7.wav $DECPATH/er_hi16_lay7.wav
+;;
+
+testdet4)
+$SSNRCD $DETPARA -l 2048 $REFPATH/er_hi30.wav $DECPATH/er_hi30.wav
+$SSNRCD $DETPARA -l 3840 $REFPATH/er_hi31.wav $DECPATH/er_hi31.wav
+;;
+
+testdet5)
+$SSNRCD $DETPARA -l 160  $REFPATH/er_pa00.wav $DECPATH/er_pa00.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_pa01.wav $DECPATH/er_pa01.wav
+$SSNRCD $DETPARA -l 320  $REFPATH/er_pa02.wav $DECPATH/er_pa02.wav
+$SSNRCD $DETPARA -l 320  $REFPATH/er_pa03.wav $DECPATH/er_pa03.wav
+;;
+
+testdet5x)
+$SSNRCD $DETPARA -l 160  $REFPATH/er_pa00.wav $DECPATH/er_pa00_ep1.wav
+$SSNRCD $DETPARA -l 256  $REFPATH/er_pa01.wav $DECPATH/er_pa01_ep1.wav
+$SSNRCD $DETPARA -l 320  $REFPATH/er_pa02.wav $DECPATH/er_pa02_ep1.wav
+$SSNRCD $DETPARA -l 320  $REFPATH/er_pa03.wav $DECPATH/er_pa03_ep1.wav
+;;
+
+testdet6)
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi03_s08.wav $DECPATH/er_hi03_s08.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi03_s16.wav $DECPATH/er_hi03_s16.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi03_p07.wav $DECPATH/er_hi03_p07.wav
+$SSNRCD $DETPARA -l 512  $REFPATH/er_hi03_p15.wav $DECPATH/er_hi03_p15.wav
+;;
+
+teststoch3)
+$HILNCONF $REFPATH/er_hi20.ctp $DECPATH/er_hi20.wav 1 1
+$HILNCONF $REFPATH/er_hi21.ctp $DECPATH/er_hi21.wav 2 2
+$HILNCONF $REFPATH/er_hi22.ctp $DECPATH/er_hi22.wav 3
+$HILNCONF $REFPATH/er_hi23.ctp $DECPATH/er_hi23.wav 1 1
+$HILNCONF $REFPATH/er_hi24.ctp $DECPATH/er_hi24.wav 2 2
+$HILNCONF $REFPATH/er_hi25.ctp $DECPATH/er_hi25.wav 3
+$SUBTRACT $DECPATH/er_hi26.wav $REFPATH/er_hi26.wav $DECPATH/er_hi26_diff.wav
+$SUBTRACT $DECPATH/er_hi27.wav $REFPATH/er_hi27.wav $DECPATH/er_hi27_diff.wav
+$HILNCONF $REFPATH/er_hi26.ctp $DECPATH/er_hi26_diff.wav 2
+$HILNCONF $REFPATH/er_hi27.ctp $DECPATH/er_hi27_diff.wav 2
+;;
+
+teststoch6)
+$HILNCONF $REFPATH/er_hi21_s08.ctp $DECPATH/er_hi21_s08.wav 2 2
+$HILNCONF $REFPATH/er_hi21_s16.ctp $DECPATH/er_hi21_s16.wav 2 2
+;;
+
+teststoch7)
+$SUBTRACT $DECPATH/er_hi26_ep1.wav $REFPATH/er_hi26.wav $DECPATH/er_hi26_ep1_diff.wav
+$SUBTRACT $DECPATH/er_hi27_ep1.wav $REFPATH/er_hi27.wav $DECPATH/er_hi27_ep1_diff.wav
+$HILNCONF $REFPATH/er_hi26.ctp $DECPATH/er_hi26_ep1_diff.wav 2
+$HILNCONF $REFPATH/er_hi27.ctp $DECPATH/er_hi27_ep1_diff.wav 2
+;;
+
+testsubj2367)
+echo "subjective assessment $REFPATH/*.wav vs. $DECPATH/*.wav"
+echo "recommended for:"
+echo er_hi13_lay0.wav
+echo er_hi14_lay0.wav
+echo er_hi28.wav
+echo er_hi29.wav
+echo er_hi21_p07.wav
+echo er_hi21_p15.wav
+echo er_hi28_s08.wav
+echo er_hi28_s16.wav
+echo er_hi28_p07.wav
+echo er_hi28_p15.wav
+echo er_hi28_ep1.wav
+echo er_hi29_ep1.wav
+;;
+
+
+-h)
+echo "usage: $0 dec test"
+;;
+
+*)
+echo "ERROR: $0: unkown option '$a', type '$0 -h' for help"
+exit
+;;
+
+esac
+
+done
+
+if [ -z $1 ]; then
+echo "type '$0 -h' for help"
+exit
+fi
+

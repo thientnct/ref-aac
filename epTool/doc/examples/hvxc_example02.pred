@@ -1,0 +1,27 @@
+1               /* number of predefined sets */
+2               /* interleaving */
+0               /* bitstuffing */
+2               /* number_of_concatenated_frame */
+5               /* number_of_classes */
+0 0 0 1 0 0 2 0 /* length_esc, srcpc_esc, crc_esc, concatenate_flag, fec_type, termination_flag, interleave_switch, class_optional */
+33              /* bits used for class_length (0 = until the end) */
+8               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+6               /* crc length */
+0 0 0 1 0 0 3 0 /* length_esc, srcpc_esc, crc_esc, concatenate_flag, fec_type, termination_flag, interleave_switch, class_optional */
+22              /* bits used for class_length (0 = until the end) */
+0               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+6               /* crc length */
+0 0 0 0 0 0 3 0 /* length_esc, srcpc_esc, crc_esc, concatenate_flag, fec_type, termination_flag, interleave_switch, class_optional */
+4               /* bits used for class_length (0 = until the end) */
+0               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+1               /* crc length */
+0 0 0 0 0 0 3 0 /* length_esc, srcpc_esc, crc_esc, concatenate_flag, fec_type, termination_flag, interleave_switch, class_optional */
+4               /* bits used for class_length (0 = until the end) */
+0               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+1               /* crc length */
+0 0 0 1 0 0 3 0 /* length_esc, srcpc_esc, crc_esc, concatenate_flag, fec_type, termination_flag, interleave_switch, class_optional */
+17              /* bits used for class_length (0 = until the end) */
+0               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+0               /* crc length */
+0               /* class_reordered_output */
+0               /* header_protection */

@@ -1,0 +1,140 @@
+ adif2mp4
+----------
+
+    This tool converts between any of raw, adts, adif and (if available) mp4ff
+  file formats. Input format is auto-detected (if possible), output can be
+  specified with '-o' or by the output file extension. If you handle raw files
+  as input, also don't forget to give a correct sampling-rate, profile and
+  bitrate ('-s xxx -p xxx -bi xxx').
+    Be aware of the fact that these conversions can be somewhat tricky, and it 
+  might be necessary to run the program several times on the same file until all
+  output-data is correct. Also be aware of possible bitrate changes, especially
+  when handling ADTS-files.
+
+
+All command line arguments can be achived with "adif2mp4 -h"
+
+- General proceeding to correctly convert between the file formats:
+	1) run adif2mp4 to calculate the bitrate of input and output files.
+	2) run adif2mp4 with the proposed bitrate as output bitrate
+	   (using -b xxx) to get valid values for initial bitbuffer fullness.
+	3) run adif2mp4 a third time giving both a valid bitrate and
+	   buffer_fullness (with '-b xxx -f xxx').
+
+    Some steps may be skipped with some files, other bitstreams won't be valid
+  even after repeating all of these steps several times...
+
+- More hints on conversion:
+    The 'proposed bitrate' is the bitrate you should choose if you want the
+  first and last buffer-fullness value to be the same as they were in the
+  input (or as they were calculated from the input). This works very good for
+  most files. You can affect this value by giving an input bitrate with '-bi'.
+    The bitrate should only change if you convert between ADTS and something
+  different, if unused stream elements are stripped out, or if you mangle the
+  FILL-elements in the stream (see below).
+
+- Input-elements, output-elements: (more advanced hints)
+    If your input-file has extra elements (multi-program) only the 'decoded'
+  elements for your program are copied to output (choose program with '-i').
+  Unused elements are stripped and thus cause a change in bitrate.
+    FILL-elements are in general copied as well, but giving '-Fd' they are
+  discarded. Note that you could loose DRC-information this way.
+    New FILL-elements can be added with '-Fa' (to combine: '-Fad'). You only
+  should have to do this with incorrect bitstreams, or to compensate lost
+  bits from stripped elements. Some examples on this:
+
+
+          buffer-borders   block#
+          6144         0                           6144         0
+          |            |                           |            |
+ #        |            |     0                     +            |
+       #  |            |     1                     |     +      |
+      #   |            |     2                     |    +       |
+          |    +       |     3                     |            |#
+          | +          |     4        ==>          |          + |
+          |    +       |     5                     |            |#
+          |   +        |     6                     |            +
+          |+           |     7                     |         +  |
+          |            |                           |            |
+1) invalid inputstream without FILL-elements
+
+          |            |                           |            |
+ #        |            |     0                 ----+            |
+       #  |            |     1                     |     +      |
+      #   |            |     2                     |    +       |
+          |    +       |     3                     |            |#
+          | +          |     4        ==>          |          + |
+          |    +       |     5                     |            |#
+          |   +        |     6                     |            +
+          |+           |     7                     |         +  |
+          |            |                           |            |
+2) invalid inputstream without FILL-elements
+   adding new with 'adif2mp4 -Fa [...]'
+
+          |            |                           |            |
+ #        |            |     0                     +            |
+      -#  |            |     1                     |     +      |
+     -#   |            |     2                     |   +        |
+          |  --+       |     3                     |          + |
+          |-+          |     4        -->          |      +     |
+          |----+       |     5                     |     +      |
+          | --+        |     6                     |  +         |
+       ---|+           |     7                -----+            |
+          |            |                           |            |
+3) invalid inputstream having FILL-elements
+   processing with 'adif2mp4 -Fad [...]'
+
+'#': invalid buffer_fullness value
+'+': valid buffer_fullness value
+'-': FILL-element(s)
+
+  => Best results are usually achived by deleting all FILL-elements and adding
+  new once only if necessary ('adif2mp4 -Fad [...]'). This only fails if there 
+  are several consecutive blocks filling the whole buffer, without any 
+  deletable elements inside.
+
+  Still the best solution is controlling the buffer requirements in the
+  encoder ...
+
+- 'BufferTests': reaching the limits of the buffer
+    adif2mp4 can try to add 'bufferTests' to bitstreams while converting them.
+  I.e. the program will try to fill up the whole buffer in one single
+  raw_data_block. This will not work with all bitstreams and not at all blocks
+  in the bitstreams, so if you want to use this feature, do some experiments
+  on your bitstream.
+    To controll the block to add the first bufferTest you can use '-Ft <x>' on
+  the commandline. To add more bufferTests each <y> blocks: '-Ft <x> -FT <y>'.
+  The buffer-fillups are achived using FILL-elements.
+
+- Editing a bitstream: removing elements
+    adif2mp4 allows to edit bitstreams by copying only specified elements
+  and removing all others. This allows extraction of single (or more) element
+  streams from larger bitstreams for example. The command line switch for this
+  option is '-E <x>' where the syntax of <x> is:
+      '+<pos>' to indicate to copy to position <pos>
+   <pos>:
+      'f<ptag>' to indicate Front channel <ptag>
+      's<ptag>' to indicate Side channel <ptag>
+      'b<ptag>' to indicate Back channel <ptag>
+      'l<tag>'  to indicate Lfe element <tag>
+      'c<tag>'  to indicate Coupling channel element <tag>
+   <ptag>
+      's<tag>'  to indicate Single channel element <tag>
+      'p<tag>'  to indicate channel Pair element <tag>
+
+   examples:
+     '-E +fs0 -E +fp22' copy SCE with tag 0 to front channels and
+                        copy CPE with tag 22 to front channels
+     '-E +fp1 -E +l0'   copy CPE with tag 1 to front channels and
+                        copy LFE with tag 0
+
+-----------
+OK Olaf Kaehler, Fraunhofer IIS
+RS Ralph Sperschneider, Fraunhofer IIS
+
+History:
+ 2002-04-09	OK
+ 2001-07-30	OK
+ 2002-04-19	OK
+ 2002-05-17	OK
+ 2002-10-08     RS  slight editorial changes

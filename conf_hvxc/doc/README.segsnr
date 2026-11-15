@@ -1,0 +1,98 @@
+-------------------------------------------------------------
+segsnr(version 0.1): 
+    Verification tool of "Segmental SNR measurement" test
+
+    Author: Akira Inoue, Sony HNC <akira@av.crl.sony.co.jp>
+
+    Copyright(C) 1999 Sony Corporation 
+    All Rights Reserved.
+
+$Id: README.segsnr,v 1.1 2001/11/06 13:42:00 sonhvxc1 Exp $
+-------------------------------------------------------------
+
+0) ABSTRACT
+This software(segsnr) are dedicated for conformance testing of
+MPEG-4 Audio HVXC decoder using "Procedures by All Unvoiced bitstream
+(hv03.mp4 and hv04.mp4)" and "Direct Comparison with random number 
+generators disabled(hv05.mp4,hv06.mp4 and hv07.mp4)".
+A HVXC decoder under the test must produce output signal with random number 
+generator disabled by setting "test_mode" appropriately.
+At testing, "segmental SNR" value  are computed  
+for applied segments around a whole decoder output signal.
+
+Definition of segmental SNR:
+
+                                  SUM xa(i)^2
+        SS(k) = log10 (1 + --------------------------) .
+                           1.0e-13*L + SUM [xa(i)-xb(i)]^2
+
+        SSNR = 10 * log10 ( 10^[SUM SS(k) / N] - 1 ) dB.
+
+where
+  xa(i): i-th sample of reference output signal.
+         (normalized in a range between -1.0 and 1.0)
+  xb(i): i-th sample of output signal of a decoder under test.
+         (normalized in a range between -1.0 and 1.0).
+  L    : the length of segment
+  N    : the total number of segments
+  SS(k): SNR of k-th segment
+  SSNR : segmental SNR
+
+  (see ISO/IEC 14496-4 section 3, subsection 1.5.1.6.2)
+
+To be called an ISO/IEC 14496-3 HVXC decoder, the segmental SNR
+dedined above must exceed 30[dB](L=160).
+
+It should be noted that any post-filtering and post-processing in the
+decoder under test must be disabled in testing decoder conformance.
+
+1) HOW TO COMPILE
+
+To make executable, just invoke
+% make
+
+It is necessary to use the AFsp package for audio file i/o. 
+The AFsp package is written by Peter Kabal <kabal@TSP.EE.McGill.CA> and is
+available via ftp:
+
+current version:        AFsp-V3R2.tar.Z
+WWW site:               http://www.TSP.EE.McGill.CA/software.html
+ftp site:               ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:            ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+Put libtsp.a (or a link to it) in /usr/local/lib and libtsp.h (or a
+link to it) in /usr/local/include.
+
+This programs is compliled on the following systems/compiler:
+- Solaris 2.5.5 on Ultra Sparc Machine(cc, CC, gcc, g++)
+- SunOS 4.1.4 on Sparc Machine(gcc, g++)
+- Linux 2.0.35 on Intel Pentium Pro Machine(gcc, g++)
+
+2) INCLUDED SOFTWARE
+
+   Makefile:    makefile of "segsnr"
+   main.c:	source code
+   README:      this file
+
+3) USAGE
+
+    segsnr [options] AFileA AFileB
+
+    AFileA: file name of reference signal
+    AFileB: file name of test signal
+
+For data formats of input file, Sun(.au), RIFF WAVE(.wav),
+AIFF-C(.aif) of 8kHz sampling, 16-bit integer, mono channel are
+supported.
+
+options:
+    -s val        segment length(default: 160)
+    -h            show this message
+
+  Option "-s" can be changed, but these options don't have to change
+  in this test, please use default value.
+
+3) HISTORY
+
+    - 2000/01/28: initial version(version 0.1)
+

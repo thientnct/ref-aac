@@ -1,0 +1,117 @@
+#-*-makefile-*- do not remove, it's for emacs!
+#----------------------------------------------------------------------
+# MPEG-4 Audio VM
+# makefile.ssc
+#
+# Authors:
+# AR    Aad Rijnberg, Philips Digital Systems Lab <aad.rijnberg@philips.oom>
+#
+# Changes:
+# 22-jul-03   AR      initial version
+#----------------------------------------------------------------------
+
+
+# disable SSC dummy
+OBJS_ENC_SSC =
+OBJS_DEC_SSC =
+
+override DEFFLAGS +=  -DPLATFORM_LINUX_I386 -DSSC_DEC_LEVEL_MEDIUM -D_SSC_LIB_BUILD -DSSC_MP4REF_BUILD
+
+OBJS_SSC_ENC = SSC_fft.o \
+               SSC_fft_ff.o \
+               SSC_hires_fft.o \
+               Imp_Audio.o \
+               SSC_Audio.o \
+               Filter.o \
+               Imp_Filter.o \
+               LagFilter.o \
+               SSC_Filter.o \
+               bsc_buffer.o \
+               bsc_wres.o \
+               E_hufAdpcmGrid.o \
+               E_hufAmpBirthAbs.o \
+               E_hufAmpBirthRel.o \
+               E_hufAmpContAbs.o \
+               E_hufAmpContRel_0.o \
+               E_hufAmpContRel_1.o \
+               E_hufAmpContRel_2.o \
+               E_hufAmpContRel_3.o \
+               E_hufFreqBirthAbs.o \
+               E_hufFreqBirthRel.o \
+               E_hufFreqContAbs.o \
+               E_hufFreqContRel_0.o \
+               E_hufFreqContRel_1.o \
+               E_hufFreqContRel_2.o \
+               E_hufFreqContRel_3.o \
+               E_hufNoiRelLag.o \
+               E_hufNoiRelLsfE.o \
+               E_hufNoiRelNdgE.o \
+               E_huf_CoarseIid.o \
+               E_huf_CoarseItd.o \
+               E_huf_CoarseRho.o \
+               E_huf_CoarseRhoGlobal.o \
+               E_huf_FineIid.o \
+               E_huf_FineItd.o \
+               E_huf_FineRho.o \
+               E_huf_FineRhoGlobal.o \
+               E_huf_stereo.o \
+               E_huf_s_cont.o \
+               E_huf_s_nrof_births.o \
+               SSC_Formatter.o \
+               SSC_Streaming.o \
+               Imp_noise_analysis.o \
+               laguerre_analysis.o \
+               SSC_noise_analysis.o \
+               SSC_Vector.o \
+               win.o \
+               Imp_noise_quantisation.o \
+               SSC_noise_quantisation.o \
+               freqlpc.o \
+               Imp_noise_temp_env.o \
+               SSC_noise_temp_env.o \
+               Imp_quantise.o \
+               SSC_Bunch.o \
+               SSC_Log.o \
+               SSC_Pipe.o \
+               Imp_sinusoid_analysis.o \
+               SSC_sinusoid_analysis.o \
+               Imp_sinusoid_cont_phase.o \
+               SSC_sinusoid_cont_phase.o \
+               Imp_sinusoid_psycho.o \
+               SSC_sinusoid_psycho.o \
+               AdpcmTable.o \
+               Imp_sinusoid_quantisation.o \
+               SSC_sinusoid_quantisation.o \
+               Imp_sinusoid_remove.o \
+               SSC_sinusoid_remove.o \
+               Imp_sinusoid_synthesis.o \
+               SSC_sinusoid_synthesis.o \
+               Imp_sinusoid_tracking.o \
+               SSC_sinusoid_tracking.o \
+               Imp_stereo_analysis.o \
+               SSC_stereo_analysis.o \
+               ct_polyphase_ssc.o \
+               Imp_stereo_quantisation.o \
+               SSC_stereo_quantisation.o \
+               Env_Pipe.o \
+               Imp_transient_analysis.o \
+               SSC_transient_analysis.o \
+               Imp_Transient_Detection.o \
+               SSC_Transient_Detection.o \
+               Imp_transient_quantisation.o \
+               SSC_transient_quantisation.o \
+               Imp_Transient_Synthesis.o \
+               SSC_Transient_Synthesis.o \
+               SscEnc.o
+
+OBJS_SSC_DEC = 
+
+
+# the next 4 definitions are relevant to the master makefile
+OBJS_ENC_SSC = $(OBJS_SSC_ENC)
+OBJS_DEC_SSC = $(OBJS_SSC_DEC)
+LIBS_ENC_SSC = 
+LIBS_DEC_SSC = 
+
+
+# end of makefile.ssc

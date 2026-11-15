@@ -1,0 +1,3 @@
+USE_AFSP      = 1
+ENABLE_RTPLAY = 0
+ISOMP4        = 1

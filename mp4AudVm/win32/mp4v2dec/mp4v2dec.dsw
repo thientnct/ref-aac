@@ -1,0 +1,183 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Mp4v2dec"=.\mp4v2dec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name objs_com
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_dec_lpc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_dec_par
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_dec_picola
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_dec_tf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_aac_dec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_bsac_dec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_son_aacpp_dec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_vq_dec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libisomp4
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objs_etc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "objs_aac_dec"=.\objs_aac_dec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_bsac_dec"=.\objs_bsac_dec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_com"=.\objs_com.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_dec_lpc"=.\objs_dec_lpc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_dec_par"=.\objs_dec_par.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_dec_picola"=.\objs_dec_picola.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_dec_tf"=.\objs_dec_tf.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_etc"=.\objs_etc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_son_aacpp_dec"=.\objs_son_aacpp_dec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "objs_vq_dec"=.\objs_vq_dec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
+

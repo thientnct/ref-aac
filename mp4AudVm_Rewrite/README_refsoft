@@ -1,0 +1,332 @@
+**********************************************************************
+***                                                                ***
+***              MPEG-4 Audio Reference Software                   ***
+***                                                                ***
+**********************************************************************
+
+
+
+Content of README_refsoft
+=========================
+
+1   About MPEG-4 Audio Reference Software
+2   Further Information
+3   ISO Copyright Header
+4   How to compile and run this software
+5   MPEG-4 File Format Library
+6   Audio File I/O
+
+
+
+1   About MPEG-4 Audio Reference Software
+=========================================
+
+This is the "Edition 2001" release of the MPEG-4 Audio Reference
+Software for Natural Audio and Speech Coding.  It integrates the
+reference software for Version 1 and Version 2 of the MPEG-4 Audio
+Standard and corresponding corrigenda.  This software was developed by
+many contributors in the course of development of the MPEG-2 AAC /
+MPEG-4 Audio standards ISO/IEC 13818-7 and 14496-3.
+
+Please note that there are two different instances of this reference
+software:
+
+- The re-written decoder software is located in the directory
+    natural/rewrite/mp4AudVm
+
+- The encoder software, including the original decoder and bitstream
+  file format conversion tools, is located in the directory
+    natural/refSoft/mp4AudVm
+
+
+
+2   Further Information
+=======================
+
+Further information about MPEG-4 Audio is available on the following
+sites:
+
+The official MPEG Home Page:
+  http://www.cselt.it/mpeg
+
+MPEG Audio Web Page:
+  http://www.tnt.uni-hannover.de/project/mpeg/audio/
+
+MPEG Audio ftp server:
+  ftp://ftp.tnt.uni-hannover.de/pub/MPEG/audio/
+
+
+
+3   ISO Copyright Header
+========================
+
+All files of the Reference Software have the following copyright
+header:
+
+
+This software module was originally developed by
+
+FirstName LastName (CompanyName)
+
+and edited by
+
+FirstName LastName (CompanyName)
+FirstName LastName (CompanyName)
+
+in the course of development of the MPEG-2 NBC/MPEG-4 Audio standard
+ISO/IEC 13818-7, 14496-1,2 and 3. This software module is an
+implementation of a part of one or more MPEG-2 NBC/MPEG-4 Audio tools
+as specified by the MPEG-2 NBC/MPEG-4 Audio standard. ISO/IEC gives
+users of the MPEG-2 NBC/MPEG-4 Audio standards free license to this
+software module or modifications thereof for use in hardware or
+software products claiming conformance to the MPEG-2 NBC/ MPEG-4 Audio
+standards. Those intending to use this software module in hardware or
+software products are advised that this use may infringe existing
+patents. The original developer of this software module and his/her
+company, the subsequent editors and their companies, and ISO/IEC have
+no liability for use of this software module or modifications thereof
+in an implementation. Copyright is not released for non MPEG-2
+NBC/MPEG-4 Audio conforming products. The original developer retains
+full right to use the code for his/her own purpose, assign or donate
+the code to a third party and to inhibit third party from using the
+code for non MPEG-2 NBC/MPEG-4 Audio conforming products. This
+copyright notice must be included in all copies or derivative works.
+
+Copyright (c) 2001.
+
+
+
+4   How to compile and run this software
+========================================
+
+The reference software is written in ANSI C and is C++ compilable.  It
+can be compiled and linked on UNIX/Linux platforms using GNU's gcc/g++
+and GNU's make.  For other compilers and platforms, the makefile might
+require adaption the local environment.  Project files for MSVC++ 6.0
+can be found in directory win32, see win32/readme.txt for further
+information.
+
+
+4.1   Directory structure
+-------------------------
+
+mp4AudVm/
+	README_refsoft			(this file)
+	README_usage			HOWTO use the executables
+	makefile*			makefiles
+	src_frame/*			frame work source code (decoder)
+	src_frame_enc/*			frame work source code (encoder)
+	src_par*/*			PARA core source code
+	src_lpc*/*			CELP core source code
+	src_tf*/*			T/F core source code
+	src_latm/*			LATM converter source code
+	src_mp4/*			MP4 file converter source code
+	win32/*				MSVC++ 6.0 project files
+general/makefile*			general makefiles
+bin/mp4AudVm/<platform>/*		location for binaries
+
+
+4.2   Making the executables
+----------------------------
+
+Usually, the reference software makes use of external libraries for
+MP4 file format support (see section 5) and audio file I/O (see
+section 6).  The following environment variables are used to specify
+the location of the libraries and should be set appropriately, e.g.:
+
+  ISOMP4_PATH=/usr/local/mp4/mp4-20000305/mp4lib
+  AFSP_INCLUDE_PATH=/usr/local/afsp/include
+  AFSP_LIBRARY_PATH=/usr/local/afsp/lib
+
+Alternatively, the following variables can be used:
+
+  REFSOFT_INCLUDE_PATH
+  REFSOFT_LIBRARY_PATH
+
+Please note that for the current version of the MP4 file format
+library, also the following variable should be set:
+
+  ISOMP4_NAME=isomediafile
+
+To build the binary, simply type:
+
+  make
+
+The binaries are placed into a platform-, version-, and
+compiler-dependent directory, e.g.
+
+  ../bin/mp4AudVm/Linux_v2_c1_g++_O0d/
+
+for "MPEG-4 Version 1+2 incl. COR1" on Linux using the g++ compiler
+without optimisation and with debug enabled.  Such directories are
+generated automatically by the makefile if required.  The following 5
+binaries are built:
+
+  mp4auenc	encoder, use "-c -mp4ff" to generate .fl4 bitstream
+  mp4audec	decoder, supports .fl4 and .mp4 bitstream formats
+  fl4_to_mp4	convert .fl4 to .mp4 bitstreams
+  mp4_to_fl4    convert .mp4 to .fl4 bitstreams
+  latm_cnvrt	convert between .fl4 and LATM bitstreams
+
+Optionally, further variables can be set to control the building of
+the binaries:
+
+  SYSTEM_NAME=Linux	to specify platform
+
+  VERSION=1		to build "Version 1" tools only 
+
+  ISOMP4=0		to disable MP4 file format support
+			(only .fl4 audio flexmux bitstreams supported)
+
+  USE_AFSP=0		to disable audio I/O library
+			(only 16 bit .au files supported) 
+
+Instead of specifying such options as environment variables, they can
+also be given as options to "make", e.g.:
+
+  make clean
+  make USE_AFSP=0
+
+Alternatively, they such options can be activated in the configuration
+file:
+
+  makefile.cfg
+
+For further available options, check the makefile and its sub-makefiles:
+
+  makefile.par
+  makefile.lpc
+  makefile.tf
+
+
+4.3   Running the encoder and decoder
+-------------------------------------
+
+Before running the reference software, the following environment
+variables can be set according to local path names, audio file formats
+etc.:
+
+MP4_ORI_PATH       path for original audio files
+MP4_BIT_PATH       path for bit stream files
+MP4_DEC_PATH       path for decoded audio files
+MP4_ORI_FORMAT     format of original audio files
+MP4_DEC_FORMAT     format of decoded audio files
+MP4_RAWAUDIOFILE   raw audio file format - to read headerless files
+                   using the AFsp library
+                   (sample format, num header bytes, sampling rate,
+                   byte order, num channels, gain factor)
+
+Example:
+
+  setenv MP4_ORI_PATH /data/mp4/ori/
+  setenv MP4_BIT_PATH /data/mp4/bit/
+  setenv MP4_DEC_PATH /data/mp4/dec/
+  setenv MP4_ORI_FORMAT .au
+  setenv MP4_DEC_FORMAT .au
+  setenv MP4_RAWAUDIOFILE "integer16, 0, 8000.0, native, 1, 1.0"
+
+Invoke the encoder, decoder, or other binaries with the option -h to
+get a list of the command line options available, e.g.:
+
+  mp4auenc -h
+  mp4audec -h
+
+The following example uses the MPEG-4 HVXC parametric speech coding
+tool at 2 kbit/s to encode the file "test.au" (mono, 8 kHz sampling
+rate) to an audio flexmux bitstream file "test_hvxc2.fl4". This is
+file is converted to the MP4 file format ("test_hvxc2.mp4") and then
+decoded again to the sound file "test_hvxc2.wav".
+
+  mp4auenc -d 1 -m hvxc -r 2000 -c -mp4ff test.au -o test_hvxc2.fl4
+  fl4_to_mp4 -d 1 test_hvxc2.fl4
+  mp4audec -d 1 test_hvxc2.mp4 -o test_hvxc2.wav
+
+Further information about the operation of the encoder and decoder is
+available in the file:
+
+  README_usage
+
+Please note that the EP tool decoder required for ER_XXX object types
+(ID 17..27) with epConfig == 2 or 3 is currently not integrated in the
+source code of mp4audec.  For these configurations, please refer to
+the external EP tool source code in refSoft/epTool.  In addition, it
+should be noted that the ER_AAC implementation for epConfig == 0 in
+the re-written decoder is not fully cross checked.
+
+
+
+5   MPEG-4 File Format Library
+==============================
+
+To enable support of the MP4 file format, the ISO MP4 File Format
+library is used, which is also a part of the MPEG-4 Reference
+Software.  To use this library with the audio reference software,
+first build it on the local platform and the set following variables
+appropriately:
+
+  ISOMP4_PATH		(path likely ends with "/mp4lib")
+  ISOMP4_NAME		("isomediafile" or "isomp4" for older versions)
+
+Make sure that ISOMP4=1 (default value in makefile) before building
+the audio reference software. For further information,
+
+
+
+6   Audio File I/O
+==================
+
+All audio file i/o of the reference software is handled via the
+audio.h interface.  The current implementation of audio.c uses the
+austream.c module included in the reference software to provide
+support for 16-bit ".au" files.  To provide support for other common
+audio file formats (like ".wav" and ".aiff"), the audio.c module can
+make use of the AFsp library.
+
+
+6.1   The AFsp Audio File I/O Package
+-------------------------------------
+
+The AFsp package provides audio file routines and is written by Peter
+Kabal <kabal@TSP.EE.McGill.CA>.  It is available via ftp:
+
+WWW site:		http://www.TSP.EE.McGill.CA/software.html
+ftp site:		ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:		ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+The Natural Audio Reference Software has been tested with the
+following AFsp versions:
+
+  AFsp-V3R2
+  AFsp-v4r1
+  AFsp-v4r2
+  AFsp-v4r3
+  AFsp-v5r2
+
+To make the libtsp library, unpack the AFsp distribution, change into
+the directory "libtsp" and start make.  Then you can install libtsp in
+your default include and library paths or set the environment
+variables AFSP_INCLUDE_PATH and AFSP_LIBRARY_PATH to the appropriate
+directories, e.g.:
+
+  setenv AFSP_INCLUDE_PATH /usr/AFsp-v4r3/include
+  setenv AFSP_LIBRARY_PATH /usr/AFsp-v4r3/lib
+
+To build the reference software with AFsp support, use the USE_AFSP=1
+option, which is the default setting in the makefile.
+
+
+6.2   Excerpt from the AFsp Copying file
+----------------------------------------
+
+Copyright (C) 2001 Peter Kabal
+
+The AFsp audio file routines are provided free of charge without warranty of
+any kind.  All components are copyrighted.  They may be distributed free of
+charge provided that the recipients also acquire the right to distribute them.
+This software cannot be incorporated into a work which is sold commercially.
+However, including this software on distribution media containing other free
+software is permitted even when a distribution fee is charged.
+
+
+
+-- 20-Feb-2002   Heiko Purnhagen <purnhage@tnt.uni-hannover.de>

@@ -1,0 +1,80 @@
+# $Id: dec_seq,v 1.1 2000/01/21 10:16:14 akira Exp $
+#### Test sequence for HVXC object type test bitstream
+
+set SRC_DIR = encbit2k
+set DST_DIR = decout2k
+
+### All Voiced, 2kbps (HV01)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0  -c "dm=1 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref1.wav
+## (2) speed = 1.0, pitch = 1.6, normal delay
+mp4audec -ed .wav -pf 1.6  -c "dm=1 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref2.wav
+## (3) speed = 1.0, pitch = 0.8, normal delay
+mp4audec -ed .wav -pf 0.8  -c "dm=1 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref3.wav
+## (4) speed = 1.5, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.5  -c "dm=1 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref4.wav
+## (5) speed = 0.75, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 0.75 -c "dm=1 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref5.wav
+## (6) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0  -c "dm=0 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref6.wav
+## (7) speed = 1.0, pitch = 1.6, low delay
+mp4audec -ed .wav -pf 1.6  -c "dm=0 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref7.wav
+## (8) speed = 1.0, pitch = 0.8, low delay
+mp4audec -ed .wav -pf 0.8  -c "dm=0 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref8.wav
+## (9) speed = 1.5, pitch = 1.0, low delay
+mp4audec -ed .waw -sf 1.5  -c "dm=0 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref9.wav
+## (10) speed = 0.75, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 0.75 -c "dm=0 tm=5" $SRC_DIR/hv01.mp4 -o $DST_DIR/hv01ref10.wav
+
+### All Voiced, 4kbps (HV02)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0  -c "dm=1 tm=5" $SRC_DIR/hv02.mp4 -o $DST_DIR/hv02ref1.wav
+## (2) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0  -c "dm=0 tm=5" $SRC_DIR/hv02.mp4 -o $DST_DIR/hv02ref2.wav
+
+### All Unvoiced, 2kbps (HV03)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0 -c "dm=1 tm=5" $SRC_DIR/hv03.mp4 -o $DST_DIR/hv03ref1.wav
+## (2) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0 -c "dm=0 tm=5" $SRC_DIR/hv03.mp4 -o $DST_DIR/hv03ref2.wav
+
+### All Unvoiced, 4kbps (HV04)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0 -c "dm=1 tm=5" $SRC_DIR/hv04.mp4 -o $DST_DIR/hv04ref1.wav
+## (2) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0 -c "dm=0 tm=5" $SRC_DIR/hv04.mp4 -o $DST_DIR/hv04ref2.wav
+
+### 2kbps (HV05)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0  -c "dm=1 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref1.wav
+## (2) speed = 1.0, pitch = 1.6, normal delay
+mp4audec -ed .wav -pf 1.6  -c "dm=1 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref2.wav
+## (3) speed = 1.0, pitch = 0.8, normal delay
+mp4audec -ed .wav -pf 0.8  -c "dm=1 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref3.wav
+## (4) speed = 1.5, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.5  -c "dm=1 tm=15" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref4.wav
+## (5) speed = 0.75, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 0.75 -c "dm=1 tm=15" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref5.wav
+## (6) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0  -c "dm=0 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref6.wav
+## (7) speed = 1.0, pitch = 1.6, low delay
+mp4audec -ed .wav -pf 1.6  -c "dm=0 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref7.wav
+## (8) speed = 1.0, pitch = 0.8, low delay
+mp4audec -ed .wav -pf 0.8  -c "dm=0 tm=7" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref8.wav
+## (9) speed = 1.5, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.5  -c "dm=0 tm=15" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref9.wav
+## (10) speed = 0.75, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 0.75 -c "dm=0 tm=15" $SRC_DIR/hv05.mp4 -o $DST_DIR/hv05ref10.wav
+
+### 4kbps (HV06)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0  -c "dm=1 tm=7" $SRC_DIR/hv06.mp4 -o $DST_DIR/hv06ref1.wav
+## (2) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0  -c "dm=0 tm=7" $SRC_DIR/hv06.mp4 -o $DST_DIR/hv06ref2.wav
+
+### variable rare (HV07)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+mp4audec -ed .wav -sf 1.0  -c "dm=1 tm=15" $SRC_DIR/hv07.mp4 -o $DST_DIR/hv07ref1.wav
+## (2) speed = 1.0, pitch = 1.0, low delay
+mp4audec -ed .wav -sf 1.0  -c "dm=0 tm=15" $SRC_DIR/hv07.mp4 -o $DST_DIR/hv07ref2.wav
+

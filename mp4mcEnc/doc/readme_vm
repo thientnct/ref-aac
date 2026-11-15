@@ -1,0 +1,228 @@
+MPEG-4 Audio VM
+
+Readme file: README_vm
+
+$Id: readme_vm,v 1.1.1.1 1998/06/09 01:05:47 lueck Exp $
+
+Authors:
+HP    Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
+
+Changes:
+26-aug-96   HP    updated (based on READMEvm0)
+26-sep-96   HP    updated
+28-oct-96   HP    new dirs for readme & tables
+07-nov-96   HP    updated make depend
+07-feb-97   HP    seperated encoder and decoder
+**********************************************************************
+
+
+General
+-------
+
+The current version of the VM includes the t/f-based core, the
+LPC-based core, and the parametric core which operate under a common
+frame work.
+
+
+VM software FTP server
+----------------------
+
+For details, check the following file:
+
+  ../README
+
+
+Directory Structure
+-------------------
+
+Following directory structure is used:
+
+Note: enc&com = encoder and common code/libraries
+      dec     = decoder code/libraries
+
+vm/
+	README				VM FTP site information
+	readme/
+		README_vm		(this file)
+		README_*		further readme files
+
+	makefile			common makefile
+	makefile.cfg			make configuration
+	makefile.par			sub-makefile for parametric core
+	makefile.lpc			sub-makefile for LPC-based core
+	makefile.tf			sub-makefile for t/f-based core
+
+	set_mp4env			enviroment defaults
+
+	src_frame/			frame work source code (dec&com)
+		*.c			source files
+		*.h			header files
+	src_frame_enc/			frame work source code (enc)
+	src_par/			parametric core source code (dec&com)
+	src_par_enc/			parametric core source code (enc)
+	src_lpc/			LPC-based core source code (dec&com)
+	src_lpc_enc/			LPC-based core source code (enc)
+	src_tf/				t/f-based core source code (dec&com)
+	src_tf_enc/			t/f-based core source code (enc)
+	include/			library include files (dec&com)
+		libtsp.h		afsp include file
+		libtsp/AFpar.h		afsp include file
+		*.h			other library include files
+	include_enc/			library include files (enc)
+
+	tables/				runtime data tables
+
+	sunos/				platform: SunOS
+		mp4enc			encoder binary
+		mp4dec			decoder binary
+		*.lnk			link options files (for make)
+		obj/			object files
+			*.o
+			*.d		dependency files (for make)
+		lib/			libraries
+			libtsp.a	afsp library
+			*.a		other libraries
+		lib/			libraries (encoder)
+	sgi/				platform: SGI (IRIX)
+					(structure as for sunos)
+	linux/				platform: Linux
+					(structure as for sunos)
+	sol/				platform: Solaris
+					(structure as for sunos)
+
+
+README files
+------------
+
+Details about how to make the VM binaries and how to run the VM
+can be found in:
+
+  vm/README			VM FTP site
+  vm/readme/README_vm		(this file)
+  vm/readme/README_frame	frame work
+  vm/readme/README_par		parametric core
+  vm/readme/README_lpc		LPC-based core
+  vm/readme/README_tf		t/f-based core
+
+Some recommendations for writing VM modules can be found in:
+
+  vm/readme/README_style
+
+Information about the software platforms used by VM different VM
+contributors can be found in:
+
+  vm/readme/README_platforms
+
+
+VM revision control, editing and updating
+-----------------------------------------
+
+The VM code is put under the CVS revision control system. The
+distribution avaliable on the FTP server is the current checked-out
+version.
+
+When editing the source code, DO NOT change or delete the CVS
+directories and their files. Currently, the CVS repository is not
+accessible from outside. To have changes commited to the CVS
+repository, upload all your files INCLUDING the CVS directories (as
+xxx.tar.gz) to the incoming directory of the ftp-server and send an
+e-mail to purnhage@tnt.uni-hannover.de (please mention if you ADDED
+new files or REMOVED old files).
+
+
+Making the VM binaries
+----------------------
+
+The VM software is written in ANSI C and is C++ compilable. It can be
+compiled using GNU's gcc/g++ and GNU's make.
+
+Before making the VM binaries, set the environment variable
+SYSTEM_NAME according to your software platform (SunOS, IRIX, Linux,
+OS2, Solaris):
+
+  setenv SYSTEM_NAME SunOS
+
+In the following, <platform> is to be replaced by your local software
+platform (sunos, sgi, linux, os2, sol).
+
+Now make can be invoked
+
+  cd vm
+  make all
+
+If you get a linker warning like "table of contents for archive is out
+of date; rerun ranlib(1)", you have to run
+
+  ranlib <platform>/lib/*.a
+
+It is possible to disable different modules of the VM when making the
+binary. The disabled modules are replaced by corresponding dummy
+modules to maintain linkability. E.g. to enable the LPC core only, use
+
+  make TF=0 LPC=1 PAR=0
+
+Instead of specifying these options on the command line, you can also
+write them as
+
+  TF = 0
+  LPC = 1
+  PAR = 0
+
+into the file
+
+  makefile.cfg
+
+For further available options, check the sub-makfiles
+
+  makefile.par
+  makefile.lpc
+  makefile.tf
+
+or the corresponding README files.
+
+If source files (e.g. xxx.c) were added/delete, make might report an
+error like "no rule how to make xxx.c". In this case it is required to
+do a
+
+  make depend
+
+Possible make targets:
+
+  default	make mp4dec
+  all		make mp4enc and mp4dec
+  mp4enc	compile & link encoder
+  mp4dec	compile & link decoder
+  clean		delete all *.d *.o and binaries for current platform
+  depent	generate all dependency files *.d
+
+
+Running the VM
+--------------
+
+Before running the VM, you should adapt the file
+
+  set_mp4env
+
+to your local path names, audio file formats etc. and then source this
+file:
+
+  cd vm
+  source set_mp4env
+
+Invoke the encoder and decoder with the option -h to get a list of the
+command line options available:
+
+  <platform>/mp4enc -h
+  <platform>/mp4dec -h
+
+The following example encodes the file test.au to the bit stream file
+test_hvx.mp4 and then decodes this bit stream to the file
+test_hvx.aiff using the parametric HVXC mode at 2 kbit/s:
+
+  <platform>/mp4enc -d 3 -m par -r 2000 -c "m=hvx" test -o test_hvx
+  <platform>/mp4dec -d 3 -ed .aiff test_hvx
+
+Further details can be found in README_frame and other README files.
+
+
+end of README_vm

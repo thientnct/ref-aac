@@ -1,0 +1,15 @@
+1               /* number of predefined sets */
+1               /* interleaving */
+0               /* bitstuffing */
+1               /* number_of_concatenated_frame */
+2               /* number_of_classes */
+0 0 0 0 0 0     /* length_esc, srcpc_esc, crc_esc, fec_type, termination_flag, class_optional */
+238             /* bits used for class_length (0 = until the end) */
+4               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+10              /* crc length */
+0 0 0 0 0 0     /* length_esc, srcpc_esc, crc_esc, fec_type, termination_flag, class_optional */
+1682            /* bits used for class_length (0 = until the end) */
+0               /* puncture rate for srcpc 0 = 8/8 ... 24 = 32/8 */
+0               /* crc length */
+0               /* class_reordered_output */
+0               /* header_protection */

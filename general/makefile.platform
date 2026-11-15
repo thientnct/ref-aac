@@ -1,0 +1,373 @@
+#----------------------------------------------------------------------
+# Notes:
+#
+# This makefile provides automatic handling of different system
+# platforms. Therefore it is required to set the environment
+# variable SYSTEM_NAME according to the actual platform.
+# Currently, these platforms are supported:
+#   IRIX
+#   Linux
+#   Solaris
+#   ... and most other UNIX platforms ...
+#
+# If CFLAGS or LDFLAGS are changed for a subsequent invocation of make,
+# object files and binaries are NOT remade automatically with the new
+# options! Use "make clean" first ...
+#
+# To make mp4auenc and mp4audec, type:
+#   make all
+#
+# To allow make running e.g. 4 jobs at once, type:
+#   make MFLAGS=-j4
+#
+# On most platforms, the default compiler is gcc. To use the platform's
+# native compiler (e.g. cc) instead, type:
+#   make MAKE_CC=native
+# and to use gcc, type:
+#   make MAKE_CC=gnu
+#
+#----------------------------------------------------------------------
+
+ifneq "$(MAKELEVEL)" "0"
+
+BUSWIDTH= # default 32 not explicitly
+ifeq "$(SYSTEM_NAME)" ""
+SYSTEM_NAME=$(shell uname -s)
+  ifeq "$(SYSTEM_NAME)" ""
+    include error:\ SYSTEM_NAME\ environment\ variable\ not\ defined\ !!!
+    include Options:\ Linux\ Solaris\ IRIX\ SunOS\ HPUX\ cdk\ OSF1\ OS2\ !!!
+  endif
+endif
+ifeq "$(SYSTEM_NAME)" "SunOS"
+SYSTEM_NAME=Solaris
+endif
+ifeq "$(SYSTEM_NAME)" "Linux6"
+# BUSWIDTH=64
+SYSTEM_NAME=Linux
+endif
+ifeq "$(SYSTEM_NAME)" "IRIX64"
+BUSWIDTH=64
+SYSTEM_NAME=IRIX
+endif
+ifeq "$(SYSTEM_NAME)" "OS2"
+SHELL=/bin/sh    # os bugfix
+export SHELL
+endif
+
+CYGNUSNAMES=Win32 cygwin CYGWIN_NT-4.0 CYGWIN_NT-5.0 CYGWIN_NT-5.1
+ifneq "$(findstring $(SYSTEM_NAME),$(CYGNUSNAMES))" ""
+SYSTEM_NAME=cdk
+endif
+
+#ifeq "$(MAKELEVEL)" "1" # commented out due to other makefiles which do not use level 1
+
+ifneq "$(MAKE_CC)" "g++"
+ifneq "$(MAKE_CC)" "gnu"
+ifneq "$(MAKE_CC)" "bounds"
+ifneq "$(MAKE_CC)" "native"
+ifneq "$(MAKE_CC)" "insure"
+override MAKE_CC=gcc # RS - changed from g++ to gcc for two reasons:
+                     #  * gcc selects the proper compiler on itself
+                     #  * the reference software consists of c-code only
+endif
+endif
+endif
+endif
+endif
+ifeq "$(MAKE_CC)" "gnu"
+override MAKE_CC=gcc
+endif
+
+ifndef OPTIM_LEV
+ifdef OPTIM
+OPTIM_LEV=$(OPTIM)
+else
+OPTIM_LEV=0
+endif
+endif
+
+ifndef STATIC
+STATIC=0
+endif
+ifndef DEBUG
+DEBUG=1
+endif
+ifndef GPROF
+GPROF=0
+endif
+ifndef TMPDIR
+TMP=../obj/
+else
+TMP=$(TMPDIR)/$(shell pwd)/../
+endif
+
+GETMODULEDIR = $(shell cd $(1) && cat CVS/Repository CVS/Tag 2> /dev/null | sed -e's@.*/@@;N;s@[[:cntrl:]]@ @g')
+GETTARGETDIR = $(call GETMODULEDIR,$(1))/$(SYSTEM_NAME)$(BUSWIDTH) $(2) $(MAKE_CC) O$(OPTIM_LEV)$(if $(subst 0,,$(DEBUG)),d)$(if $(subst 0,,$(GPROF)),p)
+MODULEDIR   := $(call GETMODULEDIR,.)
+TARGETBINDIR:= $(call GETTARGETDIR,.,$(ADDONDIR) $(ADDONBINDIR))
+TARGETLIBDIR:= $(call GETTARGETDIR,.,$(ADDONDIR) $(ADDONLIBDIR))
+TARGETOBJDIR:= $(call GETTARGETDIR,.,$(ADDONDIR) $(ADDONOBJDIR))
+
+TARGETTMPDIR     = $(TMP)$(TARGETOBJDIR)
+
+# Test whether we have a gnu compiler, because they are platform independent
+GNUCOMPILER=gcc      # RS - changed from g++ to gcc for two reasons:
+                     #  * gcc selects the proper compiler on itself
+                     #  * the reference software consists of c-code only
+ifeq "$(MAKE_CC)" "g++"
+  GNUCOMPILER=g++
+endif
+ifeq "$(MAKE_CC)" "gcc+"
+  GNUCOMPILER=gcc
+endif
+ifeq "$(MAKE_CC)" "bounds"
+  GNUCOMPILER=gcc
+endif
+ifeq "$(MAKE_CC)" "native"
+  GNUCOMPILER=0
+  DCC  = cc
+  CC   = cc
+  LINK = cc
+endif
+# override DEFFLAGS += __USE_FIXED_PROTOTYPES__
+override CFLAGS +=
+override LDFLAGS +=
+ifneq "$(GNUCOMPILER)" "0"
+  DCC  = $(GNUCOMPILER)
+  CC   = $(GNUCOMPILER)
+  LINK = g++ # $(GNUCOMPILER) # force -lstdc++
+  override CFLAGS += -ansi -pedantic -Wall -W -Wno-unused -Wno-long-long -Wmissing-prototypes -O$(OPTIM_LEV)
+  ifneq "$(OPTIM_LEV)" "0"
+#    override CFLAGS += -funroll-loops # gcc compiler bug
+  endif
+  ifeq "$(shell $(GNUCOMPILER) --version)" "2.95.2"
+#    ifeq "$(shell expr $(OPTIM_LEV) '>' 1)" "1" # decide to be careful
+      override CFLAGS += -fno-strength-reduce # workaround of a optimization compiler bug
+#    endif
+  endif
+  ifeq "$(STATIC)" "1"
+#    override CFLAGS  += -static
+    override LDFLAGS += -static
+  endif
+  ifeq "$(DEBUG)" "1"
+    override CFLAGS  += -g
+    override LDFLAGS += -g
+  endif
+  ifeq "$(GPROF)" "1"
+    override CFLAGS  += -pg -fno-inline
+    override LDFLAGS += -pg
+  endif
+  ifeq "$(MAKE_CC)" "bounds"
+    override CFLAGS  += -fbounds-checking
+    override LDFLAGS += -fbounds-checking
+  endif
+endif
+
+# additionally the following platform dependent decisions
+# respectively the relative/difference changes
+ifeq "$(SYSTEM_NAME)" "Linux"
+  ifeq "$(MAKE_CC)" "native"
+    override DEFFLAGS += -DHAS_ULONG
+  endif
+  ifeq "$(MAKE_CC)" "insure"
+    DCC  = insure
+    CC   = insure
+    LINK = insure
+    override LDFLAGS += -Zsl -lstdc++
+    override CFLAGS += -g
+  endif
+else
+ifeq "$(SYSTEM_NAME)" "Solaris"
+  override DEFFLAGS += -DHAS_ULONG
+  ifeq "$(MAKE_CC)" "native"
+    override DEPFLAGS = -xM1 
+    override LDFLAGS  = -g -xs -Xc -z i_full
+    override CFLAGS   = -g -xs -Xc -v -xO$(OPTIM_LEV)
+  endif
+else
+ifeq "$(SYSTEM_NAME)" "IRIX"
+  ifeq "$(GNUCOMPILER)" "0"
+    override CFLAGS += -ansi -pedantic -O$(OPTIM_LEV)
+    ifeq "$(DEBUG)" "1"
+      override CFLAGS  += -g
+      override LDFLAGS += -g
+    endif
+    ifeq "$(BUSWIDTH)" ""
+      override CFLAGS  += -n32
+      override LDFLAGS += -n32
+    endif
+  endif
+  ifeq "$(MAKE_CC)" "native"
+    override CFLAGS += -fullwarn -woff 1174,1209,1552,1521
+  else
+  ifeq "$(MAKE_CC)" "CC"
+    DCC  = CC
+    CC   = CC
+    LINK = CC
+    SED = sed 's@a.out@$(OBJDIR)/$*.o $(OBJDIR)/$*.d@g'
+  endif
+  endif
+else
+ifeq "$(SYSTEM_NAME)" "SunOS"
+  DCC  = g++
+  CC   = g++
+  LINK = g++
+else
+ifeq "$(SYSTEM_NAME)" "HPUX"
+  DCC  = gcc
+  CC   = cc
+  LANG = C
+  LINK = cc
+  override CFLAGS += -Aa +O$(OPTIM_LEV)
+  ifeq "$(DEBUG)" "1"
+    override CFLAGS += -g
+    LINK = purify cc
+  endif
+else
+ifeq "$(SYSTEM_NAME)" "cdk"
+  EXE_SUFFIX = .exe
+#  override DEFFLAGS += -DHAS_ULONG
+  override SYSLIBS += -lwinmm # Win32 MultiMedia lib
+else
+ifeq "$(SYSTEM_NAME)" "OSF1"
+  DCC  = gcc
+  CC   = gcc
+  LINK = gcc
+else
+ifeq "$(SYSTEM_NAME)" "OS2"
+  DCC  = gcc
+  CC   = gcc
+  LINK = gcc -g
+  EXE_SUFFIX = .exe
+  override CFLAGS += -ansi -pedantic -Wall
+else
+  SYSTEM_NAME   = unknown
+  TARGETTMPDIR := ../tmp/ $(SYSTEM_NAME) $(ADDONDIR)
+  DCC = $(CC)
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+
+EMPTY:=
+CHARSPACE:=$(EMPTY) $(EMPTY)
+
+TARGETTMPDIR := $(subst $(CHARSPACE),_,$(strip $(TARGETTMPDIR)))
+TARGETBINDIR := $(subst $(CHARSPACE),_,$(strip $(TARGETBINDIR)))
+TARGETLIBDIR := $(subst $(CHARSPACE),_,$(strip $(TARGETLIBDIR)))
+TARGETOBJDIR := $(subst $(CHARSPACE),_,$(strip $(TARGETOBJDIR)))
+
+BINDIR       = ../bin/$(TARGETBINDIR)
+LIBDIR       = ../lib/$(TARGETLIBDIR)
+OBJDIR       = $(TARGETTMPDIR)/obj$(ADDONOBJDIR)
+PLTDIRTAG    = $(TARGETTMPDIR)/_$(SYSTEM_NAME)_$(ADDONOBJDIR) $(BINDIR)/_$(SYSTEM_NAME)_ $(LIBDIR)/_$(SYSTEM_NAME)_
+
+# add "static" to target directory of executables
+ifeq "$(STATIC)" "1"
+  override BINDIR := $(BINDIR)_static
+endif
+
+
+# defaults
+SEDOP = @
+#SEDOP = §
+SED = sed 's$(SEDOP)$*.o$(SEDOP)$(OBJDIR)/$*.o $(OBJDIR)/$*.d$(SEDOP)g'
+ifndef LIB_SUFFIX
+LIB_SUFFIX = .a
+endif
+LNK_SUFFIX = .lnk
+DEPFLAGS = -M
+# HP20010508 changed = to +=
+override SYSLIBS += -lm
+override LIBPATH += -L$(LIBDIR)
+
+# AFSP paths. This variables should become obsolete in the future.
+# Use instead the more general variables REFSOFT_INCLUDE_PATH and REFSOFT_LIBRARY_PATH
+# and unset the variables AFSP_INCLUDE_PATH and AFSP_LIBRARY_PATH.
+ifdef AFSP_INCLUDE_PATH
+# include error:\ Use\ REFSOFT_INCLUDE_PATH\ instead\ of\ AFSP_INCLUDE_PATH!!!
+override EXTERNLIBS_incl += -I$(AFSP_INCLUDE_PATH)
+vpath %.h $(AFSP_INCLUDE_PATH)
+endif
+ifdef AFSP_LIBRARY_PATH
+# include error:\ Use\ REFSOFT_LIBRARY_PATH\ instead\ of\ AFSP_LIBRARY_PATH!!!
+override EXTERNLIBS_libpath += -L$(AFSP_LIBRARY_PATH)
+vpath %.a $(AFSP_LIBRARY_PATH)
+endif
+
+# REFSOFT*PATH the generic search path for all library stuff
+# e.g. REFSOFT_INCLUDE_PATH=path1:path2:path3
+ifdef REFSOFT_INCLUDE_PATH
+override EXTERNLIBS_incl += $(addprefix -I,$(subst :, ,$(REFSOFT_INCLUDE_PATH)))
+vpath %.h $(REFSOFT_INCLUDE_PATH)
+else
+# include error:\ REFSOFT_INCLUDE_PATH\ environment\ variable\ not\ defined\ !!!
+endif
+ifdef REFSOFT_LIBRARY_PATH
+override EXTERNLIBS_libpath += $(addprefix -L,$(subst :, ,$(REFSOFT_LIBRARY_PATH)))
+vpath %.a $(REFSOFT_LIBRARY_PATH)
+else
+# include error:\ REFSOFT_LIBRARY_PATH\ environment\ variable\ not\ defined\ !!!
+endif
+
+# .SILENT: # does conflict with VERBOSE
+
+ifeq "$(DEBUGPLOT)" "1"
+# for more info on plotmtv see src_frame/plotmtv_interf.c
+# see also src_frame/writevector.c
+override DEFFLAGS += -DDEBUGPLOT -DFHG_DEBUGPLOT
+override CFLAGS   += -g
+override LDFLAGS  += -g
+endif
+
+# ISO MP4 file format library
+ifeq "$(ISOMP4)" "1"
+ifndef "$(DEBUG_MP4LIB)"
+DEBUG_MP4LIB = 0
+endif
+ifndef ISOMP4_PATH
+ISOMP4_PATH = ../mp4lib
+endif
+# ISOMP4_NAME = isomp4         # old name
+# for newer versions of this lib
+ISOMP4_NAME = isomediafile   # new name
+ISOMP4_INCLUDE_PATH  = $(ISOMP4_PATH)/src
+ISOMP4_PLATFORM_PATH = $(ISOMP4_PATH)/$(PLTDIR)
+ifeq "$(DEBUG_MP4LIB)" "0"
+  ISOMP4_LIBRARY_PATH = $(ISOMP4_PLATFORM_PATH)/lib$(ISOMP4_NAME)
+else
+  ISOMP4_LIBRARY_PATH = $(ISOMP4_PLATFORM_PATH)/lib$(ISOMP4_NAME)_debug
+endif
+override EXTERNLIBS_incl  += -I$(ISOMP4_PLATFORM_PATH) -I$(ISOMP4_INCLUDE_PATH)
+override EXTERNLIBS_libpath  += -L$(ISOMP4_LIBRARY_PATH)
+override DEFFLAGS   += -DMP4FF -DUSELIB_ISOMP4 # Double definition; please use the longer USELIB_ISOMP4 in the future
+override EXTERNLIBS += -l$(ISOMP4_NAME)
+vpath lib$(ISOMP4_NAME).a $(ISOMP4_LIBRARY_PATH)
+endif
+
+ifeq "$(USE_AFSP)" "1"
+override DEFFLAGS   += -DUSE_AFSP -DUSELIB_AFsp # Double definition; please use the longer USELIB_AFsp in the future
+override EXTERNLIBS += -ltsp
+endif
+
+# the following lines should be obsolete in the future
+PLTDIR=$(SYSTEM_NAME)
+override LIBPATH += -L$(PLTDIR)/lib
+ifeq "$(SYSTEM_NAME)" "Solaris"
+# PLTDIR=sol
+PLTDIR=solaris
+RMDIR := rmdir -ps
+endif
+ifeq "$(SYSTEM_NAME)" "IRIX"
+PLTDIR=sgi
+endif
+ifeq "$(SYSTEM_NAME)" "Linux"
+PLTDIR = linux
+RMDIR := rmdir -p
+endif
+
+endif # ifneq "$(MAKELEVEL)" "0"

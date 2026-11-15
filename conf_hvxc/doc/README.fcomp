@@ -1,0 +1,143 @@
+$Id: README.fcomp,v 1.1 2001/11/06 13:42:00 sonhvxc1 Exp $
+-------------------------------------------------------------
+ - hvxc_fcomp(version 0.1)
+   (for conformance testing of MPEG-4 Audio HVXC decoder)
+
+    Author: Akira Inoue, Sony HNC <akira@av.crl.sony.co.jp>
+	    Yuuji Maeda, Sony HNC <ymaeda@av.crl.sony.co.jp>
+
+    Copyright(C) 1999 Sony Corporation 
+    All Rights Reserved.
+-------------------------------------------------------------
+
+1. About hvxc_fcomp
+2. How to compile
+3. Usage
+4. Descriptions of test bitstream and reference output signal
+5. History
+
+-------------------
+
+1. About hvxc_fcomp
+
+This software(hvxc_fcomp) are dedicated for conformance testing of
+MPEG-4 Audio HVXC decoder using "All Voiced bitstream(hv01.mp4 and
+hv02.mp4).
+For given both the output signal of a HVXC decoder under the test and
+the reference output signal(without noise component addition),
+their differential spectrum is compared to check whether all of
+amplitudes are within a certain range.
+It should be noted that any post-filtering and post-processing in the
+decoder under test must be disabled in testing decoder conformance.
+
+The details of testing procedure should be referred in ISO/IEC
+14496-4, section 3, subsection 1.5.13.6.1.1.
+
+
+2. How to complie
+
+To make executable, just invoke
+% make
+
+It is necessary to use the AFsp package for audio file i/o. 
+The AFsp package is written by Peter Kabal <kabal@TSP.EE.McGill.CA> and is
+available via ftp:
+
+current version:        AFsp-V3R2.tar.Z
+WWW site:               http://www.TSP.EE.McGill.CA/software.html
+ftp site:               ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:            ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+Put libtsp.a (or a link to it) in /usr/local/lib and libtsp.h (or a
+link to it) in /usr/local/include.
+
+This programs is compliled on the following systems/compiler:
+- Solaris 2.5.5 on Ultra Sparc Machine(cc, CC, gcc, g++)
+- SunOS 4.1.4 on Sparc Machine(gcc, g++)
+- Linux 2.0.35 on Intel Pentium Pro Machine(gcc, g++)
+
+3. Usage
+
+usage: hvxc_fcomp [options] AFileA AFileB
+
+  AFileA: file name of test signal
+  AFileB: file name of reference signal(without noise component addition)
+
+  For data formats of input file, Sun(.au), RIFF WAVE(.wav),
+  AIFF-C(.aif) of 8kHz sampling, 16-bit integer, mono channel are
+  supported.
+
+options:
+  -i val        frame interval value(default: 160)
+
+  -w val        window length value(default: 256)
+
+  -o val        offset value(default: 112)
+
+  -n val        frame number of snap(default: --)
+                Snapped spectrum are written to the file names "snap.xgh"
+                (format for xgraph).
+                
+  -r val        bit rate to be tested(2000 or 4000, default: 2000)
+                The conformance condition is different depending on
+                the bit rate of the test bitstream. 
+                Specify the corresponding bit rate(2000 or 4000) of
+                bitstream which is used to produce test signal.
+
+  -h            show this message
+
+As a result of executing "hvxc_fcomp", if the conformance condition
+is satisfied, the following message appeared:
+  hvxc_fcomp: conformance condition is satisfied.
+Otherwise the following message appeared:
+  hvxc_fcomp: conformance condition is NOT satisfied.
+with messages to specify the number of frame in which the condition is 
+not satisfied.
+
+And maximun and minimun amplitudes of spectrum are writen to the file
+named "result.xgh"(format for xgraph).
+
+
+4. Descriptions of test bitstreams and reference output signals
+
+The following are the descriptions of test bitstreams and reference
+output signals used in this conformance testing procedure.
+
+4.1 Description of test bitstreams
+    
+    - All of frames are "Voiced".
+    - Pitch lag sweeping from 30 to 40 cyclically.
+    - LSP indices to provide almost "flat" response.
+    - A fixed set of indices of the spectral envelope shape and gain.
+ 
+    hv01.mp4 : 2kbps
+    hv02.mp4 : 4kbps
+   
+    More details should referred in ISO/IEC 14496-4, Table 16.
+
+4.2 Description of reference output signals
+
+    hv01ref1.aif : 2kbps, normal delay
+    hv01ref2.aif : 2kbps, normal delay, pf=1.6
+    hv01ref3.aif : 2kbps, normal delay, pf=0.8
+    hv01ref4.aif : 2kbps, normal delay, sf=1.5
+    hv01ref5.aif : 2kbps, normal delay, sf=0.75
+    hv01ref6.aif : 2kbps, low delay
+    hv01ref7.aif : 2kbps, low delay, pf=1.6
+    hv01ref8.aif : 2kbps, low delay, pf=0.8
+    hv01ref9.aif : 2kbps, low delay, sf=1.5
+    hv01ref10.aif: 2kbps, low delay, sf=0.75
+
+    hv02ref1.aif : 4kbps, normal delay
+    hv02ref2.aif : 4kbps, low delay
+
+    (pf:pitch change factor, sf:speed change factor)
+
+    More details shoule be referred in ISO/IEC 14496-4, Table 18,19 and 20.
+
+5. History
+
+- 99/06/09: initial version(version 0.1)
+
+
+

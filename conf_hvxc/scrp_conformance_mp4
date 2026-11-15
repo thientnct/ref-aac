@@ -1,0 +1,261 @@
+#!/bin/csh
+#
+# $Id: scrp_conformance_mp4,v 1.2 2000/01/28 10:53:24 akira Exp $
+#
+# an example of shell script to test decoder conformance 
+# using ref.software
+#
+# USAGE: scrp_conformance_mp4 <number> 
+#
+#	number:	0	all test
+#		1	all voiced bit stream(2kbps) 	: hv01
+#		2	all voiced bit stream(4kbps) 	: hv02
+#		3	all unvoiced bit stream(2kbps)	: hv03
+#		4	all unvoiced bit stream(4kbps)	: hv04
+#		5	direct comparison(2kbps)	: hv05
+#		6	direct comparison(4kbps)	: hv06
+#		7	direct comparison(VR)		: hv07
+#		8	harmonic phase initialization	: hv08
+#-------------------------------------------------------------
+#		10	direct comparison(2+2kbps)	: hv10
+#
+
+#set BIT_DIR = ./mp4_bitstreams
+#set BIT_DIR = ./mp4_bitstreams_downloaded
+set BIT_DIR = ./download_20011001
+#set REF_DIR = ./ref-signal
+set REF_DIR = ./ref-signal_downloaded
+set CMP_DIR = ../bin/confTools/hvxc_conformance/Solaris_g++_O0d
+#set CMP_DIR = './linux'
+#set DEC_PROGRAM = '/cygdrive/e/dsrv7/work/mpeg/refSoft/mp4AudVm/win32/bin/release/mp4audec -d 1 -ed .wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/refSoft/bin/mp4AudVm/Linux_v2_c1_g++_O0d/mp4audec -d 1 -ed .wav -o test'
+set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/refSoft/bin/mp4AudVm/Solaris_v2_c1_g++_O0d/mp4audec -d 1 -ed .wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/refSoft_old/mp4AudVm/sol_v2_c1_g++/mp4audec -ed wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/refSoft/mp4AudVm/linux_v2_c1_g++/mp4audec -d 1 -ed .wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/hvxc_integer/sol_v1_c1_g++/mp4audec -d 3 -ed wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/epConfig/sol_v2_c1_g++/mp4audec -d 3 -ed wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/mp4AudVm/sol_v1_c1_g++/mp4audec -ed wav -o test'
+#set DEC_PROGRAM = '/home/dsrv7/users/akira/work/mpeg/epConfig/sol_v1_c1_g++/mp4audec -ed wav -o test'
+
+if ($1 == 0 || $1 == 1) then
+
+### All Voiced, 2kbps (HV01)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv01ref1"
+$DEC_PROGRAM  -c "dm=1 tm=1" $BIT_DIR/hv01.mp4 
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref1.wav
+
+## (2) speed = 1.0, pitch = 1.6, normal delay
+echo "hv01ref2"
+$DEC_PROGRAM  -pf 1.6 -c "dm=1 tm=1" $BIT_DIR/hv01.mp4
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref2.wav
+
+## (3) speed = 1.0, pitch = 0.8, normal delay
+echo "hv01ref3"
+$DEC_PROGRAM  -pf 0.8 -c "dm=1 tm=1" $BIT_DIR/hv01.mp4
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref3.wav
+
+## (4) speed = 1.5, pitch = 1.0, normal delay
+echo "hv01ref4"
+$DEC_PROGRAM  -sf 1.5 -c "dm=1 tm=1" $BIT_DIR/hv01.mp4 
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref4.wav
+
+## (5) speed = 0.75, pitch = 1.0, normal delay
+echo "hv01ref5"
+$DEC_PROGRAM  -sf 0.75 -c "dm=1 tm=1" $BIT_DIR/hv01.mp4 
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref5.wav
+
+## (6) speed = 1.0, pitch = 1.0, low delay
+echo "hv01ref6"
+$DEC_PROGRAM  -c "dm=0 tm=1" $BIT_DIR/hv01.mp4 
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref6.wav
+
+## (7) speed = 1.0, pitch = 1.6, low delay
+echo "hv01ref7"
+$DEC_PROGRAM  -pf 1.6 -c "dm=0 tm=1" $BIT_DIR/hv01.mp4 
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref7.wav
+
+## (8) speed = 1.0, pitch = 0.8, low delay
+echo "hv01ref8"
+$DEC_PROGRAM  -pf 0.8 -c "dm=0 tm=1" $BIT_DIR/hv01.mp4
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref8.wav
+
+## (9) speed = 1.5, pitch = 1.0, low delay
+echo "hv01ref9"
+$DEC_PROGRAM  -sf 1.5 -c "dm=0 tm=1" $BIT_DIR/hv01.mp4
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref9.wav
+
+## (10) speed = 0.75, pitch = 1.0, low delay
+echo "hv01ref10"
+$DEC_PROGRAM  -sf 0.75 -c "dm=0 tm=1" $BIT_DIR/hv01.mp4
+$CMP_DIR/hvxc_fcomp -r 2000 test.wav $REF_DIR/hv01ref10.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 2) then
+
+### All Voiced, 4kbps (HV02)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv02ref1"
+$DEC_PROGRAM  -c "dm=1 tm=1" $BIT_DIR/hv02.mp4 
+$CMP_DIR/hvxc_fcomp -r 4000 test.wav $REF_DIR/hv02ref1.wav
+
+## (2) speed = 1.0, pitch = 1.0, low delay
+echo "hv02ref2"
+$DEC_PROGRAM  -c "dm=0 tm=1" $BIT_DIR/hv02.mp4
+$CMP_DIR/hvxc_fcomp -r 4000 test.wav $REF_DIR/hv02ref2.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 3) then
+
+### All Unvoiced, 2kbps (HV03)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv03ref1"
+$DEC_PROGRAM  -c "dm=1 tm=5" $BIT_DIR/hv03.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv03ref1.wav
+
+## (2) speed = 1.0, pitch = 1.0, low delay
+echo "hv03ref2"
+$DEC_PROGRAM  -c "dm=0 tm=5" $BIT_DIR/hv03.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv03ref2.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 4) then
+
+### All Unvoiced, 4kbps (HV04)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv04ref1"
+$DEC_PROGRAM  -c "dm=1 tm=5" $BIT_DIR/hv04.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv04ref1.wav
+
+## (2) speed = 1.0, pitch = 1.0, low delay
+echo "hv04ref2"
+$DEC_PROGRAM  -c "dm=0 tm=5" $BIT_DIR/hv04.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv04ref2.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 5) then
+
+### 2kbps (HV05)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv05ref1"
+$DEC_PROGRAM  -c "dm=1 tm=7" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref1.wav
+
+## (2) speed = 1.0, pitch = 1.6, normal delay
+echo "hv05ref2"
+$DEC_PROGRAM  -pf 1.6 -c "dm=1 tm=7" $BIT_DIR/hv05.mp4
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref2.wav
+
+## (3) speed = 1.0, pitch = 0.8, normal delay
+echo "hv05ref3"
+$DEC_PROGRAM  -pf 0.8 -c "dm=1 tm=7" $BIT_DIR/hv05.mp4
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref3.wav
+
+## (4) speed = 1.5, pitch = 1.0, normal delay
+echo "hv05ref4"
+$DEC_PROGRAM  -sf 1.5 -c "dm=1 tm=15" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref4.wav
+
+## (5) speed = 0.75, pitch = 1.0, normal delay
+echo "hv05ref5"
+$DEC_PROGRAM  -sf 0.75 -c "dm=1 tm=15" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref5.wav
+
+## (6) speed = 1.0, pitch = 1.0, low delay
+echo "hv05ref6"
+$DEC_PROGRAM  -c "dm=0 tm=7" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref6.wav
+
+## (7) speed = 1.0, pitch = 1.6, low delay
+echo "hv05ref7"
+$DEC_PROGRAM  -pf 1.6 -c "dm=0 tm=7" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref7.wav
+
+## (8) speed = 1.0, pitch = 0.8, low delay
+echo "hv05ref8"
+$DEC_PROGRAM  -pf 0.8 -c "dm=0 tm=7" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref8.wav
+
+## (9) speed = 1.5, pitch = 1.0, low delay
+echo "hv05ref9"
+$DEC_PROGRAM  -sf 1.5 -c "dm=0 tm=15" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref9.wav
+
+## (10) speed = 0.75, pitch = 1.0, low delay
+echo "hv05ref10"
+$DEC_PROGRAM  -sf 0.75 -c "dm=0 tm=15" $BIT_DIR/hv05.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv05ref10.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 6) then
+
+### 4kbps (HV06)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv06ref1"
+$DEC_PROGRAM  -c "dm=1 tm=7" $BIT_DIR/hv06.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv06ref1.wav
+
+## (2) speed = 1.0, pitch = 1.0, low delay
+echo "hv06ref2"
+$DEC_PROGRAM  -c "dm=0 tm=7" $BIT_DIR/hv06.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv06ref2.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 7) then
+
+### variable rare (HV07)
+## (1) speed = 1.0, pitch = 1.0, normal delay
+echo "hv07ref1"
+$DEC_PROGRAM  -c "dm=1 tm=15" $BIT_DIR/hv07.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv07ref1.wav
+
+## (2) speed = 1.0, pitch = 1.0, low delay
+echo "hv07ref2"
+$DEC_PROGRAM  -c "dm=0 tm=15" $BIT_DIR/hv07.mp4 
+$CMP_DIR/segsnr test.wav $REF_DIR/hv07ref2.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 8) then
+
+### harmonic phase initialization
+echo "hv08"
+$DEC_PROGRAM  -c "dm=1 tm=5" $BIT_DIR/hv08.mp4 
+$CMP_DIR/hvxc_ini_phase test.wav
+
+$DEC_PROGRAM  -c "dm=0 tm=5" $BIT_DIR/hv08.mp4 
+$CMP_DIR/hvxc_ini_phase test.wav
+
+endif
+
+if ($1 == 0 ||  $1 == 10) then
+
+### (2+2)kbps scalable (HV10)
+## (1) lay=0, speed = 1.0, pitch = 1.0, normal delay
+echo "hv10_lay0_nd"
+$DEC_PROGRAM  -c "dm=1 tm=15 -out 0" $BIT_DIR/hv10.mp4 
+$CMP_DIR/segsnr test_lay0.wav $REF_DIR/hv10_lay0_nd.wav
+
+## (2) lay=0, speed = 1.0, pitch = 1.0, low delay
+echo "hv10_lay0_ld"
+$DEC_PROGRAM  -c "dm=0 tm=15 -out 0" $BIT_DIR/hv10.mp4 
+$CMP_DIR/segsnr test_lay0.wav $REF_DIR/hv10_lay0_ld.wav
+
+## (3) lay=1, speed = 1.0, pitch = 1.0, normal delay
+echo "hv10_lay1_nd"
+$DEC_PROGRAM  -c "dm=1 tm=15 -out 1" $BIT_DIR/hv10.mp4 
+$CMP_DIR/segsnr test_lay1.wav $REF_DIR/hv10_lay1_nd.wav
+
+## (4) lay=1, speed = 1.0, pitch = 1.0, low delay
+echo "hv10_lay1_ld"
+$DEC_PROGRAM  -c "dm=0 tm=15 -out 1" $BIT_DIR/hv10.mp4 
+$CMP_DIR/segsnr test_lay1.wav $REF_DIR/hv10_lay1_ld.wav
+
+endif
+

@@ -1,0 +1,2 @@
+# Enable Sony AAC pre-processing
+AAC_PP   = 1

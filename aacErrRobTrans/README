@@ -1,0 +1,72 @@
+For Transcoder specific information see README_TRANSCODER
+------------------
+I believe that this is a complete AAC IS-compliant 
+	Main and Low Complexity profile decoder.
+
+Recently added features are:
+	TNS max_bands, max_order is checked for all sampling rates and
+		profiles
+	modifications to data stream element
+	all sampling rates supported
+	pulse data limited to long blocks (and a bug fixed in that code)
+	matrix mixdown fields in program config element
+	prediction changed to low memory complexity algorithm
+	ADIF headers supported and checked.
+
+However none of the coupling channel code (coupling.c) has been tested.
+
+There is the output channel naming convention:
+	channel		name
+	mono		*_f00.pcm
+stereo
+	left		*_f01.pcm
+	right		*_f02.pcm
+5.1
+	center		*_f00.pcm
+	left		*_f01.pcm
+	right		*_f02.pcm
+	left surr.	*_b00.pcm
+	right surr.	*_b01.pcm
+	lfe		*_l00.pcm
+
+This labeling scheme supports the full-up 48.2 channel Main profile
+configuration. For front channels the "00" index is the center channel.
+For back channels the highest even index is the center channel (note
+that 5.1 does not have a center back channel).  The "pcm" extension
+indicates that the file is mono 16-bit 2's complement with no header.
+Alternatively, the decoder can write AIFF files, in which case the file
+extension is "aif".
+
+Command line arguments are:
+
+usage:  dec [options] chan_file pcm_file
+        options are:
+        -a create AIFF output files
+        -i [prog_tag] ADIF header present (first prog is default)
+        -p profile (Main or LC, Main is default)
+        -s sampling_frequency, Hz (48 kHz is default)
+        -D[a-Z] (enable debugging printouts)
+
+Some more explanation:
+	-a AIFF output files, one per channel. 
+	-i indicates the presence of an ADIF header and associated
+	program_config_element's. The arg selects the program in the 
+	case of multiple program_config_element's in the header.
+	
+	-p is only useful if there is no program_config_element in the
+	bitstream.
+	
+	-s is required if you want to write AIFF files and the sampling
+	rate is not 48kHz, even if a program_config_element is present
+	(sorry about that).
+	
+	-D is for debugging/diagnostic. Grep the code to see what it
+	can do.
+
+Schuyler
+--------------------
+Schuyler Quackenbush				Phone:	(908) 582-4210
+Member of Technical Staff			FAX:	(908) 582-4271
+AT&T Laboratories, Room 2D-555			Email:	srq@research.att.com
+600 Mountain Avenue				
+Murray Hill, NJ 07974, USA

@@ -1,0 +1,154 @@
+\documentclass[a4paper]{article}
+
+% Check for the existence of the variable \pdfoutput:
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+\pdffalse % we are not running PDFLaTeX
+\else
+\pdfoutput=1 % we are running PDFLaTeX
+\pdftrue
+\fi
+
+\usepackage{mya4}
+\usepackage{verbatim}
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\pdfcompresslevel=9
+\usepackage[bookmarksnumbered=true,pdfpagemode=UseOutlines,
+pdfstartview=,bookmarksopen=true]{hyperref}
+\else
+\usepackage{graphicx}
+\usepackage[hypertex,colorlinks]{hyperref}
+%\usepackage[dvips]{hyperref}
+\fi
+
+\parindent0cm
+\parskip1.5ex plus0.5ex minus0.5ex
+
+\begin{document}
+\title{EP-Tool library interface}
+\author{Markus Multrus, Ralph Sperschneider\\
+  Fraunhofer IIS-A}
+\maketitle
+
+\section{About the EP-Tool library interface}
+The EP-Tool library interface is based on the epTool and provides the
+unequal error protection (UEP) capability to the ISO/IEC 14496-3
+codecs. The software is provided in source form: 
+\begin{description}
+\item[libeptool.h] This file contains all the exported routines used by
+  the libeptool library. It has to be included in your
+  code (\verb?#include "libeptool.h"?).
+\item[libeptool.a] This file contains all required functions. You will
+  need to link it to your executable.
+\end{description}
+
+\section{Namespace/runtime issues}
+All exported routines start with the prefix EPTool. The library
+does not create any global variables.
+
+\section{Important known limitations of the library}
+The library should only be used for the following operations:
+\begin{itemize}
+\item Converting MPEG-4 audio compressed data provided in
+  (epConfig==1) style to data making use of (epConfig==2) style. This
+  procedure is referred to as encoding.
+\item  Converting MPEG-4 audio compressed data provided in
+  (epConfig==2) style to data making use of (epConfig==1) style. This
+  procedure is referred to as decoding.
+\end{itemize}
+
+MPEG-4 Audio compressed data of all audio object types permitting use of
+(epConfig==2) style are supported. The conversion is done on a frame
+basis in case of non-scalable object types. The conversion is done on a
+layer basis in case of scalable object types. Note:
+\begin{itemize}
+\item The (epConfig==1) style frames/layers are subdivided in a couple
+  of access units, where each access unit contains a single error
+  sensitivity category.
+\item The (epConfig==2) style frames/layers consist always of one access
+  unit.
+\end{itemize}
+
+If bitstuffing is disabled, the in- and outputbuffers have to contain
+bits, not bytes. Please also enable the bitFlag. 
+%The library should only be used with the following limitations: 
+%\begin{itemize}
+%\item max.~64 classes
+%\end{itemize}
+
+\section{Encoding (fundamental usage)}
+\begin{description}
+\item[Initialization:] 
+ EPTool\_CreateExpl()
+\item[Frame/Layer encoding:] EPTool\_EncodeFrame()
+\item[Termination:] 
+  EPTool\_Destroy()
+\item[detailed informations:]
+    There are two ways, to get the Error Protection Specific
+    Configuration (EP Specific Configuration):
+    \begin{itemize}
+      \item Reading from a file:
+        \begin{itemize}
+          \item handing over EP Specific Configuration to configBuffer:
+          (Syntax of configBuffer as in ISO/IEC 14496-3:1999/Amd.1:2000)
+
+          \begin{itemize}
+          \item EPTool\_CreateBufferEPSpecificConfig( unsigned char
+          **configBuffer, const char *predFileName );
+          \item EPTool\_CreateExpl( HANDLE\_EP\_CONFIG *hEpConfig,  const char
+          *predFileName, unsigned char **configBuffer, long
+          *configLength, int reorderFlag, int bitFlag );\\
+          Ep Specific Configuration now is written to configBuffer, it
+          can be handed over to other interfaces.
+          \item EPTool\_EncodeFrame (HANDLE\_EP\_CONFIG hEpConfig,
+          HANDLE\_CLASS\_FRAME inBuffer, unsigned char *outBuffer, int
+          *outLength , int bitFlag );
+          \item EPTool\_Destroy( HANDLE\_EP\_CONFIG hEpConfig );
+          \item EPTool\_DestroyBufferEPSpecificConfig( unsigned char
+            **configBuffer )
+          \end{itemize}
+          
+          \item not handing over EP Specific Configuration in to configBuffer:
+
+          \begin{itemize}
+          \item EPTool\_CreateExpl( HANDLE\_EP\_CONFIG *hEpConfig,  const char
+          *predFileName, NULL, NULL, int reorderFlag, int bitFlag );
+          \item EPTool\_EncodeFrame (HANDLE\_EP\_CONFIG hEpConfig,
+          HANDLE\_CLASS\_FRAME inBuffer, unsigned char *outBuffer, int
+          *outLength , int bitFlag );
+          \item EPTool\_Destroy( HANDLE\_EP\_CONFIG hEpConfig );
+          \end{itemize}
+
+        \end{itemize}
+
+      \item Getting EP Specific Configuration from configBuffer:
+        (Syntax of configBuffer as in ISO/IEC 14496-3:1999/Amd.1:2000)
+        \begin{itemize}
+           \item EPTool\_CreateExpl( HANDLE\_EP\_CONFIG *hEpConfig, NULL, unsigned char **configBuffer, long
+          *configLength, int reorderFlag, int bitFlag );
+            \item EPTool\_EncodeFrame (HANDLE\_EP\_CONFIG hEpConfig,
+          HANDLE\_CLASS\_FRAME inBuffer, unsigned char *outBuffer, int
+          *outLength , int bitFlag );
+            \item EPTool\_Destroy( HANDLE\_EP\_CONFIG hEpConfig );
+          \end{itemize}
+      \end{itemize}
+ 
+\end{description}
+
+\section{Decoding (fundamental usage)}
+\begin{description}
+\item[Initialization:] EPTool\_CreateExpl()
+\item[Frame/Layer decoding:] EPTool\_DecodeFrame() 
+\item[Termination:] EPTool\_Destroy()
+\item[detailed informations:]
+  See 'encoding' (Substitute EPTool\_EncodeFrame() with EPTool\_DecodeFrame()). 
+\end{description}
+
+
+\section{Error protection functions}
+\subsection{Content of libeptool.h}
+\verbatiminput{../src/libeptool.h}
+
+\end{document}

@@ -1,0 +1,110 @@
+-------------------------------------------------------------
+hvxc_ini_phase(version 0.1): 
+    Verification tool of "Harmonic Phase Initialization" test
+
+    Author: Akira Inoue, Sony HNC <akira@av.crl.sony.co.jp>
+	    Yuuji Maeda, Sony HNC <ymaeda@av.crl.sony.co.jp>
+
+    Copyright(C) 1999 Sony Corporation 
+    All Rights Reserved.
+
+$Id: README.hvxc_ini_phase,v 1.1 2001/11/06 13:42:00 sonhvxc1 Exp $
+-------------------------------------------------------------
+
+0) ABSTRACT
+This software(hvxc_ini_phase) are dedicated for conformance testing of
+MPEG-4 Audio HVXC decoder using "Harmonic Phase Initialization
+(hv08.mp4)."
+A HVXC decoder under the test must produce output signal without noise
+component addition in Voiced Component Synthesizer(test_mode =
+xxxx xxxx xxxx x1x1).
+At testing, average and deviation of "peak/rms" value are computed  
+for applied segments around a whole decoder output signal.
+It should be noted that any post-filtering and post-processing in the
+decoder under test must be disabled in testing decoder conformance.
+
+The details of testing procedure should be referred in ISO/IEC
+14496-4, section 3, subsection 1.5.13.6.2.2.
+
+1) HOW TO COMPILE
+
+To make executable, just invoke
+% make
+
+It is necessary to use the AFsp package for audio file i/o. 
+The AFsp package is written by Peter Kabal <kabal@TSP.EE.McGill.CA> and is
+available via ftp:
+
+current version:        AFsp-V3R2.tar.Z
+WWW site:               http://www.TSP.EE.McGill.CA/software.html
+ftp site:               ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:            ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+Put libtsp.a (or a link to it) in /usr/local/lib and libtsp.h (or a
+link to it) in /usr/local/include.
+
+This programs is compliled on the following systems/compiler:
+- Solaris 2.5.5 on Ultra Sparc Machine(cc, CC, gcc, g++)
+- SunOS 4.1.4 on Sparc Machine(gcc, g++)
+- Linux 2.0.35 on Intel Pentium Pro Machine(gcc, g++)
+
+2) INCLUDED SOFTWARE
+
+   Makefile:    makefile of "hvxc_ini_phase"
+   main.c:	source code
+   hv08.mp4:	conformance bitstream
+   hv08.wav:	sound data for verification
+   README:      this file
+
+3) USAGE
+
+    hvxc_ini_phase [options] AFile
+
+    AFile: file name of test signal
+
+For data formats of input file, Sun(.au), RIFF WAVE(.wav),
+AIFF-C(.aif) of 8kHz sampling, 16-bit integer, mono channel are
+supported.
+
+options:
+    -i val:  frame interval value(default: 80)
+    -o val:  offset value(default: 0)
+    -sl val: segment length[samples](default: 80)
+    -d:      display data at every frame
+    -h:      show this message
+
+  Option "-i", "-o" and "-sl" can be changed, but these
+  options don't have to change in this test, please
+  use default value.
+
+  When Option "-d" is specified,  peak and rms value
+  at every frame are displayed.
+
+3) SAMPLE RESULT
+
+   Using "hv08.wav", please check this software by
+   the follwing usage.
+
+   hvxc_ini_phase hv08.wav
+
+   The result is displayed as follows:
+
+ RIFF WAVE file: /PATH/hv08.wav
+    Number of samples : 63920  1999/11/26 08:44:15 UTC
+    Sampling frequency: 8000 Hz
+    Number of channels: 1 (16-bit integer)
+peak/rms =[4.8085,6.6584]
+avg(peak/rms)=5.7530, devi(peak/rms)=0.3638
+count=299
+********** Test condition is satisfied. **********
+
+"peak/rms" means upper and lower limit of peak/rms.
+"ave(peak/rms)" means the average of peak/rms, so in this
+case it is 5.7530.
+"devi(peak/rms)" means the deviation of peak/rms, so in this
+case it is 0.3638.
+
+4) HISTORY
+
+    - 99/06/09: initial version(version 0.1)
+

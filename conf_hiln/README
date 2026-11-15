@@ -1,0 +1,44 @@
+README hilnconf
+
+  MPEG-4 Conformance Test ISO/IEC 14496-4/AMD1
+  for ER_HILN and ER_PARA audio object types
+
+19-Feb-2001  Heiko Purnhagen <purnhage@tnt.uni-hannover.de>
+
+Make hilnconf binary with AFsp support:
+  make
+
+Adapt dec_test script to local environment
+  DEC       = decoder binary (device under test)
+  SSNRCD    = ssnrcd tool binary
+  HILNCONF  = hilnconf tool binary
+  SUBTRACT  = command to calculate difference signals of two waveforms
+  BITPATH   = directory containing test bitstreams (*.mp4)
+  REFPATH   = direcotry containing reference material (*.wav, *.ctp)
+  DECPATH16 = directory for decoded signals (fixed point accuracy)
+  DECPATH   = directory for decoded signals (full accuracy)
+  DECPARA16 = options for $DEC to operate with fixed point accuracy
+  DECPARA   = options for $DEC to operate with full accuracy
+
+Decode and test for fixed point accuracy
+  ./dec_test decfixed dec
+  ./dec_test decfixed testfixed
+
+Decode and test for full accuracy
+  ./dec_test dec
+  ./dec_test testfull
+
+
+Supplemental information (HP 2003-03-03):
+
+The scripts
+  dec_test-mp4AudVm_Rewrite
+  dec_test-mp4AudVm
+are pre-configured for the new directory structure incl. rewrite branch. Only
+the following parameters need to be adapted to the local environment:
+  BITPATH
+  REFPATH
+  DECPATH16
+  DECPATH
+
+--

@@ -1,0 +1,6 @@
+Some flags of interest are:
+
+HAS_ULONG
+  Define this if your system already has a ulong typedef
+
+<mc@fivebats.com> 1997/08/24
