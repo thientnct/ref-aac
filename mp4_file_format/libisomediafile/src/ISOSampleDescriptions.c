@@ -215,10 +215,10 @@ MP4_EXTERN ( MP4Err ) MP4NewSampleDescriptionWithOCRAssociation(  MP4Track theTr
    
 bail:
    if ( esdAtom ) {
-		esdAtom->destroy( (MP4AtomPtr) esdAtom );
 		/* JLF 07/01: need to set the esd atom to NULL as the SampleDescEntry destructors
 		   attempts to delete it */
 		if (entry) err = MP4DeleteListEntryAtom( entry->ExtensionAtomList, MP4ESDAtomType );
+		esdAtom->destroy( (MP4AtomPtr) esdAtom );
    }
    		
 	if ( entry )
