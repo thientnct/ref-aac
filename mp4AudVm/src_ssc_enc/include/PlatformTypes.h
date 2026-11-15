@@ -119,8 +119,13 @@ Changes:
     typedef unsigned int     UInt32;
     typedef signed int       SInt32;
 
+#ifdef __GNUC__
+    typedef unsigned long long UInt64;
+    typedef signed long long   SInt64;
+#else
     typedef unsigned __int64 UInt64;
     typedef signed __int64   SInt64;
+#endif
 
     typedef float            FloatSSC;
     typedef double           Double;

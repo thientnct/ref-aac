@@ -68,6 +68,7 @@ foreach(base ${AAC_LC_OBJS})
 endforeach()
 
 add_executable(mp4auenc ${MP4AUENC_SOURCES})
+set_target_properties(mp4auenc PROPERTIES OUTPUT_NAME mp4auenc_vm_re)
 
 foreach(dir ${AAC_LC_SRC_DIRS})
   target_include_directories(mp4auenc PRIVATE "${AAC_ROOT}/${dir}")

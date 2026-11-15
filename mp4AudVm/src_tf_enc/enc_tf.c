@@ -258,6 +258,7 @@ char *EncTfInfo (
 	    "-aac_nosfacs: make all scalefacs be equal\n"
 	    "-no_tstream\n"
 	    "-len_tstream\n"
+	    "-raw_tstream: raw AAC frames without syncword/leninfo (for MP4 muxing)\n"
 	    "-pred_ltp\n"
 	    "-wsm <win_switch_mode>\n"
 	    "-wlp <blksize> <med> <short>\n");
@@ -682,6 +683,9 @@ void EncTfInit (
   }
   if ( strstr( encPara, "-no_syncword") ){ /* supported by NTT_VQ only */
     transport_stream = NO_SYNCWORD;
+  }
+  if ( strstr( encPara, "-raw_tstream") ){ /* raw AAC frames, no syncword/leninfo */
+    transport_stream = AAC_RAWDATA_TSTREAM;
   }
   if( (p_ctmp=strstr( encPara, "-wsm " )) ) {  /* window length switching parameters */
     if( sscanf( p_ctmp+5, "%d",(int*)&win_switch_mode ) == 0 ) {

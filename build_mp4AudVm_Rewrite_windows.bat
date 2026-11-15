@@ -4,7 +4,7 @@ REM build_mp4AudVm_Rewrite_windows.bat
 REM Build mp4auenc (AAC-LC encoder) with MinGW64 + CMake + Ninja.
 REM Usage: build_mp4AudVm_Rewrite_windows.bat [Debug|Release]
 REM   Default: Release
-REM Output: build\mp4auenc.exe
+REM Output: build\mp4auenc_vm_re.exe
 REM ---------------------------------------------------------------------------
 setlocal
 
@@ -27,14 +27,14 @@ echo === Configuring %BUILD_TYPE% build ===
 echo === Building ===
 "%CMAKE%" --build "%BUILD%" || exit /b 1
 
-echo === Copying mp4auenc.exe to %BUILD% ===
-copy /y "%BUILD%\mp4AudVm_Rewrite\mp4auenc.exe" "%BUILD%\mp4auenc.exe" >nul
+echo === Copying mp4auenc_vm_re.exe to %BUILD% ===
+copy /y "%BUILD%\mp4AudVm_Rewrite\mp4auenc_vm_re.exe" "%BUILD%\mp4auenc_vm_re.exe" >nul
 if errorlevel 1 (
-  echo ERROR: failed to copy mp4auenc.exe
+  echo ERROR: failed to copy mp4auenc_vm_re.exe
   exit /b 1
 )
 
 echo.
-echo Build OK: %BUILD%\mp4auenc.exe
-echo Example: mp4auenc.exe song1.wav -c "-aac -br 128000" -o song1.mp4
+echo Build OK: %BUILD%\mp4auenc_vm_re.exe
+echo Example: mp4auenc_vm_re.exe song1.wav -c "-aac -br 128000" -o song1.mp4
 endlocal
