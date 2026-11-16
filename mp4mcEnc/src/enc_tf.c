@@ -169,7 +169,7 @@ static double *nok_tmp_DTimeSigBuf[MAX_TIME_CHANNELS]; /* temporary fix to the b
 /*static enum WIN_SWITCH_MODE win_switch_mode = STATIC_LONG; */      /* Only long windows */
 /*static enum WIN_SWITCH_MODE win_switch_mode = LS_STARTSTOP_SEQUENCE ;*/   /* Start-stop windows */
 /*static enum WIN_SWITCH_MODE win_switch_mode = LONG_SHORT_SEQUENCE;*/     /* Cycle through windows */
-static enum WIN_SWITCH_MODE win_switch_mode = FFT_PE_WINDOW_SWITCHING;  /* PE switching */
+static enum WIN_SWITCH_MODE win_switch_mode = STATIC_LONG;  /* Only long windows: avoids short-window noise */
 static enum WINDOW_TYPE last_block_type[MAX_TIME_CHANNELS];
 static enum WINDOW_TYPE desired_block_type[MAX_TIME_CHANNELS];
 static enum WINDOW_TYPE next_desired_block_type[MAX_TIME_CHANNELS];
@@ -257,6 +257,14 @@ char *EncTfInfo (
 
 void EncTfFree (void)
 {
+}
+
+/* EncTfGetProfile() */
+/* Return AAC profile selected by EncTfInit() (enum AAC_PROFILE). */
+
+int EncTfGetProfile (void)
+{
+  return (int)profile;
 }
 
 
@@ -355,6 +363,14 @@ void EncTfInit (
   if( strstr( encPara, "-lc" ) ) {
     profile = LOW;
     qc_select = AAC_QC;          /* disable prediction */
+  }
+
+  /* Check for window switching mode override: -wsm <mode>
+     0=STATIC_LONG 1=STATIC_SHORT 2=LS_STARTSTOP 5=LONG_SHORT_SEQ 6=FFT_PE */
+  if( (p_ctmp=strstr( encPara, "-wsm " )) ) {
+    if( sscanf( p_ctmp+5, "%d",(int*)&win_switch_mode ) == 0 ) {
+      CommonExit( 1, "Encode: parameter of -wsm switch not found" );
+    }
   }
 
 #ifdef MPEG4V1

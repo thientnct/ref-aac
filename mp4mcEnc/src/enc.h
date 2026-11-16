@@ -221,6 +221,11 @@ void EncLpcFree ();
 
 void EncTfFree (void);
 
+/* EncTfGetProfile() */
+/* Return AAC profile selected by EncTfInit() (enum AAC_PROFILE). */
+
+int EncTfGetProfile (void);
+
 /* ByteAlign(...), used to byte align bitstream */
 int ByteAlign(BsBitStream* ptrBs);
 
