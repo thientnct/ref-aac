@@ -1,0 +1,116 @@
+Readme file: README_platforms
+ 
+$Id: readme_platforms,v 1.1.1.2 1998-05-07 17:19:34+03 suonio Exp $
+ 
+Authors:
+HP    Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
+ 
+Changes:
+09-sep-96   HP    new
+10-sep-96   HP    updated IPC info
+26-sep-96   HP    updated PAN info
+07-nov-96   HP    updated NTT info, added library availability list
+12-nov-96   HP    updated
+15-nov-96   HP    updated
+10-dec-96   HP    updated NTT info
+07-feb-97   HP    updated Sony info
+12-feb-97   HP    updated Sony IPC info
+14-feb-97   HP    added PAN picola info
+14-mar-97   HP    removed libpicola.a & libdec_tf_uer.a
+**********************************************************************
+ 
+
+This file gives an incomplete list of the platforms (OS type and version)
+used by participants of the MPEG4 Audio VM software developement.
+
+This list is intended as an aid in resolving compile/link problems.
+
+Please feel free to add further details, comments, etc. to this list!
+
+Unfortunately Linux 2.0 uses a new library/binary format ("ELF") which is
+different from the format used in Linux 1.x. Therefore, only parts of the
+VM currently can be linked on a Linux system.
+
+
+Available libraries vs. platforms (14-feb-97)
+---------------------------------------------
+
+			SunOS	IRIX	Linux	Solaris
+			4.1.x	5.x	2.0	2.x
+
+common:
+  libtsp.a		OK	OK	OK	OK
+
+decoder:
+
+encoder:
+  libHVXC.a		OK	OK	OK	n/a
+  libLPC_pan.a		OK	OK	OK	n/a
+  libVQenc.a		OK	OK	OK	n/a
+  libenc_tf_uer.a	OK	OK	OK	OK
+  libuhd_psy.a		OK	OK	OK	OK
+  libgain_son_NBCpp.a	OK	OK	OK	n/a
+  libpqf_son_NBCpp.a	OK	OK	OK	n/a
+
+Notes:	OK  = library OK and up to date
+	old = library incompatible with current VM source code
+	n/a = not available
+
+	1.x in the Linux column indicates a Linux 1.x library
+	(incompatible with Linux 2.0 "ELF" libraries)
+
+
+MPEG4 Audio VM software platforms
+---------------------------------
+
+UHD
+  Heiko Purnhagen <purnhage@tnt.uni-hannover.de>
+
+  SunOS 4.1.3    g++ 2.7.2
+  IRIX 5.3       g++ 2.7.2
+  Linux 2.0      g++ 2.7.2
+  Solaris 2.5    g++ 2.7.2
+
+  gnu make 3.68 (or newer versions)
+
+
+UER
+  Bernhard Grill <grl@titan.lte.e-technik.uni-erlangen.de>
+
+  SunOS 4.1.x    ?????
+  IRIX 5         ?????
+  Linux 2.0      ?????
+  Solaris 2      ?????
+
+NTT
+  Naoki Iwakami <iwakami@splab.hil.ntt.jp>
+
+  SunOS 4.1.2    gcc 2.7.2
+  IRIX  5.3      gcc 2.7.2
+  Linux 2.0.0    gcc 2.7.2
+
+
+Sony IPC
+  Masayuki Nishiguchi <nishi@pcrd.sony.co.jp>
+
+  SunOs 4.1.4    g++ 2.7.2
+  IRIX 5.3       g++ 2.6.3 
+  Linux 2.0.28   ?????
+
+
+PAN
+  Naoya Tanaka <natanaka@telecom.mci.mei.co.jp>
+
+  SunOS 4.1.3    gcc 2.7.2
+  IRIX 5.2       gcc 2.7.2
+  Linux 2.0.23   gcc 2.7.2
+
+Sony
+  Takashi Koike <koike@av.crl.sony.co.jp>
+
+  SunOS 4.1.4,  g++ 2.7.2
+  IRIX  5.3,    g++ 2.6.3
+  Linux 2.0.28, g++ 2.7.2
+
+
+end of README_platforms

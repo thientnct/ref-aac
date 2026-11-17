@@ -1,0 +1,57 @@
+READMEstyle
+
+05-jul-96   Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
+
+
+
+During the AHG meeting in Erlangen there were some discussions about
+what to consider when writing a VM module. As a first basis for
+further discussion, the correspondig section of the AHG report
+(MPEG96/1068 July 1996) is appended here:
+
+
+
+Recommendations for VM modules (adaptation for existing modules may be
+postponed to later stages):
+
+ANSI C (C++ compilable/compiled), see N1214,
+
+example include file with extern "C" construct: indiline.h from Uni
+Hannover
+
+provisions against multiple declarations in case of multiple
+references to include files, example include file with "#ifdef"
+bracket: indiline.h from Uni Hannover
+
+debug level setting during initialization (proposal)
+
+access to command line args (or subsets) within modules (proposal)
+
+function names:
+
+  "visible" functions:		according to interface definitions
+
+  "invisible" functions:	preceded by XXX_ (XXX=company code)
+
+  use "static" modifier for functions called only from within the
+  source code module in which they are located -> invisible to the linker
+
+variables:
+
+  no global variables visible to the linker
+
+  use "static" modifier for variables accessed by different functions
+  within one source code module
+
+  in case there are global variables: name preceded by XXX_ (see above)
+
+  constants defined in "visible" header files preceded by XXX_ (see above)
+
+  no "static" memory (from call to call) within functions - important
+  for multichannel applications
+
+usage of unified visualization tools
+(proposal: matlab, needs further discussion)
+
+
+end of READMEstyle

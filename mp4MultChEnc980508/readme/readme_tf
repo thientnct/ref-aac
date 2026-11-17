@@ -1,0 +1,235 @@
+READMEtf   (old name: README_01)
+
+03-jul-96   BG    Bernhard Grill FhG/UER
+05-jul-96   HP    Heiko Purnhagen UHD
+
+
+HP: After some minor modifications of the frame work and BG's tf_enc.c
+and tf_dec.c (due to bit stream handling problems), BG's t/f code is
+now running within the common VM frame work!
+
+
+*******************************************************************************
+*****                     TF_VM                                           *****
+*****                             Version 0.1                             *****
+*******************************************************************************
+
+Please do not use vm0_tf_00.zip since this was just uploaded for Motorola
+to incorporate their modules. 
+
+vm0_tf_01.zip contains a complete directory structure to build a tf coder. 
+You need to set the environment variable SYSTEM_NAME to either 
+
+   SunOS
+   IRIX
+or Linux 
+
+Then type gmake (you need GNU-make!) in the root directory and a coder/decoder should
+be generated in the sunos / linux or sgi sub-directory.
+
+This coder includes the following:
+
+"Dummy" psychoacoustic module
+UER/FhG MDCT / IMDCT object modules
+UER/FhG Quantization and Coding
+
+Other than long blocks are supported, but since there is no automatic
+switching available yet the codec just runs with long blocks. Feel
+free to experiment and call the MDCT subroutines with other block-types
+(Q&C would work as they are compiled now, but the scale factor band tables /initialization
+for short blocks is missing currently ).
+
+If you type gmake T2F=SRC instead of just gmake the same coder /
+decoder will be produced but this time the Motorola supplied
+MDCT/IMDCT source code modules are used. They should produce (almost)
+the same results. Please note that these routines are probably a 100
+times slower, so be patient.  
+
+(Hint: if you have used gmake and want to use gmake T2F=SRC you have
+to remove the executables, since otherwise the makefile assumes they
+are up-to-date and does nothing!)
+
+
+
+In order to run the encoder type:
+
+mp4enc -m tf -r 64000 <audio-file>
+
+This will generate a bitstream file ending with .mp4
+
+the decoder is run with
+
+mp4dec <bitstream file>
+
+and generates an audio file with the .au ending.
+
+The bit reservoir is already in, but the control block is quite silly
+currently. Try 
+
+mp4enc -m tf -r 64000 -b 500 -d 3 <audio-file> 
+
+for a first experiment.
+
+
+*******************************************************************************
+*****                     TF_VM                                           *****
+*****                   Version 0.2                                       *****
+*******************************************************************************
+
+vm0_tf_02.zip contains a complete directory structure to build a tf coder. 
+You need to set the environment variable SYSTEM_NAME to either 
+
+   sunos
+   IRIX
+or linux 
+
+Then type gmake (you need GNU-make!) in the root directory and a coder/decoder should
+be generated in the sunos / linux or sgi sub-directory.
+
+This coder includes the following changes to Version 0.1:
+
+
+debug switching possibility for window type :
+
+-c "-wsm XX" allows to select long, short, medium or reasonable
+sequences ( see tf_main.h enum WIN_SWITCH_MODE for the available
+options for XX) Automatic switching still is not implemented. A public
+available FFT is required (please send me a mail, if you know where to
+get one).
+
+
+support for medium block sizes:
+
+-c "-wlp <long_size> <medium blocks in long> >short blocks in long>"
+e.g -c "-wlp 1024 2 8" selects an MDCT with 1024 shift len long, 512 medium 128 short
+
+the motorola source code sollution doesn't support medium sized
+blocks.  (Who can fix it ?) Also short blocks do not work. Hopefully
+somebody at Motorola can have a look.
+
+a command line like 
+
+mp4enc -m tf -r 1600000 -c "-qc_mdct16 -wsm XX -wlp 1024 2 8" <sound file>
+mp4dec <bitstream file>
+
+allows to experiment with different MDCT sizes by the mean of direct
+quantization/transmission of the MDCT coefficients (works for all
+window types).
+
+NTT's MDCT is another alternative to the UER lib and Motorola source.
+
+
+quantization and coding
+
+included is now Motorolas code although it is not functioning. I
+couldn't test it since my compilers didn't like the huftable file.
+
+NBC noiseless coding source code will follow tomorrow and will be
+another option to Motorola source code and UER Q&C
+
+Provision for an alternative selection of NTT's vector quantizer have
+been added.
+
+Q&C still needs a lot of work. Please do not consider the currently
+available code as anyhow stable.
+
+Merging of NBC noiseless coding and Motorolas code will be one of the
+next important tasks. NTT's coding will probably be an alternative
+path at first.
+
+
+psychoacoustic model
+
+a better source model is still depending on the availability of a free
+FFT (see also above) and volunteers to work on. Please contact me.
+
+B. Grill 20/08/96
+
+
+
+*******************************************************************************
+*****                     TF_VM                                           *****
+*****                   Version 0.3                                       *****
+*******************************************************************************
+
+This coder includes the following changes to Version 0.2a:
+
+
+inclusion of NTT's VQ coder :
+
+-c "-qc_ntt" selects the NTT's VQ coder.  Perceptual control
+of this coder can be done using both internal and external
+perceptual weight.  -c "-qc_ntt -ntt_pw_ext" enables
+external perceptual weight (default: internal).
+-c "-qc_ntt -ntt_valbit_on" enables variable number of frame
+bits.  But its control unit is missing.
+
+
+automatic switching for window type :
+
+-c "-wsm 10" allows automatic switching for selecting long,
+short, or medium sequences. ( see tf_main.h enum
+WIN_SWITCH_MODE for the available options for "-wsm XX")
+
+
+support for no-syncword transport stream:
+
+-c "-no_syncword" selects a transport stream mode which does 
+not contain syncwords.  This mode is tested with NTT_VQ
+coder only.
+
+
+quantization and coding:
+
+NTT's vector quantizer have been included.
+
+
+
+N. Iwakami 28/08/96
+
+
+
+*******************************************************************************
+*****                     TF_VM                                           *****
+*****                   Version 0.3a                                      *****
+*******************************************************************************
+
+This coder includes the following changes to Version 0.3:
+
+
+added __cplusplus compile option:
+
+Version 0.3 has some problem about compiling with g++.
+To avoid this, __cpluplus compile option is added in NTT_VQ
+source codes.  The library libVQenc.a is replaced by new one.
+
+N. Iwakami 29/08/96
+
+
+
+
+*******************************************************************************
+*****                     TF_VM                                           *****
+*****                   Version 0.4                                       *****
+*******************************************************************************
+
+decoder upload on 970321 to hannover,
+new features:
+decoder can read aac bitstreams without any header,
+fast mdct now in source (both for en- and decoder)  
+support medium blocksize  960 framelength (can be tested with 
+'-r 770000 -c -qc_mdct16 -wsm 6' or '-r 770000 -c -qc_mdct16_960 -wsm
+6') 
+decoder can decode aac bitstreams with 960 framelength.
+
+interface for plotmtv: 
+debugging tool for displaying 1-dim vectors in a X-window added,
+(see plotmtv_interf.c for more description)
+any 1-dim vectors can be display directy from the debugger command line.
+
+the VM can now be compiled with  irix 5.3 and irix 6.2 'CC' instead of
+g++ and with gcc instead of g++ on all systems 
+
+encoder libary enc_tf_uer no more used for aac , can be removed.
+
+a new VQ libary from NTT is necessary and will be uploaded soon

@@ -1,0 +1,742 @@
+**********************************************************************
+***                                                                ***
+***              MPEG-4 Audio Reference Software                   ***
+***                                                                ***
+**********************************************************************
+
+Content of README_usage
+=======================
+
+MPEG-4 Version 1:
+0   General
+1   HVXC
+2   CELP
+3   TwinVQ
+4   AAC scalable
+
+
+**********************************************************************
+**********************************************************************
+
+
+0  General
+==========
+
+As soon as the MPEG-4 file format specification will be stable
+
+  mp4audec -mp4ff bitstreamfilename -o ouputfilename          
+
+will decode files in ".mp4" file format as specified in MPEG-4 Version 2.
+No further swiches are necessary for paricular decoders since all necessary 
+information is in the file itself.
+
+Please note that the ".mp4" file format is not supported in the
+MPEG-4 Version 1 Audio Reference Software!
+
+
+**********************************************************************
+**********************************************************************
+
+
+
+1   HVXC
+========
+
+
+HVXC encoding/decoding is carried out using the reference software.
+
+Show below is example usages of the reference software
+as a HVXC encoder/decoder.
+
+
+1. Fixed rate 2000bps
+
+Encode:
+mp4auenc -eo .aif -r 2000 -c "m=hvx dm=0" -m par -pb encbit2k filename.aif 
+Decode:
+mp4audec -ed .aif -sf 1.0 -pf 1.0 -r 2000 -c "dm=1" encbit2k/filename.mp4 -o decout2k.aif
+
+
+input:filename.aif
+encoded bitstream: encbit2k/filename.mp4
+decoded output: decout2k.aif
+dm=0: low dealy mode encode
+dm=1: normal delay mode decode
+-pf: pitch control factor (default=1.0)
+-sf: speed control factor (default=1.0)
+
+
+2. Fixed rate 4000bps
+
+Encode:
+mp4auenc -eo .aif -r 4000 -c "m=hvx dm=0" -m par -pb encbit4k filename.aif  
+Decode:
+mp4audec -ed .aif -sf 1.0 -pf 1.0 -r 4000 -c "dm=1" encbit4k/filename.mp4 -o decout4k.aif
+
+input:filename.aif
+encoded bitstream: encbit4k/filename.mp4
+decoded output: decout4k.aif
+dm=0: low dealy mode encode
+dm=1: normal delay mode decode
+-pf: pitch control factor (default=1.0)
+-sf: speed control factor (default=1.0)
+
+
+3. Variable rate
+
+Encode:
+mp4auenc -eo .aif -vr -r 2000 -c "m=hvx dm=0 vr=1 ed=1" -m par -pb encbitvar filename.aif
+Decode:
+mp4audec -ed .aif -sf 1.0 -pf 1.0 -r 2000 -c "dm=1" encbitvar/filename.mp4 -o decout2k.aif
+
+input:filename.au
+encoded bitstream: encbitvar/filename.mp4
+decoded output: decout2k.aif
+
+
+4. Scalable decode
+
+Encoded bitstream at 4000 bps can also be decoded at 2000 bps, where a subset of
+4000 bps bitstream is used for decoding.
+
+Encode:
+mp4auenc -eo .aif -r 4000 -c "m=hvx dm=0" -m par -pb encbit4k filename.aif  
+Decode:
+mp4audec -ed .aif -r 2000 -sf 1.0 -pf 1.0 -c "dm=1" encbit4k/filename.mp4 -o decout2k.aif
+
+input:filename.aif
+encoded bitstream: encbit4k/filename.mp4
+decoded output: decout2k.aif
+
+
+**********************************************************************
+
+Shown below are the lists you can see by executing mp4auenc -h or mp4audec -h
+
+
+Encoder switches:
+
+usage: mp4auenc -switches <audio file(s)>
+switches: -h        print help
+          -m <x>    codec mode (par, lpc, tf, g729, g723) (dflt: par)
+          -r <x>    bit rate [bit/s] (dflt: 6000)
+          -vr       enable variable bit rate
+          -b <x>    bit reservoir size [bit] (dflt: 0)
+          -bi <x>   initial bit reservoir bits
+                    (dflt: bit reservoir size)
+          -c <x>    encoder parameter string (dflt: )
+          -ts <x>   start time of encoded region [sec] (dflt: 0)
+          -td <x>   duration of encoded region [sec]
+                    (dflt: until end of file)
+          -o <x>    output file name
+          -n <x>    number of audio channels for bit stream header
+                    (0=as input file) (dflt: 0)
+          -s <x>    sampling frequency [Hz] for bit stream header
+                    (0=as input file) (dflt: 0)
+          -po <x>   default path original audio files (dflt: $MP4_ORI_PATH)
+          -pb <x>   default path bit stream files (dflt: $MP4_BIT_PATH)
+          -eo <x>   original audio file extension
+                    supported file formats: .au, .snd, .wav, .aif, .raw
+                    (dflt: $MP4_ORI_FORMAT / .au)
+                    (raw format: $MP4_RAWAUDIOFILE)
+          -eb <x>   bit stream file extension (dflt: .mp4)
+          -ni       disable bit info string
+          -nh       disable mp4 bit stream header
+          -ms <x>   bit stream magic string (dflt: .mp4)
+          -d <x>    main debug level (dflt: 0)
+          -da <x>   audio file debug level (dflt: 0)
+          -db <x>   bit stream debug level (dflt: 0)
+          -dc <x>   cmd line debug level (dflt: 0)
+          -dq <x>   quantizer  debug level (dflt: 0)
+
+parametric encoder core V5.0 12-nov-97
+encoder parameter string format:
+  list of tokens (tokens separated by characters in " ,=")
+
+token list format: switches
+switches: h          print help
+          m <x>      parametric codec mode (hvx, il, swit, mix) (dflt: il)
+          dm <x>     HVXC delay mode (0=short 1=long) (dflt: 0)
+          vr <x>     HVXC variable rate mode (0=fixed 1=var)
+                     (set frame work option -vr) (dflt: 0)
+          mm <x>     HVXC/IL mix mode (2ch: L=HVXC R=IL, use with -n 1)
+                     (0=HVXC 1=HVXC2+IL 2=HVXC4+IL 3=IL  -=cycle periode)
+                     (dflt: 1)
+          dl <x>     debug level (dflt: 0)
+          dli <x>    debug level individual lines (dflt: 0)
+          fd <x>     frame duration [sec] (dflt: 0.032)
+          mnl <x>    max num individual lines
+          mlf <x>    max line frequency
+          me <x>     max num envelopes (1=il/harm 2=+noise) (dflt: 1)
+          mh <x>     max num harmonic tones (dflt: 1)
+          mhl <x>    max num lines of harmonic tone (dflt: 64)
+          mn <x>     max num noise paramters (dflt: 16)
+          hie <x>    harm/indi enha flag (0=basic 1=enha) (dflt: 0)
+          hibr <x>   harm/indi basic bit rate (dflt: full rate)
+          hiq <x>    harm/indi quant mode (-1=auto 0..3) (dflt: -1)
+          hieq <x>   harm/indi enha quant mode (-1=auto 0..3) (dflt: -1)
+          hicm <x>   harm/indi continue mode (0=hi, 1=hi&ii) (dflt: 0)
+          iecm <x>   indi encoder continue mode (0=cont 1=no-cont) (dflt: 0)
+          bsf <x>    HILN bitstream format (0=VM 1=9705 2=CD) (dflt: 2)
+          clas <x>   for test only
+                     (classifier mode 0=pause req. 1=no pause req.) (dflt: 0)
+          test <x>   for test only
+                     (hvxc/il alternate periode +=IL/HVXC/.. -=HVXC/IL/..)
+                     (dflt: 0)
+          ed <x>     HVXC only mode encoder delay comp.: 0=0/20ms 1=6/26ms
+                     (dflt: 0)
+
+
+Decoded Switches:
+
+usage: mp4audec -switches <bit stream file(s)>
+switches: -h          print help
+          -r <x>      decoder bit rate for scalability [bit/s]
+                      (dflt: encoder bit rate)
+          -n <x>      number of audio channels (0=as original) (dflt: 0)
+          -s <x>      sampling frequency [Hz] (0=as original) (dflt: 0)
+          -sf <x>     speed change factor (dflt: 1)
+          -pf <x>     pitch change factor (dflt: 1)
+          -c <x>      decoder parameter string ("-c h" for help) (dflt: )
+          -ts <x>     start time of decoded region [sec] (dflt: 0)
+          -td <x>     duration of decoded region [sec]
+                      (dflt: until end of bit stream)
+          -o <x>      output file name
+          -pb <x>     default path bit stream files (dflt: $MP4_BIT_PATH)
+          -pd <x>     default path decoded audio files (dflt: $MP4_DEC_PATH)
+          -eb <x>     bit stream file extension (dflt: .mp4)
+          -ed <x>     decoded audio file extension
+                      supported file formats: .au, .snd, .wav, .aif, .raw
+                      (dflt: $MP4_DEC_FORMAT / .au)
+                      (raw format: integer16, native)
+          -t          test bit stream (decoder disabled)
+          -d <x>      main debug level (dflt: 0)
+          -da <x>     audio file debug level (dflt: 0)
+          -db <x>     bit stream debug level (dflt: 0)
+          -dc <x>     cmd line debug level (dflt: 0)
+          -daac <x>   [a-Z] Debug Options for aac-Decoder (dflt: )
+          -picola     speed control by PICOLA
+          -aaceof     AAC bitstream end detection
+
+parametric decoder core V5.0 12-nov-97
+decoder parameter string format:
+  list of tokens (tokens separated by characters in " ,=")
+
+token list format: switches
+switches: h          print help
+          dm <x>     HVXC delay mode (0=short 1=long) (dflt: 0)
+          dl <x>     debug level (dflt: 0)
+          dli <x>    debug level individual lines (dflt: 0)
+          noi        disable indiline synthesis
+          noh        disable harm synthesis
+          non        disable noise synthesis
+          npf <x>    noise para factor (dflt: 1.0)
+          hie <x>    harm/indi enha flag
+                     (0=basic 1=enha 2=no-scalable-enha) (dflt: 0)
+          pnl <x>    initial number of prev. indilines
+                     (-1=unknown for start at arbitrary frame) (dflt: 0)
+          hicm <x>   harm/indi continue mode
+                     (-1=bitstream 0=hi, 1=hi&ii) (dflt: -1)
+          bsf <x>    HILN bitstream format (0=VM 1=9705 2=CD) (dflt: 2)
+          nos        disable stretching
+          cdf <x>    line continuation df (dflt: 1.05)
+          cda <x>    line continuation da (dflt: 4.0)
+          rsp <x>    random startphase (0=sin(0) 1=sin(rnd)) (dflt: 1)
+          test <x>   for test only (1=hvxc 2=il) (dflt: 0)
+
+
+
+**********************************************************************
+[HVXC update 990218]
+
+     usage of newly implemented HVXC core.
+    (HVXC in parametric core still exists)
+
+    [fixed rate 2kbps]
+    mp4auenc -m hvxc -r 2000 -c "dm=0" -o <bitstream file> <input file(.au)> 
+    mp4audec -sf 1.0 -pf 1.0 -c "dm=1" -o <output file(.au)> <bitstream file>
+
+    encode: short delay mode
+    decode: normal delay mode, speed change factor=1, pitch change factor=1
+            speed change factor can be given by using option "-sf <x>".
+	    (possible variation is from 0.5 to 2.0)
+            pitch change factor can be given by using option "-pf <x>".
+	    (possible variation is from 0.5 to 2.0)
+
+    [fixed rate 4kbps]
+    mp4auenc -m hvxc -r 4000 -c "dm=0" -o <bitstream file> <input file(.au)> 
+    mp4audec -sf 1.0 -pf 1.0 -c "dm=1" -o <output file(.au)> <bitstream file>
+
+    [variable rate]
+    mp4auenc -m hvxc -vr -r 2000 -c "dm=0" -o <bitstream file> <input file(.au)> 
+    mp4audec -sf 1.0 -pf 1.0 -c "dm=1" -o <output file(.au)> <bitstream file>
+
+    [scalable decode]
+    mp4auenc -m hvxc -r 4000 -c "dm=0" -o <bitstream file> <input file(.au)> 
+    mp4audec -sf 1.0 -pf 1.0 -r 2000 -c "dm=1" -o <output file(.au)> <bitstream file>
+ 
+    encoded bitstream at 4000 bps can also be decoded at 2000 bps, where a subset of
+    4000 bps bitstream is used for decoding.
+
+[HVXC update 990616]
+switches:
+    -hvxc_sys	encode/decode system interface(flexmux)
+
+    usage of encode/decode with system interface(flexmux)
+    (only single layer of HVXC supported)
+
+    [fixed rate 2kbps]
+    mp4auenc -m hvxc -r 2000 -c "-hvxc_sys" -o <bitstream file> <input file> 
+    mp4audec -sf 1.0 -pf 1.0 -c "-hvxc_sys" -o <output file> <bitstream file>
+
+    [fixed rate 4kbps]
+    mp4auenc -m hvxc -r 4000 -c "-hvxc_sys" -o <bitstream file> <input file> 
+    mp4audec -sf 1.0 -pf 1.0 -c "-hvxc_sys" -o <output file> <bitstream file>
+
+    [variable rate]
+    mp4auenc -m hvxc -r 2000 -vr -c "-hvxc_sys vr=1" -o <bitstream file> <input file> 
+    mp4audec -sf 1.0 -pf 1.0 -c "-hvxc_sys" -o <output file> <bitstream file>
+
+**********************************************************************
+**********************************************************************
+
+2   CELP
+========
+
+
+Usage of the MPEG-4 Reference Software - CELP RPE modes
+-------------------------------------------------------
+
+CELP ENCODER (RPE modes)
+
+To use the MPEG-4 Reference Software to encode MPEG-4 CELP bitstreams,
+the following CELP specific encoder parameter string options are available:
+
+       e <0/1> : Multi-Pulse Excitation (0) or Regular-Pulse Excitation (1)
+       f <0/1> : Fine Rate Control OFF (0) or ON (1)
+       p <0/1> : Pre-processing OFF (0) or ON (1)
+       d <0/1> : Debug Level OFF (0) or ON (1)
+
+The input must be a file with one channel of PCM audio sampled at 16 kHz.
+
+When FineRate Control is ON, the -vr switch is required in order to
+enable variable bitrate. In this case, the -b option must be used to
+indicate the input buffer size (expressed in bits) that will be
+required in the MPEG-4 decoder. The default value is -b 6000.
+
+The table below lists some examples on how to use the MPEG-4 Audio
+Reference Software to create MPEG-4 CELP bitstreams at several
+bitrates. Note that when FineRate Control is OFF, only one bitrate is
+available for each RPE Configuration. When FineRate Control is ON, the
+bitrate can be selected within a limited range for each RPE
+Configuration. For detailed information, please refer to ISO/IEC
+14496-3 Subpart 3, MPEG-4 CELP Audio.
+
+
+RPE                          FineRate     Example
+Configuration:  Bitrate:     Control:     invokement:
+-------------------------------------------------------------------------------------------------------------------------
+   0            14400 bps    OFF          mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 0 p 1" -r 14400 -b 0 -d 1
+   1            16000 bps    OFF          mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 0 p 1" -r 16000 -b 0 -d 1
+   2            18667 bps    OFF          mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 0 p 1" -r 18667 -b 0 -d 1
+   3            22533 bps    OFF          mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 0 p 1" -r 22533 -b 0 -d 1
+
+   0            13500 bps    ON           mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 1 p 1" -r 13500 -vr -b 8000 -d 1
+   1            15400 bps    ON           mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 1 p 1" -r 15400 -vr -b 8000 -d 1
+   2            18000 bps    ON           mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 1 p 1" -r 18000 -vr -b 8000 -d 1
+   3            21500 bps    ON           mp4auenc -m lpc -o .\out.mp4 .\in.wav -c "e 1 f 1 p 1" -r 21500 -vr -b 8000 -d 1
+
+
+CELP DECODER (RPE modes)
+
+To use the MPEG-4 Reference Software to decode MPEG-4 CELP bitstreams,
+the following CELP specific decoder parameter string options are
+available:
+
+       p <0/1>         : Post filter OFF (0) or ON (1). Default: OFF
+       d <0/1>         : Debug Level OFF (0) or ON (1). Default: OFF
+
+The output will be a file with one channel of PCM audio at 16 kHz
+sampling rate.
+
+The table below lists some examples on how to use the MPEG-4 Audio
+Reference Software to decode MPEG-4 CELP bitstreams. The operation of
+the optional postfilter can be selected by the p parameter.
+
+Postfiter:      Example invokement:
+----------------------------------------------------------------
+  OFF           mp4audec -o .\out.wav .\in.mp4 -c "p 0" -d 1
+  ON            mp4audec -o .\out.wav .\in.mp4 -c "p 1" -d 1
+
+
+**********************************************************************
+
+The following is usages of the MPEG-4 CELP reference software.
+
+Encoder Usage:
+--------------------------------------------------------
+LPC-based encoder core V5.0 13-nov-97
+Usage:
+     mp4auenc -m lpc -r <rate> -c "<options>" <speech file>
+      where <rate> is the desired bit rate
+            <speech file> is a 8kHz/16kHz speech file
+            <options> are:
+                e <0/1> : Multi-Pulse Excitation (0) or Regular-Pulse Excitation (1)
+                n <NumEnhStage> : the number of enhancement layers 
+                f <0/1> : Fine Rate Control OFF (0) or ON (1)
+                b <NBbitrate> : the bitrate for NarrowBand speech in the BandWidthScalable coder
+                p <0/1> : Pre-processing OFF (0) or ON (1)
+                d <0/1> : Debug Level OFF (0) or ON (1)
+
+--------------------------------------------------------
+
+Decoder Usage:
+--------------------------------------------------------
+CELP-based decoder core V5.0 13-nov-97
+Usage: mp4audec -c "<options>" <name bitstream file>
+       where <options> are:
+             n <DecEnhStage> : Decoded number of enhancement layers (0, 1, 2, 3)
+             b <0/1>         : Decoding NarrowBand speech (0) or WideBand speech (1)
+             p <0/1>         : Post filter OFF (0) or ON (1). Default: OFF
+             d <0/1>         : Debug Level OFF (0) or ON (1). Default: OFF
+--------------------------------------------------------
+
+The following is examples of command line options for the
+MPEG-4 CELP (MPE mode) encoder/decoder.
+
+1. Narrowband/Wideband without scalability mode 
+
+Encode:
+mp4auenc -m lpc -r <rate> -c "e=0,n=0,f=0,b=0,p=1" input.wav -o bitstream.mp4
+
+input.wav:         input speech file [8/16 kHz] (wav format)
+bitstream.mp4:     encoded bitstream file (mp4 format)
+e=0:               multi-pulse excitation mode
+n=0:               number of enhancement layers for bitrate scalable mode.
+                   "0" indicates encoding without bitrate scalability.
+f=0:               FineRateControl is off.
+b=0:               bitrate for narrowband core CELP in the bandwidth 
+                   scalable mode.
+                   "0" indicates encoding without bandwidth scalability.
+p=1:               pre-processing is on.
+rate:              the following bitrates are supported.
+                   Narrowband mode:
+                    3850,  4250,  4650,  4900,  5200,  5500,  6200,
+                    5700,  6000,  6300,  6900,  7100,  7300,  7700,
+                    8300,  8700,  9100,  9500,  9900, 10300, 10500,
+                   10700, 11000, 11400, 11800, 12000, 12200
+                   Wideband mode:
+                   10900, 11500, 12100, 12700, 13300, 13900, 14300,
+                   14700, 15900, 17100, 17900, 18700, 19500, 20300,
+                   21100, 13600, 14200, 14800, 15400, 16000, 16600,
+                   17000, 17400, 18600, 19800, 20600, 21400, 22200,
+                   23000, 23800
+
+Decode:
+mp4audec -c "p=1" bitstream.mp4 -o decout.wav
+
+bitstream.mp4:     encoded bitstream file (mp4 format)
+decout.wav:        decoded speech file [8/16 kHz] (wav format)
+p=1:               post-filter is on.
+
+2. Narrowband/Wideband bitrate scalable mode 
+
+Encode:
+mp4auenc -m lpc -r <rate> -c "e=0,n=num,f=0,b=0,p=1" input.wav -o bitstream.mp4
+
+input.wav:         input speech file [8/16 kHz] (wav format)
+bitstream.mp4:     encoded bitstream file (mp4 format)
+e=0:               multi-pulse excitation mode
+n=num:             number of enhancement layers for bitrate scalable mode.
+                   The available values are "1", "2" and "3".
+f=0:               FineRateControl is off.
+b=0:               bitrate for narrowband core CELP in the bandwidth 
+                   scalable mode.
+                   "0" indicates encoding without bandwidth scalability.
+p=1:               pre-processing is on.
+rate:              Total bitrate of core layer and enhancement layers.
+
+                   Narrowband mode: rate = core_rate + num * 2000
+                   Wideband mode:   rate = core_rate + num * 4000
+
+                   where core_rate indicates bitrate of core layer
+                   (see example 1).
+
+Decode:
+mp4audec -c "n=dnum,p=1" bitstream.mp4 -o decout.wav
+
+bitstream.mp4:     encoded bitstream file (mp4 format)
+decout.wav:        decoded speech file [8/16 kHz] (wav format)
+p=1:               post-filter is on.
+n=dnum:            number of enhancement layers to be decoded.
+                   The available values are equal to or less than 
+                   "num" for encoding.
+
+3. Bandwidth scalable mode 
+
+Encode:
+mp4auenc -m lpc -r <rate> -c "e=0,n=0,f=0,b=nbrate,p=1" input.wav -o bitstream.mp4
+
+input.wav:         input speech file [16 kHz] (wav format)
+bitstream.mp4:     encoded bitstream file (mp4 format)
+e=0:               multi-pulse excitation mode
+n=0:               number of enhancement layers for bitrate scalable mode.
+                   "0" indicates encoding without bitrate scalability.
+f=0:               FineRateControl is off.
+b=nbrate:          bitrate for narrowband core CELP in the bandwidth 
+                   scalable mode.
+p=1:               pre-processing is on.
+rate:              Total bitrate of core layer and enhancement layer.
+
+                   rate = nbrate + bwsrate
+
+                   where nbrate indicates bitrate of core layer
+                   (see example 1).
+                   The available bitrates for enchancement layer can 
+                   be selected from 4 descrete spteps for each core layer
+                   bitrate as follows:
+                    3850 <= nbrate <=  4650:  9200, 10400, 11600, 12400
+                    4900 <= nbrate <=  5500:  9467, 10667, 11867, 12677
+                    5700 <= nbrate <= 10700: 10000, 11200, 12400, 13200
+                   11000 <= nbrate <= 12200: 11600, 12800, 14000, 14800
+
+Decode for Naorrowband:
+mp4audec -c "b=0,p=1" bitstream.mp4 -o decout.wav
+
+bitstream.mp4:     encoded bitstream file (mp4 format)
+decout.wav:        decoded speech file [8 kHz] (wav format)
+p=1:               post-filter is on.
+b=0:               "0" indicates decoding narrowband speech.
+
+Decode for Wideband:
+mp4audec -s 16000 -c "b=1,p=1" bitstream.mp4 -o decout.wav
+
+bitstream.mp4:     encoded bitstream file (mp4 format)
+decout.wav:        decoded speech file [16 kHz] (wav format)
+p=1:               post-filter is on.
+b=1:               "1" indicates decoding wideband speech.
+
+
+
+**********************************************************************
+**********************************************************************
+
+3   TwinVQ
+==========
+
+
+gmake makedirs
+gmake TF=1 VERSION=1 ERRORCONCEALMENT=0 STATISTICS=0 all
+
+switch           description                              default
+
+-core_br         bitrtae for core [bit/s]                  8000.0
+	         priority is higher than -r option
+-tvq_wshape      enable KB window                          sine window
+-tvq_tns         enable tns                                tns off
+-tvq_960         set frame length 960                      1024
+-tvq_bandlimit   enable bandlimit                          bandlimit off
+-tvq_ppc         enable ppc(periodic peak component)       ppc off
+-tvq_postproc    enable postprocess                        postproc off
+-tvq_msmask1     enable ms_mask mode 1                     ms_mask=0 or 2
+
+
+#TV00
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 8000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+ -c "-mp4ff -core_coder 10 -mode 0  -core_br 8000" -r 9400 ABBA.08
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA8.8raw
+
+#TV01
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_wshape -core_br 16000"\
+-r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA16.16raw
+
+#TV02
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -pred_ltp -core_br 16000" -r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA16.16raw
+
+#TV03
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_tns -core_br 16000" -r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff  "  ABBA -ed raw -o ABBA16.16raw
+
+#TV04
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_960 -core_br 16000" -r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff  "  ABBA -ed raw -o ABBA16.16raw
+
+#TV05
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_bandlimit -core_br 16000" \
+-r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA16.16raw
+
+#TV06
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_ppc -core_br 16000" -r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA16.16raw
+
+#TV07
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -tvq_postproc -core_br 16000" \
+-r 18400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff "  ABBA -ed raw -o ABBA16.16raw
+
+#TV08
+-------no bitstream
+
+#TV09
+-------no bitstream
+
+#TV10
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 2, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 1  -tvq_msmask1 -core_br 16000 -nttScl 16000" \
+-r 38400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 0"  ABBA -ed raw -o ABBA8.16raw
+
+#TV11
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 16000.0, native, 2, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 1  -tvq_msmask1 -core_br 16000 -nttScl 16000"\
+-r 38400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 1"  ABBA -ed raw -o ABBA88.16raw
+
+#TV12
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 24000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -core_br 8000 -nttScl 8000 8000"\
+-r 38400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 0"  ABBA -ed raw -o ABBA8.24raw
+
+#TV13
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 24000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -core_br 8000 -nttScl 8000 8000"\
+-r 38400 ABBA.16
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 1"  ABBA -ed raw -o ABBA88.24raw
+
+#TV14
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 24000.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -core_br 8000 -nttScl 8000 8000"\
+-r 38400 ABBA.24
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 2"  ABBA -ed raw -o ABBA888.24raw
+
+#TV15
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 48000.0, native, 2, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 1  -core_br 32000 -nttScl 32000 32000" \
+-r 120000 ABBA.48
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 2" ABBA -ed raw -o ABBA161616.48raw
+
+#TV16
+setenv MP4_RAWAUDIOFILE "integer16, 0 , 44100.0, native, 1, 1.0"
+<platform>_v1/mp4auenc -d 1 -m tf \
+-c "-mp4ff -core_coder 10 -mode 0  -core_br 12000 -nttScl 12000 12000 12000 12000 12000 12000 12000" \
+-r 120000 ABBA.44
+<platform>_v1/mp4audec -d 1 -c "-mp4ff -out 7"  ABBA -ed raw -o ABBA12_8.44raw
+
+
+
+**********************************************************************
+**********************************************************************
+
+4   AAC scalable
+================
+
+
+Compilation:
+------------
+
+gmake makedirs
+gmake TF=1 LPC=1 VERSION=1 all
+
+
+Operation modes:
+----------------
+
+-aac_raw         plain MPEG-2 AAC encoding/decoding mode
+-aac_sca         old AAC scalable mode (now obsolete)
+-aac_sys         AAC scalable mode with systems bitstream syntax
+
+
+Switches:
+---------
+
+-aac_tns                   enable Temporal Noise Shaping
+-aac_pns <start band>      enable Perceptual Noise substitution
+-pred_ltp                  enable Nokia Long Term Predictor
+
+
+Options for the scalable mode:
+------------------------------
+
+-mode <n>                  selects the number of layers and the channel configuration
+-core_coder <n>            selects the core coder type (TVQ or CELP)
+
+
+Examples:
+---------
+
+Plain AAC:
+----------
+mp4auenc -m tf -c "-aac_raw -aac_tns" -r <bitrate>  <input file> -o <bitstream file>
+mp4audec -c "-aac_raw" -aaceof  <bitstream file> -o <decoded file> -s <sampling freq> -n <num channels> 
+
+
+Scalable AAC:
+-------------
+
+1 TVQ layer only (mode 0):
+-----------------------------
+mp4auenc -m tf -c "-aac_sys -mode 0 -core_br <bitrate>"  <input file> -o <bitstream file>
+mp4audec -c "-mp4ff -out <x>" -aaceof <bitstream file> -o <decoded file>
+
+
+1 AAC layer only (mode 2):
+--------------------------
+mp4auenc -m tf -c "-aac_sys -mode 2" -r <bitrate>  <input file> -o <bitstream file>
+mp4audec -c "-mp4ff -out <x>" -aaceof <bitstream file> -o <decoded file>
+
+
+1 TVQ + 1 AAC layer (mode 4):
+-----------------------------
+mp4auenc -m tf -c "-aac_sys -mode 4 -core_br <core bitrate>" -r <bitrate>  <input file> -o <bitstream file>
+mp4audec -c "-mp4ff -out <x>" -aaceof <bitstream file> -o <decoded file>
+
+
+1 TVQ + 2 AAC layer (mode 7):
+-----------------------------
+mp4auenc -m tf -c "-aac_sys -mode 7 -core_br <core bitrate>" -r <bitrate>  <input file> -o <bitstream file>
+mp4audec -c "-mp4ff -out <x>" -aaceof <bitstream file> -o <decoded file>
+
+
+2 AAC layers (mode 11):
+-----------------------
+mp4auenc -m tf -c "-aac_sys -mode 11" -r <bitrate>  <input file> -o <bitstream file>
+mp4audec -c "-mp4ff -out <x>" -aaceof <bitstream file> -o <decoded file>
+
+
+for further informations, please contact:
+
+alm@iis.fhg.de
+tmn@iis.fhg.de
+
+
+
+**********************************************************************
+**********************************************************************
+
+--
+$Id: README_usage,v 1.9 1999/08/09 16:23:43 purnhage Exp $

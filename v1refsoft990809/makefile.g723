@@ -1,0 +1,65 @@
+#-*-makefile-*- do not remove, it's for emacs!
+#----------------------------------------------------------------------
+# MPEG-4 Audio VM
+# makefile.g723
+#
+# $Id: makefile.g723,v 1.1 1997/11/07 12:57:54 purnhage Exp $
+#
+# Authors:
+# SE    Sebastien Etienne, Jean Bernard Rault, CCETT <jbrault@ccett.fr>
+#
+# Changes:
+# 05-may-97   SE        first version
+#----------------------------------------------------------------------
+
+# disable G723 dummy
+OBJS_DEC_G723 =
+OBJS_ENC_G723 =
+OBJS_ALL_G723 =
+
+# G723 mode
+OBJS_ENC_G723 +=codcng2.o\
+		coder2.o\
+		deccng2.o\
+		decod2.o\
+		exc2.o\
+		lpc2.o\
+		lsp2.o\
+		tab2.o\
+		util2.o\
+		utilcng2.o\
+		vad2.o\
+		g723_coder.o\
+		enc_g723.o
+
+OBJS_DEC_G723 +=codcng2.o\
+		coder2.o\
+		deccng2.o\
+		decod2.o\
+		exc2.o\
+		lpc2.o\
+		lsp2.o\
+		tab2.o\
+		util2.o\
+		utilcng2.o\
+		vad2.o\
+		g723_decoder.o\
+		dec_g723.o
+
+OBJS_ALL_G723 +=codcng2.o\
+		coder2.o\
+		deccng2.o\
+		decod2.o\
+		exc2.o\
+		lpc2.o\
+		lsp2.o\
+		tab2.o\
+		util2.o\
+		utilcng2.o\
+		vad2.o\
+		g723_coder.o\
+		enc_g723.o \
+		g723_decoder.o\
+		dec_g723.o
+# end of makefile.g723
+

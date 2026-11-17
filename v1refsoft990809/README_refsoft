@@ -1,0 +1,272 @@
+**********************************************************************
+***                                                                ***
+***              MPEG-4 Audio Reference Software                   ***
+***                                                                ***
+**********************************************************************
+
+
+
+Content of README_refsoft
+=========================
+
+1   About MPEG-4 Audio Reference Software
+2   Further Information
+3   ISO Copyright Header
+4   How to compile and run this software
+5   Audio File I/O
+
+
+
+1   About MPEG-4 Audio Reference Software
+=========================================
+
+This is the MPEG-4 Audio Version 1 Reference Software for Natural
+Audio and Speech Coding.  It was developed by many contributors in the
+course of development of the MPEG-2 AAC / MPEG-4 Audio standard
+ISO/IEC 13818-7, 14496-3.  This software is an implementation of a
+part of one or more MPEG-4 Audio tools as specified by the standard.
+
+
+
+2   Further Information
+=======================
+
+Further information about MPEG-4 Audio is available on the following
+sites:
+
+The official MPEG Home Page:
+  http://www.cselt.it/mpeg
+
+MPEG Audio Web Page:
+  http://www.tnt.uni-hannover.de/project/mpeg/audio/
+
+MPEG Audio ftp server:
+  ftp://ftp.tnt.uni-hannover.de/pub/MPEG/audio/
+
+
+
+3   ISO Copyright Header
+========================
+
+All files of the Reference Software have the following copyright
+header:
+
+
+This software module was originally developed by
+
+FirstName LastName (CompanyName)
+
+and edited by
+
+FirstName LastName (CompanyName)
+FirstName LastName (CompanyName)
+
+in the course of development of the MPEG-2 NBC/MPEG-4 Audio standard
+ISO/IEC 13818-7, 14496-1,2 and 3. This software module is an
+implementation of a part of one or more MPEG-2 NBC/MPEG-4 Audio tools
+as specified by the MPEG-2 NBC/MPEG-4 Audio standard. ISO/IEC gives
+users of the MPEG-2 NBC/MPEG-4 Audio standards free license to this
+software module or modifications thereof for use in hardware or
+software products claiming conformance to the MPEG-2 NBC/ MPEG-4 Audio
+standards. Those intending to use this software module in hardware or
+software products are advised that this use may infringe existing
+patents. The original developer of this software module and his/her
+company, the subsequent editors and their companies, and ISO/IEC have
+no liability for use of this software module or modifications thereof
+in an implementation. Copyright is not released for non MPEG-2
+NBC/MPEG-4 Audio conforming products. The original developer retains
+full right to use the code for his/her own purpose, assign or donate
+the code to a third party and to inhibit third party from using the
+code for non MPEG-2 NBC/MPEG-4 Audio conforming products. This
+copyright notice must be included in all copies or derivative works.
+
+Copyright (c) 1999.
+
+
+
+4   How to compile and run this software
+========================================
+
+The Reference Software is written in ANSI C and is C++ compilable.  It
+can be compiled and linked on UNIX/Linux platforms using GNU's gcc/g++
+and GNU's make.  For other compilers and platforms, the makefile might
+require adaption to your local environment.
+
+
+4.1   Directory structure
+-------------------------
+
+vm/
+	README_refsoft			(this file)
+	README_usage			HOWTO use the executables
+	makefile*			makefiles
+	src_frame/*			frame work source code (decoder)
+	src_frame_enc/*			frame work source code (encoder)
+	src_par*/*			PARA core source code
+	src_lpc*/*			CELP core source code
+	src_tf*/*			T/F core source code
+	include/			library include files (decoder)
+	include_enc/			library include files (encoder)
+	tables/				runtime data tables (decoder)
+	tables_enc/			runtime data tables (encoder)
+	linux/				platform: Linux
+		lib/			libraries
+	linux_v1_g++/			platform: Linux with g++
+		mp4auenc		encoder executable
+		mp4audec		decoder executable
+		obj/			object files
+	sgi/				platform: SGI (IRIX)
+	sol/				platform: Solaris
+	cdk/				platform: Cygnus's cygwin
+
+
+4.2   Making the executables
+----------------------------
+
+Before making the Reference Software executables, set the environment
+variable SYSTEM_NAME according to your software platform (e.g.: IRIX,
+Linux, Solaris, cdk):
+
+  setenv SYSTEM_NAME Linux
+
+Now make can be invoked:
+
+  cd vm
+  make
+
+The executables are placed into a platform- and compiler-dependent
+directory, e.g.
+
+  linux_v1_g++
+
+for Linux using the g++ compiler.  Such directories are generated
+automatically by the makefile if required.
+
+To make use of the AFsp library supporting various audio file formats
+(see Section 5.1 for further details), invoke make with the appropriate
+option:
+
+  make clean
+  make USE_AFSP=1
+
+Instead of specifying this option on the command line, you can also
+write it as
+
+  USE_AFSP = 1
+
+into the configuration file:
+
+  makefile.cfg
+
+For further available options, check the makefile and its sub-makefiles:
+
+  makefile.par
+  makefile.lpc
+  makefile.tf
+
+
+4.3   Running the encoder and decoder
+-------------------------------------
+
+Before running the Reference Software, you can set the following
+environment variables according to your local path names, audio file
+formats etc.:
+
+MP4_ORI_PATH       path for original audio files
+MP4_BIT_PATH       path for bit stream files
+MP4_DEC_PATH       path for decoded audio files
+MP4_ORI_FORMAT     format of original audio files
+MP4_DEC_FORMAT     format of decoded audio files
+MP4_RAWAUDIOFILE   raw audio file format - to read headerless files
+                   using the AFsp library
+                   (sample format, num header bytes, sampling rate,
+                   byte order, num channels, gain factor)
+
+Example:
+
+  setenv MP4_ORI_PATH /data/mp4/ori/
+  setenv MP4_BIT_PATH /data/mp4/bit/
+  setenv MP4_DEC_PATH /data/mp4/dec/
+  setenv MP4_ORI_FORMAT .au
+  setenv MP4_DEC_FORMAT .au
+  setenv MP4_RAWAUDIOFILE "integer16, 0, 8000.0, native, 1, 1.0"
+
+Invoke the encoder and decoder with the option -h to get a list of the
+command line options available, e.g.:
+
+  linux_v1_g++/mp4auenc -h
+  linux_v1_g++/mp4audec -h
+
+The following example encodes the file test.au (mono, 8 kHz sampling
+rate) to the bit stream file test_hvx.mp4 and then decodes this bit
+stream to the file test_hvx.au using the HVXC mode (parametric speech
+coding) at 2 kbit/s:
+
+  linux_v1_g++/mp4auenc -d 1 -m hvxc -r 2000 test -o test_hvx
+  linux_v1_g++/mp4audec -d 1 -ed .au test_hvx
+
+Further information about the operation of the encoder and decoder is
+available in the file:
+
+  README_usage
+
+
+
+5   Audio File I/O
+==================
+
+All audio file i/o of the Reference Software is handled via the
+audio.h interface.  The current implementation of audio.c uses the
+austream.c module included in the Reference Software to provide
+support for 16-bit ".au" files.  To provide support for other common
+audio file formats (like ".wav" and ".aiff"), the audio.c module can
+make use of the AFsp library.
+
+
+5.1   The AFsp Audio File I/O Package
+-------------------------------------
+
+The AFsp package provides audio file routines and is written by Peter
+Kabal <kabal@TSP.EE.McGill.CA>.  It is available via ftp:
+
+WWW site:		http://www.TSP.EE.McGill.CA/software.html
+ftp site:		ftp://ftp.TSP.EE.McGill.CA/pub/AFsp
+mirror site:		ftp://ftp.tnt.uni-hannover.de/pub/audio/AFsp
+
+The Natural Audio Reference Software has been tested with the
+following AFsp versions:
+
+  AFsp-V3R2.tar.Z
+  AFsp-v4r1.tar.gz
+
+To make the libtsp library, unpack the AFsp distribution, change into
+the directory "libtsp" and start make.  Then you can install libtsp in
+your default include and library paths or set the environment
+variables AFSP_INCLUDE_PATH and AFSP_LIBRARY_PATH to the appropriate
+directories, e.g.:
+
+  setenv AFSP_INCLUDE_PATH /usr/AFsp-v4r1/include
+  setenv AFSP_LIBRARY_PATH /usr/AFsp-v4r1/lib
+
+To build the Reference Software with AFsp support, use the USE_AFSP=1
+makefile option:
+
+  make clean
+  make USE_AFSP=1
+
+
+5.2   Excerpt from the AFsp Copying file
+----------------------------------------
+
+Copyright (C) 1998 Peter Kabal
+ 
+The AFsp audio file routines are provided free of charge without warranty of
+any kind.  All components are copyrighted.  They may be distributed free of
+charge provided that the recipients also acquire the right to distribute them.
+In no case can this software be incorporated into a work which is distributed
+for a fee.
+ 
+
+
+--
+$Id: README_refsoft,v 1.5 1999/07/26 13:17:56 purnhage Exp $

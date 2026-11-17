@@ -1,0 +1,95 @@
+#-*-makefile-*- do not remove, it's for emacs!
+#----------------------------------------------------------------------
+# MPEG-4 Audio VM
+# makefile.lpc
+#
+# $Id: makefile.g729,v 1.2 1997/05/09 14:37:48 purnhage Exp $
+#
+# Authors:
+# SE   Sebastien ETIENNE, CCETT Rennes 
+#
+# Changes:
+# 26-mar-97   SE        first version
+#----------------------------------------------------------------------
+
+# disable G729 dummy
+OBJS_DEC_G729 =
+OBJS_ENC_G729 =
+
+# G729 mode
+OBJS_ENC_G729 +=acelp_co.o\
+		basic_op.o\
+		cod_ld8k.o\
+		dspfunc.o\
+		filter.o\
+		gainpred.o\
+		lpc.o\
+		lpcfunc.o\
+		lspgetq.o\
+		oper_32b.o\
+		p_parity.o\
+		pitch.o\
+		pre_proc.o\
+		pred_lt3.o\
+		pwf.o\
+		qua_gain.o\
+		qua_lsp.o\
+		tab_ld8k.o\
+		g729_coder.o\
+		util_g729.o\
+                enc_g729.o
+
+
+OBJS_DEC_G729 +=basic_op.o\
+		de_acelp.o\
+		dec_gain.o\
+		dec_lag3.o\
+		dec_ld8k.o\
+		dspfunc.o\
+		filter.o\
+		gainpred.o\
+		lpcfunc.o\
+		lspdec.o\
+		lspgetq.o\
+		oper_32b.o\
+		p_parity.o\
+		post_pro.o\
+		pred_lt3.o\
+		pst.o\
+		util_g729.o\
+		tab_ld8k.o\
+		g729_decoder.o\
+               dec_g729.o
+OBJS_ALL_G729 =basic_op.o\
+		de_acelp.o\
+		dec_gain.o\
+		dec_lag3.o\
+		dec_ld8k.o\
+		dspfunc.o\
+		gainpred.o\
+		lpcfunc.o\
+		lspdec.o\
+		lspgetq.o\
+		oper_32b.o\
+		p_parity.o\
+		post_pro.o\
+		pred_lt3.o\
+		pst.o\
+		tab_ld8k.o\
+		g729_decoder.o\
+		dec_g729.o\
+		acelp_co.o\
+		cod_ld8k.o\
+		filter.o\
+		lpc.o\
+		pitch.o\
+		pre_proc.o\
+		pwf.o\
+		qua_gain.o\
+		qua_lsp.o\
+		util_g729.o\
+		g729_coder.o\
+                enc_g729.o
+
+# end of makefile.g729
+
