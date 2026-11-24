@@ -66,8 +66,12 @@ must be included in all copies or derivative works. Copyright 1996.
 #include <stdio.h>
 #include <math.h>
 
+#ifdef USE_RUNTIME_CODEBOOK_FILE
 static int table_choice = 5;      /* CHOOSE HERE BETWEEN TABLES 4 or 5 */
 static  int huff[13][1090][4];
+#else
+#include "rm5hufbook.h"
+#endif
 static int qdebug;
 static double pow_quant[9000];
 /* 
@@ -164,11 +168,12 @@ int  pns_sfb_start = 1000;         /* lower border for Perceptual Noise Substitu
 #endif
 void tf_init_encode_spectrum_aac( int debugLevel )
 {
+  unsigned int   j;
+  qdebug = debugLevel;
+#ifdef USE_RUNTIME_CODEBOOK_FILE
   FILE *fpout;
   short  tmpc[4];
-  unsigned int   j;
   int *huff_ptr= &(huff[0][0][0]);
-  qdebug = debugLevel;
   /*
     This function reads either one of the two set of huffman codebook tables into huff[][][].
     */
@@ -193,7 +198,7 @@ void tf_init_encode_spectrum_aac( int debugLevel )
     fprintf(stderr,"\nInvalid value of table_choice=%d, please choose either 4 or 5\n",table_choice);
     exit(-1);
   }
- 
+
   for (j=0;j<sizeof(huff)/sizeof(huff[0][0][0]) ;j++){
     tmpc[3] = getc(fpout);
     tmpc[2] = getc(fpout);
@@ -204,7 +209,8 @@ void tf_init_encode_spectrum_aac( int debugLevel )
   /*   THIS IS NOT PROTABLE !!: */
   /*   i = fread(huff,sizeof(int),13*1090*4,fpout); */
 
-  fprintf(stderr,"\nread %d huffman codebook values \n",j); 
+  fprintf(stderr,"\nread %d huffman codebook values \n",j);
+#endif
   for (j=0;j<9000;j++){
     pow_quant[j]=pow(j, ((double)4.0/(double)3.0));
   }

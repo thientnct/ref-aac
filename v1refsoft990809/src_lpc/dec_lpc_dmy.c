@@ -159,5 +159,17 @@ void DecLpcInitNew (
   CommonExit(1,"DecLpcInitNew: dummy");
 }
 
+
+/* lpcframelength() */
+/* Return CELP frame length in samples (dummy). */
+/* Only referenced by mp4audec.c object-descriptor path; not used for
+   raw AAC bit streams. */
+
+int lpcframelength( CELP_SPECIFIC_CONFIG *celpConf )
+{
+  (void)celpConf;
+  return 160;
+}
+
 /* end of dec_lpc_dmy.c */
 

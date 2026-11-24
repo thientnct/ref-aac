@@ -830,6 +830,15 @@ void EncTfInit (
   if( (transport_stream != AAC_RAWDATA_TSTREAM) && 
       (transport_stream != NO_TSTREAM) && (qc_select !=NTT_VQ_SYS)) { /* T.Ishikawa 980525 */
 	  fprintf(stderr,"Warning : Write some header information\n");
+    if (numChannel == 1) {
+      channel_configuration = CHC_MONO;
+    } else if (numChannel == 2) {
+      channel_configuration = CHC_DUAL;
+    } else if (numChannel >= 5) {
+      channel_configuration = CHC_5CHAN;
+    } else {
+      channel_configuration = CHC_DUAL;
+    }
     BsPutBit( header_stream, 0x1234, 16 );
     BsPutBit( header_stream, bit_rate, 24 );
     BsPutBit( header_stream, sampling_rate, 24 );

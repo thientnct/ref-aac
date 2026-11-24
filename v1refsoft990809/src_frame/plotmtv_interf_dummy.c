@@ -4,11 +4,15 @@
 #define D(a) {const void *dummyfilepointer; dummyfilepointer = &a;}
 #include <stdio.h>
 #include <string.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <stdarg.h>          /* variable artgument list */
 #include <stdlib.h>
+#ifndef WIN32
 #include <sys/wait.h>
 #include <sys/stat.h>
+#endif
 #include <fcntl.h>
 #include <math.h>
 #include "plotmtv.h"

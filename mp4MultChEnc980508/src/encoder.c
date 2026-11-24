@@ -1,4 +1,4 @@
-/**********************************************************************
+﻿/**********************************************************************
 MPEG-4 Audio VM
 Encoder frame work
 
@@ -100,6 +100,8 @@ Changes:
 
 #include "mp4.h"	/* frame work declarations */
 #include "enc.h"	/* encoder cores */
+#include "tf_main.h"	/* AAC_PROFILE enum */
+#include "mp4mux.h"	/* MP4 container muxer */
 
 /* ---------- declarations ---------- */
 
@@ -125,11 +127,12 @@ static int outFileNameUsed;
 static char *oriPath,*bitPath;
 static int oriPathUsed,bitPathUsed;
 static char *oriExt,*bitExt;
-static int oriExtUsed;
+static int oriExtUsed,bitExtUsed;
 static int noInfo;
 static int noHeader;
 static char *magicString;
 static int mainDebugLevel,audioDebugLevel,bitDebugLevel,cmdDebugLevel,quantDebugLevel;
+static int mp4OutFlag;
 static int *varArgIdx;
 
 #ifdef PLOTMTV
@@ -168,7 +171,7 @@ static CmdLineSwitch switchList[] = {
    "supported file formats: .au, .snd, .wav, .aif, .raw\n"
    "(dflt: $" MP4_ORI_FMT_ENV " / " MP4_ORI_EXT ")\n"
    "(raw format: $" MP4_ORI_RAW_ENV ")"},
-  {"eb",&bitExt,"%s",".aac",NULL,"bit stream file extension"},
+  {"eb",&bitExt,"%s",".aac",&bitExtUsed,"bit stream file extension"},
   {"ni",&noInfo,NULL,NULL,NULL,"disable bit info string"},
   {"nh",&noHeader,NULL,NULL,NULL,"disable mp4 bit stream header"},
   /*  {"ms",&magicString,"%s",MP4_MAGIC,NULL,"bit stream magic string"},*/
@@ -177,6 +180,7 @@ static CmdLineSwitch switchList[] = {
   {"db",&bitDebugLevel,"%i","0",NULL,"bit stream debug level"},
   {"dc",&cmdDebugLevel,"%i","0",NULL,"cmd line debug level"},
   {"dq",&quantDebugLevel,"%i","0",NULL,"quantizer  debug level"},
+  {"mp4",&mp4OutFlag,NULL,NULL,NULL,"write MP4 container instead of raw bit stream"},
   {NULL,NULL,NULL,NULL,NULL,NULL}
 };
 
@@ -200,7 +204,8 @@ static int Encode (
   int noHeader,			/* in: disable bit stream header */
   char *magicString,		/* in: bit stream magic string */
   float regionStart,		/* in: start time of region */
-  float regionDurat)		/* in: duration of region */
+  float regionDurat,		/* in: duration of region */
+  int mp4Out)			/* in: write MP4 container */
 				/* returns: 0=OK  1=error */
 { 
   float fSample;
@@ -277,7 +282,7 @@ static int Encode (
     if (fileNumSample == 0)
       encNumSample = -1;
     else
-      encNumSample = max(0,fileNumSample-startSample);
+      encNumSample = max(0,(fileNumSample-startSample)*numChannel);
 
   /* init encoder */
   bitHeader = BsAllocBuffer(BITHEADERBUFSIZE);
@@ -333,10 +338,32 @@ static int Encode (
     if ((sampleBuf[ch]=(float*)malloc(frameNumSample*sizeof(float)))==NULL)
       CommonExit(1,"Encode: memory allocation error");
 
+  /* MP4 container output validation */
+  if (mp4Out) {
+    int profile = EncTfGetProfile();
+    if (profile != MAIN && profile != LOW)
+      CommonExit(1,"Encode: -mp4 supports only Main or Low Complexity profile");
+    if (numChannel != 1 && numChannel != 2)
+      CommonExit(1,"Encode: -mp4 supports only mono or stereo");
+  }
+
   /* disable any header for now */
   noHeader=1;
 
   /* open bit stream file */
+  if (mp4Out) {
+    int profile = EncTfGetProfile();
+    int audioObjType = (profile == LOW) ? 2 : 1;  /* LC=2, Main=1 */
+    int chanCfg = numChannel;                     /* 1=mono, 2=stereo */
+    int flFlag = (frameNumSample == 960) ? 1 : 0;
+    if (MP4MuxOpen(bitFileName,(unsigned long)fSampleLong,chanCfg,
+                   (unsigned long)bitRateLong,frameNumSample,flFlag,
+                   audioObjType))
+      CommonExit(1,"Encode: error opening MP4 file %s",bitFileName);
+    BsFreeBuffer(bitHeader);
+    bitStream = NULL;
+    headerNumBit = 0;
+  } else {
   if (!noHeader)
     bitStream = BsOpenFileWrite(bitFileName,magicString,info);
   else
@@ -356,6 +383,7 @@ static int Encode (
   headerNumBit = BsCurrentBit(bitStream);
   if (mainDebugLevel >= 3)
     printf("headerNumBit=%d\n",headerNumBit);
+  }
 
   /* num frames to start up encoder due to delay compensation */
   startupNumFrame = (delayNumSample+frameNumSample-1)/frameNumSample;
@@ -432,8 +460,13 @@ static int Encode (
       if (usedNumBit > frameAvailNumBit)
 	CommonExit(1,"Encode: more bits used than available in frame+buffer");
 
+      if (mp4Out) {
+        if (MP4MuxAddFrame(bitBuf))
+          CommonExit(1,"Encode: error writing MP4 sample");
+      } else {
       if (BsPutBuffer(bitStream,bitBuf))
 	CommonExit(1,"Encode: error writing bit stream data");
+      }
 
       /* write padding bits */
       padNumBit = 0;
@@ -443,9 +476,11 @@ static int Encode (
 	  printf("padNumBit=%d\n",padNumBit);
 
         if (padNumBit!=0) CommonExit(1,"Should be no padding bits for AAC (fill_elements)."); 
-	for (i=0; i<padNumBit; i++)
-	  if (BsPutBit(bitStream,0,1))
-	    CommonExit(1,"Encode: error writing bit stream padding bits");
+	if (!mp4Out) {
+	  for (i=0; i<padNumBit; i++)
+	    if (BsPutBit(bitStream,0,1))
+	      CommonExit(1,"Encode: error writing bit stream padding bits");
+	}
 	totPadNumBit += padNumBit;
       } /* if (usedNumBit < minBitsNoOverflow) */
 
@@ -478,12 +513,12 @@ static int Encode (
   if (mainDebugLevel >= 1 && mainDebugLevel <= 3)
     printf(" \n");
 
-  totDataNumBit = BsCurrentBit(bitStream)-headerNumBit-totPadNumBit;
+  totDataNumBit = mp4Out ? 0 : BsCurrentBit(bitStream)-headerNumBit-totPadNumBit;
 
   if (mainDebugLevel >= 3) {
     printf("totNumFrame=%d\n",frame);
     printf("totNumSample=%ld\n",totNumSample);
-    printf("totNumBit=%ld\n",BsCurrentBit(bitStream));
+    printf("totNumBit=%ld\n",mp4Out ? 0L : BsCurrentBit(bitStream));
     printf("totDataNumBit=%ld  (%.3f bit/frame  %.3f bit/sec)\n",
 	   totDataNumBit,totDataNumBit/(float)frame,
 	   totDataNumBit/(float)frame*fSample/frameNumSample);
@@ -506,8 +541,13 @@ static int Encode (
   AudioClose(audioFile);
   
   /* close bit stream file */
+  if (mp4Out) {
+    if (MP4MuxClose())
+      CommonExit(1,"Encode: error closing MP4 file");
+  } else {
   if (BsClose(bitStream))
     CommonExit(1,"Encode: error closing bit stream file");
+  }
 
   /* free buffers */
   if (numChannel>1)
@@ -588,6 +628,8 @@ int main (int argc, char *argv[])
     oriPath = getenv(MP4_ORI_PATH_ENV);
   if (!bitPathUsed)
     bitPath = getenv(MP4_BIT_PATH_ENV);
+  if (mp4OutFlag && !bitExtUsed)
+    bitExt = ".mp4";
   if (!oriExtUsed)
     oriExt = getenv(MP4_ORI_FMT_ENV);
   if (oriExt==NULL)
@@ -685,7 +727,8 @@ int main (int argc, char *argv[])
 	       noInfo ? "" : info,noHeader,
 	       magicString,
 	       regionStart,
-	       regionDurat))
+	       regionDurat,
+               mp4OutFlag))
       CommonWarning("error encoding audio file %s",oriFileName);
 
     fileIdx++;

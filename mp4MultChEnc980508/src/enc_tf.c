@@ -148,7 +148,7 @@ static double *nok_tmp_DTimeSigBuf[MAX_TIME_CHANNELS]; /* temporary fix to the b
 /*static enum WIN_SWITCH_MODE win_switch_mode = STATIC_LONG;*/            /* Only long windows */
 /*static enum WIN_SWITCH_MODE win_switch_mode = LS_STARTSTOP_SEQUENCE ;*/   /* Start-stop windows */
 /*static enum WIN_SWITCH_MODE win_switch_mode = LONG_SHORT_SEQUENCE;*/     /* Cycle through windows */
-static enum WIN_SWITCH_MODE win_switch_mode = FFT_PE_WINDOW_SWITCHING;     /* PE switching */
+static enum WIN_SWITCH_MODE win_switch_mode = STATIC_LONG;            /* Only long windows */
 static enum WINDOW_TYPE last_block_type[MAX_TIME_CHANNELS];
 static enum WINDOW_TYPE desired_block_type[MAX_TIME_CHANNELS];
 static enum WINDOW_TYPE next_desired_block_type[MAX_TIME_CHANNELS];
@@ -211,6 +211,14 @@ char *EncTfInfo (
 
 void EncTfFree ()
 {
+}
+
+/* EncTfGetProfile() */
+/* Return AAC profile selected by EncTfInit() (enum AAC_PROFILE). */
+
+int EncTfGetProfile (void)
+{
+  return (int)profile;
 }
 
 
@@ -778,7 +786,7 @@ void EncTfFrame (
 #else   /* Gain control calls bypassed */
       BsPutBit(gc_stream[chanNum],0,LEN_GAIN_PRES); /* switches off the gain control */
       used_bits += LEN_GAIN_PRES;
-      printf("PP_AAC not defined \n");	
+      if (debugLevel>=2) printf("PP_AAC not defined \n");
 #endif
   }
     

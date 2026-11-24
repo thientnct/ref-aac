@@ -97,7 +97,8 @@ void EncLpcInit (
   int varBitRate,		/* in: variable bit rate       */
   int *frameNumSample,		/* out: num samples per frame */
   int *delayNumSample,		/* out: encoder delay (num samples) */
-  BsBitBuffer *bitHeader)	/* out: header for bit stream */
+  BsBitBuffer *bitHeader,	/* out: header for bit stream */
+  ENC_FRAME_DATA* frameData)	/* out: system interface */
 {
   CommonExit(1,"EncLpcInit: dummy");
 }

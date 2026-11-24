@@ -195,6 +195,11 @@ void EncParFree ();
 void EncLpcFree ();
 
 
+/* EncTfGetProfile() */
+/* Return AAC profile selected by EncTfInit() (enum AAC_PROFILE). */
+
+int EncTfGetProfile (void);
+
 /* EncTfFree() */
 /* Free memory allocated by t/f-based encoder core. */
 

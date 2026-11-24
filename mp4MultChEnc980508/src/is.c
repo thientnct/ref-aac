@@ -49,6 +49,7 @@ void ISEncode(double *spectrum[MAX_TIME_CHANNELS],   /* array of pointers to spe
   int lineNum,line_offset;
   double sum,diff;
   int startWindow,stopWindow,w;
+  int prevIsPosition;
 
   /* Look for channel_pair_elements */
   for (chanNum=0;chanNum<numberOfChannels;chanNum++) {
@@ -77,6 +78,7 @@ void ISEncode(double *spectrum[MAX_TIME_CHANNELS],   /* array of pointers to spe
 	  minBand = (block_type[rightChan]==ONLY_SHORT_WINDOW) ? IS_MIN_BAND_S : IS_MIN_BAND_L;
 	  minBand = (minBand>maxSfb) ? maxSfb : minBand;
 	  startWindow=0;
+	  prevIsPosition = 0;
 	  for (g=0;g<numGroups;g++) {
 
 	    int numWindows;
@@ -112,9 +114,29 @@ void ISEncode(double *spectrum[MAX_TIME_CHANNELS],   /* array of pointers to spe
 		}
 	      }
 	      b = g*maxSfb+sfbNum;
-	      ratio = energy_l/energy_r;
+	      /* Take ratio.  */
+	      ratio = (energy_l+1)/(energy_r+1);
 	      log_ratio = 2.0 * log(ratio) / log(2.0);
 	      is_position = (int) floor( log_ratio + 0.5);
+
+	      /* Limit is_position, this will always keep     */
+	      /* at least a little energy in the left channel */
+              if (is_position>MAX_IS_POSITION) {
+		is_position = MAX_IS_POSITION;
+	      }
+              if (is_position<MIN_IS_POSITION) {
+		is_position = MIN_IS_POSITION;
+	      }
+
+	      /* Make sure differential can be encoded with sf hufftable */
+              if ((is_position-prevIsPosition)>MAX_IS_DIFF) {
+		is_position = MAX_IS_DIFF+prevIsPosition;
+	      }
+              if ((is_position-prevIsPosition)<MIN_IS_DIFF) {
+		is_position = MIN_IS_DIFF+prevIsPosition;
+	      }
+	      prevIsPosition = is_position;
+
 	      isInfo->fac[b] = is_position;
 	      quantInfo[rightChan].scale_factor[b] = is_position;
 	      isInfo->is_used[b] = 1;  /* Enable IS */

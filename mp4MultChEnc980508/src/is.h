@@ -42,6 +42,10 @@ Copyright(c)1996.
 
 #define IS_MIN_BAND_L 28
 #define IS_MIN_BAND_S 7
+#define MIN_IS_POSITION -15
+#define MAX_IS_POSITION 15
+#define MAX_IS_DIFF 60
+#define MIN_IS_DIFF -60
 
 void ISEncode(double *spectrum[MAX_TIME_CHANNELS],   /* array of pointers to spectral data */
 	      Ch_Info *channelInfo,                  /* Pointer to Ch_Info */

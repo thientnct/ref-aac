@@ -4,44 +4,47 @@ Audio i/o module
 
 
 
-This software module was originally developed by
+SC 29 Software Copyright Licencing Disclaimer:
 
-Heiko Purnhagen (University of Hannover)
+This software module was originally developed by
+  Heiko Purnhagen (University of Hannover / ACTS-MoMuSys)
 
 and edited by
+  -
 
-in the course of development of the MPEG-2 NBC/MPEG-4 Audio standard
-ISO/IEC 13818-7, 14496-1,2 and 3. This software module is an
-implementation of a part of one or more MPEG-2 NBC/MPEG-4 Audio tools
-as specified by the MPEG-2 NBC/MPEG-4 Audio standard. ISO/IEC gives
-users of the MPEG-2 NBC/MPEG-4 Audio standards free license to this
-software module or modifications thereof for use in hardware or
-software products claiming conformance to the MPEG-2 NBC/ MPEG-4 Audio
-standards. Those intending to use this software module in hardware or
-software products are advised that this use may infringe existing
-patents. The original developer of this software module and his/her
-company, the subsequent editors and their companies, and ISO/IEC have
-no liability for use of this software module or modifications thereof
-in an implementation. Copyright is not released for non MPEG-2
-NBC/MPEG-4 Audio conforming products. The original developer retains
-full right to use the code for his/her own purpose, assign or donate
-the code to a third party and to inhibit third party from using the
-code for non MPEG-2 NBC/MPEG-4 Audio conforming products. This
-copyright notice must be included in all copies or derivative works.
-
-Copyright (c) 1996.
+in the course of development of the ISO/IEC 13818-7 and ISO/IEC 14496-3 
+standards for reference purposes and its performance may not have been 
+optimized. This software module is an implementation of one or more tools as 
+specified by the ISO/IEC 13818-7 and ISO/IEC 14496-3 standards.
+ISO/IEC gives users free license to this software module or modifications 
+thereof for use in products claiming conformance to audiovisual and 
+image-coding related ITU Recommendations and/or ISO/IEC International 
+Standards. ISO/IEC gives users the same free license to this software module or 
+modifications thereof for research purposes and further ISO/IEC standardisation.
+Those intending to use this software module in products are advised that its 
+use may infringe existing patents. ISO/IEC have no liability for use of this 
+software module or modifications thereof. Copyright is not released for 
+products that do not conform to audiovisual and image-coding related ITU 
+Recommendations and/or ISO/IEC International Standards.
+The original developer retains full right to modify and use the code for its 
+own purpose, assign or donate the code to a third party and to inhibit third 
+parties from using the code for products that do not conform to audiovisual and 
+image-coding related ITU Recommendations and/or ISO/IEC International Standards.
+This copyright notice must be included in all copies or derivative works.
+Copyright (c) ISO/IEC 1996, 1999.
 
 
 
 Header file: audio.h
 
-$Id: audio.h,v 1.1.1.2 1998-05-07 17:21:17+03 suonio Exp $
+ 
 
 Required libraries:
 libtsp.a		AFsp audio file library
 
 Required modules:
 common.o		common module
+austream.o		audio i/o streams (.au format)
 
 Authors:
 HP    Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
@@ -49,6 +52,8 @@ HP    Heiko Purnhagen, Uni Hannover <purnhage@tnt.uni-hannover.de>
 Changes:
 21-jan-96   HP    born (using AFsp-V2R2)
 19-feb-97   HP    made internal data structures invisible
+30-dec-98   HP    uses austream for stdin/stdout, evaluates USE_AFSP
+07-jan-99   HP    AFsp-v4r1 (AFsp-V3R2 still supported)
 **********************************************************************/
 
 
@@ -58,13 +63,17 @@ The audio i/o module provides an interface to the basic functions for
 PCM audio data stream input and output.
 
 The current implementation of the audio i/o module is based on the
-AFsp audio library. Other implementations of this module are possible
-as long as the basic functions required by the MPEG-4 Audio VM
-framework are provided. Optional functions could be substituted by
-dummy functions and optional parameters could be ignored. The VM
-framework uses only sequential access to the input and output audio
-data streams. The seek function is only use for initial compensation
-of the coding delay in the encoder and decoder.
+AFsp audio library.  If USE_AFSP is undefined, only 16 bit .au files
+are supported using the austream module. Audio i/o on stdin/stdout
+(only 16 bit .au) is also based on the austream module.
+
+Other implementations of this module are possible as long as the basic
+functions required by the MPEG-4 Audio VM framework are provided.
+Optional functions could be substituted by dummy functions and
+optional parameters could be ignored.  The VM framework uses only
+sequential access to the input and output audio data streams.  The
+seek function is only use for initial compensation of the coding delay
+in the encoder and decoder.
 
 Basic functions and parameters required by the VM framework:
 
@@ -74,9 +83,8 @@ AudioReadData():	file, data, numSample
 AudioWriteData():	file, data, numSample
 AudioClose():		file
 
-
 NOTE: For multi channel audio files, the number of samples per channel
-      (numSample) is used as parameter!!! The total number of samples
+      (numSample) is used as parameter!!!  The total number of samples
       (numSample*numChannel) is not used here.
 
 **********************************************************************/
@@ -113,6 +121,7 @@ void AudioInit (
 
 AudioFile *AudioOpenRead (
   char *fileName,		/* in: file name */
+				/*     "-": stdin (only 16 bit .au) */
   int *numChannel,		/* out: number of channels */
   float *fSample,		/* out: sampling frequency [Hz] */
   long *numSample);		/* out: number of samples in file */
@@ -134,7 +143,8 @@ AudioFile *AudioOpenRead (
 
 AudioFile *AudioOpenWrite (
   char *fileName,		/* in: file name */
-  char *format,			/* in: file format */
+				/*     "-": stdout (only 16 bit .au) */
+  char *format,			/* in: file format (ignored if stdout) */
 				/*     (au, snd, wav, aif, raw) */
   int numChannel,		/* in: number of channels */
   float fSample);		/* in: sampling frequency [Hz] */
@@ -150,7 +160,7 @@ AudioFile *AudioOpenWrite (
 long AudioReadData (
   AudioFile *file,		/* in: audio file (handle) */
   float **data,			/* out: data[channel][sample] */
-				/*      (range [-32768 .. 32768]) */
+				/*      (range [-32768 .. 32767]) */
   long numSample);		/* in: number of samples to be read */
 				/*     (samples per channel!) */
 				/* returns: */
@@ -164,7 +174,7 @@ long AudioReadData (
 void AudioWriteData (
   AudioFile *file,		/* in: audio file (handle) */
   float **data,			/* in: data[channel][sample] */
-				/*     (range [-32768 .. 32768]) */
+				/*     (range [-32768 .. 32767]) */
   long numSample);		/* in: number of samples to be written */
 				/*     (samples per channel!) */
 
